@@ -23,3 +23,4 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.0" % "test"
 fork := true
 javaOptions in Compile += s"-DuniqueLibraryNames=true"
 
+mainClass in assembly := Some("de.fmantz.sudoku.SudokuSolver")

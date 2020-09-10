@@ -1,7 +1,6 @@
 # sbt
 # (may want to keep parts of 'project')
 bin/
-project/
 target/
 build/
 

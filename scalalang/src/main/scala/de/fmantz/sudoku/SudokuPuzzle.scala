@@ -75,6 +75,14 @@ class SudokuPuzzle {
   }
 
   override def toString: String = {
+    val buffer = new ListBuffer[String]
+    for (row <- 0 until Size) {
+      buffer.append(puzzle(row).mkString)
+    }
+    buffer.mkString("\n")
+  }
+
+  def toPrettyString = {
     val dottedLine = "-" * (Size * 3 + SquareSize - 1)
     val empty = "*"
     val buffer = new ListBuffer[String]
