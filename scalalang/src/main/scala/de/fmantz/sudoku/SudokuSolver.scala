@@ -31,6 +31,7 @@ object SudokuSolver {
 				}
 			})
 			write(outputFileName, puzzles)
+			println("output:" + new File(outputFileName).getAbsolutePath)
 			println(s"All sudoku puzzles solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")
 		}
 	}

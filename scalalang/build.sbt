@@ -1,5 +1,7 @@
+enablePlugins(ScalaNativePlugin)
+
 // The simplest possible sbt build file is just one line:
-scalaVersion := "2.13.0"
+scalaVersion := "2.11.12"
 // That is, to create a valid sbt build, all you've got to do is define the
 // version of Scala you'd like your project to use.
 
@@ -24,3 +26,5 @@ fork := true
 javaOptions in Compile += s"-DuniqueLibraryNames=true"
 
 mainClass in assembly := Some("de.fmantz.sudoku.SudokuSolver")
+
+nativeMode:="release"

@@ -15,7 +15,7 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
       val sudokuNumber = index + 1
       require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n $sudoku")
       sudoku.solve()
-      require(sudoku.isSolved, s"Sudoku $sudokuNumber is not solved:\n $sudoku")
+      require(sudoku.isSolved, s"Sudoku $sudokuNumber is not solved:\n ${sudoku.toPrettyString}")
     })
 
     println(s"All sudokus solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")

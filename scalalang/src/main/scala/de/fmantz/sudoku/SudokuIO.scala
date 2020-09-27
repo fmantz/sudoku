@@ -51,15 +51,4 @@ object SudokuIO {
 		}
 	}
 
-	def main(args: Array[String]): Unit = {
-		val path = this.getClass.getResource("/").getPath
-		val puzzles = read(s"$path/p096_sudoku.txt")
-		puzzles.zipWithIndex.foreach({ case (sudoku, index) =>
-			println(s"Soduko ${index + 1}")
-			println(sudoku.toPrettyString)
-			println()
-		})
-		write("output.txt", puzzles)
-	}
-
 }
