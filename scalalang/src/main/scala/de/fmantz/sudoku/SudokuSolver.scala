@@ -2,7 +2,7 @@ package de.fmantz.sudoku
 
 import java.io.File
 
-import de.fmantz.sudoku.SudokuIO.{read, write}
+import de.fmantz.sudoku.SudokuIO.{read, writeQQWing}
 
 object SudokuSolver {
 
@@ -17,6 +17,7 @@ object SudokuSolver {
 			val inputFile = new File(inputFileName)
 			val defaultOutputFileName = s"${inputFile.getParentFile.getPath}${File.separator}SOLUTION_${inputFile.getName}"
 			val outputFileName = args.tail.headOption.getOrElse(defaultOutputFileName)
+			println("input:" + inputFile.getAbsolutePath)
 			val puzzles = read(inputFileName)
 			puzzles.zipWithIndex.foreach({ case (sudoku, index) =>
 				if(sudoku.isSolved){
@@ -30,7 +31,7 @@ object SudokuSolver {
 					println(s"Sudoku ${index + 1} is unsolvable!")
 				}
 			})
-			write(outputFileName, puzzles)
+			writeQQWing(outputFileName, puzzles)
 			println("output:" + new File(outputFileName).getAbsolutePath)
 			println(s"All sudoku puzzles solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")
 		}

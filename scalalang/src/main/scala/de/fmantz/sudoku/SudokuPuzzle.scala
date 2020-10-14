@@ -14,10 +14,14 @@ class SudokuPuzzle {
   private val puzzle: Array[Array[Int]] = Array.ofDim[Int](Size, Size)
 
   private var open: Boolean = true
+  private var isEmpty: Boolean = true
+
+  def nonEmpty: Boolean = !this.isEmpty
 
   def set(row: Int, col: Int, value: Int): Unit = {
     if(open){
       puzzle(row)(col) = value
+      isEmpty = false
     }
   }
 
