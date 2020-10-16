@@ -2,7 +2,6 @@ package de.fmantz.sudoku
 
 object SudokuBitSet {
   private final val CheckBits = Integer.parseInt("1" * SudokuPuzzle.Size, 2) //binary to int
-  final val FirstInstance: SudokuBitSet = new SudokuBitSet()
 }
 
 class SudokuBitSet {

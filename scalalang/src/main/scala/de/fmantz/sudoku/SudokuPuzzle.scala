@@ -10,10 +10,14 @@ trait SudokuPuzzle {
   def toPrettyString: String
 }
 
-object SudokuPuzzle extends SudokuPuzzle {
-
+object SudokuPuzzle {
   final val Size = 9
   final val SquareSize = 3
+}
+
+class SudokuPuzzleImpl extends SudokuPuzzle {
+
+  import SudokuPuzzle._
 
   //state:
   private val puzzle: Array[Array[Int]] = Array.ofDim[Int](Size, Size)
@@ -38,7 +42,7 @@ object SudokuPuzzle extends SudokuPuzzle {
   override def isSolvable: Boolean = checkConditions(relaxed = true)
 
   /**
-   * solves the suduko by a simple backtracking algorithm (brute force)
+   * solves the sudoku by a simple backtracking algorithm (brute force)
    * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
    */
   override def solve(): Unit = {
@@ -115,7 +119,7 @@ object SudokuPuzzle extends SudokuPuzzle {
 
   @inline private def checkRow(
     row: Int,
-    bits: SudokuBitSet = SudokuBitSet.FirstInstance.init()
+    bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
     val selectedRow = puzzle(row)
     var col = 0
@@ -138,7 +142,7 @@ object SudokuPuzzle extends SudokuPuzzle {
 
   @inline private def checkCol(
     col: Int,
-    bits: SudokuBitSet = SudokuBitSet.FirstInstance.init()
+    bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
     var row = 0
     while (row < Size) {
@@ -162,7 +166,7 @@ object SudokuPuzzle extends SudokuPuzzle {
   @inline private def checkSquare(
     rowSquareIndex: Int,
     colSquareIndex: Int,
-    bits: SudokuBitSet = SudokuBitSet.FirstInstance.init()
+    bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
     val rowSquareOffset = rowSquareIndex * SquareSize
     val colSquareOffset = colSquareIndex * SquareSize
