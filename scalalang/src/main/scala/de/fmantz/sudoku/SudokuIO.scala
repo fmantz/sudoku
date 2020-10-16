@@ -13,25 +13,21 @@ object SudokuIO {
 	/**
 	 * Read usual 9x9 Suduko from text file
 	 */
-	def read(fileName: String): IndexedSeq[SudokuPuzzle] = {
+	def read(fileName: String): (BufferedSource, Iterator[SudokuPuzzle]) = {
 		val source: BufferedSource = Source.fromFile(fileName)
-		try {
-			new SudokuIterator(source.getLines()).toIndexedSeq
-		} finally {
-			source.close()
-		}
+		val iter = new SudokuIterator(source.getLines())
+		(source, iter)
 	}
 
   /**
    * Read Suduko to text file
    */
-  def write(fileName: String, puzzles: Seq[SudokuPuzzle]): Unit = {
+  def write(fileName: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
 		val writer = new PrintWriter(new File(fileName))
 		try {
-			val maxNumberLength = puzzles.length.toString.length
-			val pattern = s"%0${maxNumberLength}d"
+			val pattern = s"$NewSudokuSeperator %d"
 			puzzles.zipWithIndex.foreach({ case (sudoku, index) =>
-        writer.println(s"$NewSudokuSeperator ${pattern.format(index + 1)}")
+        writer.println(pattern.format(index + 1))
         writer.println(sudoku)
 				writer.flush()
 			})
@@ -40,7 +36,7 @@ object SudokuIO {
 		}
 	}
 
-	def writeQQWing(fileName: String, puzzles: Seq[SudokuPuzzle]): Unit = {
+	def writeQQWing(fileName: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
 		val writer = new PrintWriter(new File(fileName))
 		try {
 			puzzles.foreach({ sudoku =>

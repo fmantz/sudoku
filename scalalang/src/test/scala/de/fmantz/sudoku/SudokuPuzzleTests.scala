@@ -17,23 +17,28 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
   private def checkSolve(fileName: String): Unit = {
     val path = this.getClass.getResource("/").getPath
     val startTotal = System.currentTimeMillis()
-    read(fileName = s"$path/$fileName").zipWithIndex.foreach({ case (sudoku, index) =>
-      val sudokuNumber = index + 1
-      val input = sudoku.toString
-      require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n $sudoku")
-      sudoku.solve()
-      val output = sudoku.toString
-      require(sudoku.isSolved, s"Sudoku $sudokuNumber is not solved:\n ${sudoku.toPrettyString}")
-      require(input.length == output.length, "sudoku strings have not same length")
-      for (i <- input.indices) {
-        val in = input.charAt(i)
-        val out = output.charAt(i)
-        if (!isBlank(in) && in != out) {
-          input shouldBe output
+    val (source, puzzles) = read(fileName = s"$path/$fileName")
+    try {
+      puzzles.zipWithIndex.foreach({ case (sudoku, index) =>
+        val sudokuNumber = index + 1
+        val input = sudoku.toString
+        require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n $sudoku")
+        sudoku.solve()
+        val output = sudoku.toString
+        require(sudoku.isSolved, s"Sudoku $sudokuNumber is not solved:\n ${sudoku.toPrettyString}")
+        require(input.length == output.length, "sudoku strings have not same length")
+        for (i <- input.indices) {
+          val in = input.charAt(i)
+          val out = output.charAt(i)
+          if (!isBlank(in) && in != out) {
+            input shouldBe output
+          }
         }
-      }
-    })
-    println(s"All sudokus solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")
+      })
+      println(s"All sudokus solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")
+    } finally {
+      source.close()
+    }
   }
 
   def isBlank(c: Char): Boolean = {

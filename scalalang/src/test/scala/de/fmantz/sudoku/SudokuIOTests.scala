@@ -12,18 +12,28 @@ class SudokuIOTests extends AnyFlatSpec with Matchers {
 		val fileName = this.getClass.getResource("/").getPath + "/p096_sudoku.txt"
 		val expectedRs = readFile(fileName)
 		var counter = 0
-		SudokuIO.read(fileName).zipWithIndex.foreach({ case (read, index) =>
-			read.toString shouldBe expectedRs(index)
-			counter += 1
-		})
-		counter shouldBe 51
+		val (source, puzzles) = SudokuIO.read(fileName)
+		try {
+			puzzles.zipWithIndex.foreach({ case (read, index) =>
+				read.toString shouldBe expectedRs(index)
+				counter += 1
+			})
+			counter shouldBe 51
+		} finally {
+			source.close()
+		}
 	}
 
 	it should "correct number of documents" in {
 		val fileName = this.getClass.getResource("/").getPath + "/sudoku.txt"
 		val expectedLength = readFile(fileName).length
-		val readLength = SudokuIO.read(fileName).length
-		readLength shouldBe expectedLength
+		val (source, puzzles) = SudokuIO.read(fileName)
+		try {
+			val readLength = puzzles.length
+			readLength shouldBe expectedLength
+		} finally {
+			source.close()
+		}
 	}
 
 	private def readFile(fileName: String) : Array[String] = {
