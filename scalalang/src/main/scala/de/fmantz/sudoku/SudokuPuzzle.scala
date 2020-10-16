@@ -2,50 +2,46 @@ package de.fmantz.sudoku
 
 import scala.collection.mutable.ListBuffer
 
-object SudokuPuzzle {
-  final val Size = 9
-  final val SquareSize = 3
+trait SudokuPuzzle {
+  def set(row: Int, col: Int, value: Int): Unit
+  def isSolvable: Boolean
+  def isSolved: Boolean
+  def solve(): Unit
+  def toPrettyString: String
 }
 
-class SudokuPuzzle {
+object SudokuPuzzle extends SudokuPuzzle {
 
-  import SudokuPuzzle._
+  final val Size = 9
+  final val SquareSize = 3
 
+  //state:
   private val puzzle: Array[Array[Int]] = Array.ofDim[Int](Size, Size)
-
   private var open: Boolean = true
   private var isEmpty: Boolean = true
 
   def nonEmpty: Boolean = !this.isEmpty
 
-  def set(row: Int, col: Int, value: Int): Unit = {
+  override def set(row: Int, col: Int, value: Int): Unit = {
     if(open){
       puzzle(row)(col) = value
       isEmpty = false
     }
   }
 
-  def get(row: Int, col: Int): Int = {
-    puzzle(row)(col)
-  }
-
-  def isEmpty(row: Int, col: Int): Boolean = {
+  private def isEmpty(row: Int, col: Int): Boolean = {
     puzzle(row)(col) == 0
   }
 
-  def isDefined(row: Int, col: Int): Boolean = {
-    !isEmpty(row, col)
-  }
+  override def isSolved: Boolean = checkConditions(relaxed = false)
 
-  def isSolved: Boolean = checkConditions(relaxed = false)
-
-  def isSolvable: Boolean = checkConditions(relaxed = true)
+  override def isSolvable: Boolean = checkConditions(relaxed = true)
 
   /**
    * solves the suduko by a simple backtracking algorithm (brute force)
    * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
    */
-  def solve(): Unit = {
+  override def solve(): Unit = {
     def go(): Unit = {
       var row = 0
       var run = true
@@ -86,7 +82,7 @@ class SudokuPuzzle {
     buffer.mkString("\n")
   }
 
-  def toPrettyString = {
+  override def toPrettyString: String = {
     val dottedLine = "-" * (Size * 3 + SquareSize - 1)
     val empty = "*"
     val buffer = new ListBuffer[String]
@@ -113,7 +109,7 @@ class SudokuPuzzle {
    * @param relaxed true means it is still solvable, false it contains all possible numbers once
    */
   private def isRowOK(row: Int, relaxed: Boolean): Boolean = {
-    val bits = checkRow(row)
+    val bits: SudokuBitSet = checkRow(row)
     bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
   }
 
@@ -133,7 +129,7 @@ class SudokuPuzzle {
    * @param relaxed true means it is still solvable, false it contains all possible numbers once
    */
   private def isColOK(col: Int, relaxed: Boolean): Boolean = {
-    val bits = checkCol(col)
+    val bits: SudokuBitSet = checkCol(col)
     bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
   }
 
