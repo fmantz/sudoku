@@ -2,6 +2,7 @@ package de.fmantz.sudoku
 
 object SudokuBitSet {
   private final val CheckBits = Integer.parseInt("1" * SudokuPuzzle.Size, 2) //binary to int
+  final val FirstInstance: SudokuBitSet = new SudokuBitSet()
 }
 
 class SudokuBitSet {
@@ -11,6 +12,12 @@ class SudokuBitSet {
   //stores numbers as bits:
   private var bits: Int = 0
   private var notFoundBefore: Boolean = true
+
+  def init(): SudokuBitSet = {
+    bits = 0
+    notFoundBefore = true
+    this
+  }
 
   /**
    * Save a value

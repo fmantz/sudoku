@@ -113,7 +113,10 @@ object SudokuPuzzle extends SudokuPuzzle {
     bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
   }
 
-  @inline private def checkRow(row: Int, bits: SudokuBitSet = new SudokuBitSet): SudokuBitSet = {
+  @inline private def checkRow(
+    row: Int,
+    bits: SudokuBitSet = SudokuBitSet.FirstInstance.init()
+  ): SudokuBitSet = {
     val selectedRow = puzzle(row)
     var col = 0
     while (col < Size) {
@@ -133,7 +136,10 @@ object SudokuPuzzle extends SudokuPuzzle {
     bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
   }
 
-  @inline private def checkCol(col: Int, bits: SudokuBitSet = new SudokuBitSet): SudokuBitSet = {
+  @inline private def checkCol(
+    col: Int,
+    bits: SudokuBitSet = SudokuBitSet.FirstInstance.init()
+  ): SudokuBitSet = {
     var row = 0
     while (row < Size) {
       val value = puzzle(row)(col)
@@ -153,7 +159,11 @@ object SudokuPuzzle extends SudokuPuzzle {
     bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
   }
 
-  @inline private def checkSquare(rowSquareIndex: Int, colSquareIndex: Int, bits: SudokuBitSet = new SudokuBitSet): SudokuBitSet = {
+  @inline private def checkSquare(
+    rowSquareIndex: Int,
+    colSquareIndex: Int,
+    bits: SudokuBitSet = SudokuBitSet.FirstInstance.init()
+  ): SudokuBitSet = {
     val rowSquareOffset = rowSquareIndex * SquareSize
     val colSquareOffset = colSquareIndex * SquareSize
     var row = 0
@@ -179,7 +189,7 @@ object SudokuPuzzle extends SudokuPuzzle {
    * The method returns a bit set containing all numbers already used
    */
   @inline private def createSolutionSpace(row: Int, col: Int): SudokuBitSet = {
-    val bits = new SudokuBitSet
+    val bits = new SudokuBitSet()
     checkRow(row, bits)
     checkCol(col, bits)
     checkSquare(
