@@ -2,8 +2,7 @@ package de.fmantz.sudoku
 
 import java.io.{File, PrintWriter}
 
-import scala.collection.mutable.ArrayBuffer
-import scala.io.Source
+import scala.io.{BufferedSource, Source}
 
 object SudokuIO {
 
@@ -15,31 +14,12 @@ object SudokuIO {
 	 * Read usual 9x9 Suduko from text file
 	 */
 	def read(fileName: String): IndexedSeq[SudokuPuzzle] = {
-		val rs = ArrayBuffer.empty[SudokuPuzzle]
-		var currentSuko: SudokuPuzzle = new SudokuPuzzle
-		var currentRow = 0
-		val source = Source.fromFile(fileName)
-		for (line <- source.getLines) {
-			if (line.isEmpty || line.startsWith(NewSudokuSeperator)) {
-				if(currentSuko.nonEmpty){
-					rs.append(currentSuko)
-				}
-				currentSuko = new SudokuPuzzle
-				currentRow = 0
-			} else {
-				val normalizedLine = line.replace(QQWingEmptyChar, EmptyChar).trim
-				val rawValues = normalizedLine.toCharArray.map(_ - EmptyChar)
-				for (col <- 0 until SudokuPuzzle.Size) {
-					currentSuko.set(currentRow, col, rawValues(col))
-				}
-				currentRow += 1
-			}
+		val source: BufferedSource = Source.fromFile(fileName)
+		try {
+			new SudokuIterator(source.getLines()).toIndexedSeq
+		} finally {
+			source.close()
 		}
-		if(currentSuko.nonEmpty){
-			rs.append(currentSuko)
-		}
-		source.close
-		rs.toIndexedSeq
 	}
 
   /**
