@@ -12,24 +12,18 @@ class SudokuBitSet {
   private var bits: Int = 0
   private var notFoundBefore: Boolean = true
 
-  def init(): SudokuBitSet = {
-    bits = 0
-    notFoundBefore = true
-    this
-  }
-
   /**
    * Save a value
    */
   def saveValue(value: Int): Unit = {
     if (value > 0) {
       val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
-      notFoundBefore &&= firstMatch(bits, value, checkBit)
+      notFoundBefore &&= firstMatch(bits, checkBit)
       bits |= checkBit
     }
   }
 
-  @inline private def firstMatch(bits: Int, value: Int, checkBit: Int): Boolean = {
+  @inline private def firstMatch(bits: Int, checkBit: Int): Boolean = {
     (bits & checkBit) == 0
   }
 

@@ -1,4 +1,6 @@
-enablePlugins(ScalaNativePlugin)
+lazy val isNative = sys.props.get("NATIVE").isDefined
+lazy val enablePluginsList = if(isNative) Seq(ScalaNativePlugin) else Seq.empty
+enablePlugins(enablePluginsList:_*)
 
 // The simplest possible sbt build file is just one line:
 scalaVersion := "2.11.12"
