@@ -1,9 +1,12 @@
 [package]
 name = "sudoku"
 version = "0.1.0"
-authors = ["Florian Mantz <noemail@owcf.com>"]
+authors = ["Florian Mantz"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name= "sudoku"
+path = "src/de/fmantz/sudoku/main.rs"
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]

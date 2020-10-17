@@ -1,7 +1,7 @@
 package de.fmantz.sudoku
 
 object SudokuBitSet {
-  private final val CheckBits = Integer.parseInt("1" * SudokuPuzzle.Size, 2) //binary to int
+  private final val CheckBits = -1 >>> (32 - SudokuPuzzle.Size) //binary: Size times "1"
 }
 
 class SudokuBitSet {
