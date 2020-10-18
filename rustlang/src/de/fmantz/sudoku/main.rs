@@ -1,6 +1,8 @@
 mod sudoku_bit_set;
 mod sudoku_puzzle;
 use crate::sudoku_bit_set::SudokuBitSet;
+use crate::sudoku_puzzle::SudokuPuzzleData;
+use crate::sudoku_puzzle::SudokuPuzzle;
 
 fn main() {
     println!("Hello, world!");
@@ -16,5 +18,9 @@ fn main() {
         test_object.save_value(i);
         println!("{}, {}", i, test_object.to_string())
     }
+
+    let test:SudokuPuzzleData = SudokuPuzzle::new();
+    let str = test.to_string();
+    println!("{}", str);
 
 }

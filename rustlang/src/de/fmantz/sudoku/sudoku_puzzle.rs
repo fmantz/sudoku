@@ -11,7 +11,7 @@ pub trait SudokuPuzzle {
    fn is_solvable(&self) -> bool;
    fn solve(& mut self)-> ();
 //   fn to_pretty_string(&self) -> String;
-//   fn to_string(&self) -> String;
+   fn to_string(&self) -> String;
 }
 
 pub struct SudokuPuzzleData{
@@ -78,11 +78,18 @@ impl SudokuPuzzle for SudokuPuzzleData {
         self.is_open = true;
     }
 
-/*
     fn to_string(&self) -> String {
-        return "";
+        let mut vec:Vec<String> = Vec::new();
+        for row in 0.. PUZZLE_SIZE {
+           let row_as_string: String = self.puzzle[row]
+               .to_vec()
+               .into_iter()
+               .map(|i| i.to_string())
+               .collect::<String>();
+            vec.push(row_as_string);
+        }
+        return vec.join("\n");
     }
-*/
 
 }
 
