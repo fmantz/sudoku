@@ -10,7 +10,7 @@ pub trait SudokuPuzzle {
    fn is_solved(&self) -> bool;
    fn is_solvable(&self) -> bool;
    fn solve(& mut self)-> ();
-//   fn to_pretty_string(&self) -> String;
+   fn to_pretty_string(&self) -> String;
    fn to_string(&self) -> String;
 }
 
@@ -78,19 +78,40 @@ impl SudokuPuzzle for SudokuPuzzleData {
         self.is_open = true;
     }
 
+    fn to_pretty_string(&self) -> String {
+        let dotted_line:String = (0..(PUZZLE_SIZE * 3 + SQUARE_SIZE - 1)).map(|_| "-").collect::<String>();
+        let empty = "*";
+        let mut buffer:Vec<String> = Vec::new();
+        for row in 0.. PUZZLE_SIZE {
+            let mut line:String = String::with_capacity(PUZZLE_SIZE);
+            for col in 0.. PUZZLE_SIZE {
+                let col_value:u8 = self.puzzle[row][col];
+                let rs : String = if col_value == 0  {format!(" {} ", empty)} else {format!(" {} ", col_value)};
+                line.push_str(&rs);
+                if col + 1 < PUZZLE_SIZE && col % SQUARE_SIZE == 2 {
+                   line.push_str("|");
+                }
+            }
+            buffer.push(line);
+            if row < (PUZZLE_SIZE - 1) && (row + 1) % SQUARE_SIZE == 0 {
+                buffer.push(dotted_line.clone());
+            }
+        }
+        return buffer.join("\n");
+    }
+
     fn to_string(&self) -> String {
-        let mut vec:Vec<String> = Vec::new();
+        let mut buffer:Vec<String> = Vec::new();
         for row in 0.. PUZZLE_SIZE {
            let row_as_string: String = self.puzzle[row]
                .to_vec()
                .into_iter()
                .map(|i| i.to_string())
                .collect::<String>();
-            vec.push(row_as_string);
+            buffer.push(row_as_string);
         }
-        return vec.join("\n");
+        return buffer.join("\n");
     }
-
 }
 
 //private functions here:

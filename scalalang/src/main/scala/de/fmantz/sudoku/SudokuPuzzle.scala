@@ -89,7 +89,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
     val dottedLine = "-" * (Size * 3 + SquareSize - 1)
     val empty = "*"
     val buffer = new ListBuffer[String]
-    buffer.append(dottedLine)
     for (row <- 0 until Size) {
       val formattedRow = puzzle(row).zipWithIndex.map({ case (colValue, col) =>
         val rs = if (colValue == 0) s" $empty " else s" $colValue "
@@ -100,7 +99,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
         }
       }).mkString("")
       buffer.append(formattedRow)
-      if ((row + 1) % SquareSize == 0) {
+      if (row < (Size - 1) && (row + 1) % SquareSize == 0) {
         buffer.append(dottedLine)
       }
     }

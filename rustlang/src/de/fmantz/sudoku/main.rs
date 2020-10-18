@@ -20,7 +20,7 @@ fn main() {
     }
 
     let test:SudokuPuzzleData = SudokuPuzzle::new();
-    let str = test.to_string();
-    println!("{}", str);
+    println!("{}\n\n", test.to_string());
+    println!("{}\n\n", test.to_pretty_string());
 
 }
