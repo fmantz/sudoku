@@ -1,7 +1,7 @@
 use std::fs::read;
 
 const PUZZLE_SIZE: u8 = 9; //TODO move!
-const CHECK_BIT: u16 = (!0 >> (16 - PUZZLE_SIZE)); //binary: Size times "1"
+const CHECK_BIT: u16 = !0 >> (16 - PUZZLE_SIZE); //binary: Size times "1"
 
 pub struct SudokuBitSet {
     bits : u16,
