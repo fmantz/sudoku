@@ -52,7 +52,7 @@ impl SudokuBitSet {
     }
 
     pub fn to_string(&self) -> String {
-        format!("BITS={:#018b}", self.bits)
+        return format!("BITS={:#018b}", self.bits);
     }
 
 }

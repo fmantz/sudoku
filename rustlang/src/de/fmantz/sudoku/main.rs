@@ -4,6 +4,7 @@ fn main() {
     println!("Hello, world!");
     let mut bit_set: SudokuBitSet = SudokuBitSet::new();
     bit_set.save_value(2);
+    println!("{}", bit_set.to_string());
     println!("Hello, world!");
     let x:u16 = (!0 >> (16 - 9));
     println!("{:#018b}", x);
