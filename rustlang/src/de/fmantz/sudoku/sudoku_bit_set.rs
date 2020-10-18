@@ -62,7 +62,7 @@ mod tests {
     use crate::sudoku_bit_set::SudokuBitSet;
 
     #[test]
-    fn is_found_numbers_unique__should__work_correctly() -> () {
+    fn is_found_numbers_unique_should_work_correctly() -> () {
         let mut test_object: SudokuBitSet = SudokuBitSet::new();
         assert_eq!(test_object.is_found_numbers_unique(), true);
         test_object.save_value(5);
@@ -72,7 +72,7 @@ mod tests {
     }
 
     #[test]
-    fn is_all_numbers_found__should__work_correctly() -> () {
+    fn is_all_numbers_found_should_work_correctly() -> () {
         let mut test_object: SudokuBitSet = SudokuBitSet::new();
 
         assert_eq!(test_object.is_all_numbers_found(), false);

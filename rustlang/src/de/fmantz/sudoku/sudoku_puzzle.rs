@@ -9,11 +9,9 @@ pub trait SudokuPuzzle {
    fn is_empty(&self, row: usize, col: usize) -> bool;
    fn is_solved(&self) -> bool;
    fn is_solvable(&self) -> bool;
-/*
-   fn solve(&self)->();
-   fn to_pretty_string(&self) -> String;
-   fn to_string(&self) -> String;
- */
+   fn solve(& mut self)-> ();
+//   fn to_pretty_string(&self) -> String;
+//   fn to_string(&self) -> String;
 }
 
 pub struct SudokuPuzzleData{
@@ -51,7 +49,40 @@ impl SudokuPuzzle for SudokuPuzzleData {
         return self.check_conditions(true);
     }
 
+    fn solve(& mut self)-> () {
+        fn go(puzzle : & mut SudokuPuzzleData) -> () {
+            let mut run : bool = true;
+            'outer: for row in 0.. PUZZLE_SIZE {
+                for col in 0.. PUZZLE_SIZE {
+                    if puzzle.is_empty(row, col) {
+                        let solution_space : SudokuBitSet = puzzle.create_solution_space(row, col);
+                        for n in 1..(PUZZLE_SIZE + 1) as u8 {
+                            if solution_space.is_solution(n) {
+                                puzzle.set(row, col, n);
+                                go(puzzle);
+                                puzzle.set(row, col, 0); //back track
+                            }
+                        }
+                        //solution found for slot!
+                        run = false;
+                        break 'outer;
+                    }
+                }
+            }
+            //solution found for all slots:
+            if run {
+                puzzle.is_open = false;
+            }
+        }
+        go(self);
+        self.is_open = true;
+    }
 
+/*
+    fn to_string(&self) -> String {
+        return "";
+    }
+*/
 
 }
 
@@ -136,15 +167,15 @@ impl SudokuPuzzleData {
     #[inline]
     fn check_conditions(&self, relaxed: bool) -> bool {
         for row in 0.. PUZZLE_SIZE {
-            if(!self.is_row_ok(row, relaxed)){
+            if !self.is_row_ok(row, relaxed){
                 return false;
             }
             for col in 0.. PUZZLE_SIZE {
-                if(!self.is_col_ok(col, relaxed)){
+                if !self.is_col_ok(col, relaxed){
                     return false;
                 }
                 for i in 0.. PUZZLE_SIZE {
-                    if(!self.is_square_ok(i / SQUARE_SIZE, i % SQUARE_SIZE, relaxed)){
+                    if !self.is_square_ok(i / SQUARE_SIZE, i % SQUARE_SIZE, relaxed){
                         return false;
                     }
                 }
@@ -158,9 +189,9 @@ impl SudokuPuzzleData {
      */
     #[inline]
     fn create_solution_space(&self, row : usize, col: usize) -> SudokuBitSet {
-        let mut bits_row: SudokuBitSet = self.check_row_2p(row);
-        let mut bits_row_col: SudokuBitSet = self.check_col_3p(col, bits_row);
-        let mut bits_row_col_square: SudokuBitSet = self.check_square_3p(
+        let bits_row: SudokuBitSet = self.check_row_2p(row);
+        let bits_row_col: SudokuBitSet = self.check_col_3p(col, bits_row);
+        let bits_row_col_square: SudokuBitSet = self.check_square_3p(
             row / SQUARE_SIZE,
             col / SQUARE_SIZE,
             bits_row_col
