@@ -1,6 +1,5 @@
-use std::fs::read;
+use crate::sudoku_puzzle::PUZZLE_SIZE;
 
-const PUZZLE_SIZE: u8 = 9; //TODO move!
 const CHECK_BIT: u16 = !0 >> (16 - PUZZLE_SIZE); //binary: Size times "1"
 
 pub struct SudokuBitSet {
@@ -10,14 +9,14 @@ pub struct SudokuBitSet {
 
 impl SudokuBitSet {
 
-    pub fn new() -> SudokuBitSet {
+    pub fn new() -> Self {
         SudokuBitSet {
             bits:0,
             not_found_before: true
         }
     }
 
-    pub fn save_value(&mut self, value: u16) -> (){
+    pub fn save_value(&mut self, value: u8) -> (){
         if value > 0 {
             let check_bit: u16 = 1 << (value - 1); //set for each number a bit by index from left, number 1 has index zero
             self.not_found_before = self.not_found_before && SudokuBitSet::first_match(self.bits, check_bit);

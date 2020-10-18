@@ -4,6 +4,7 @@ import scala.collection.mutable.ListBuffer
 
 trait SudokuPuzzle {
   def set(row: Int, col: Int, value: Int): Unit
+  def isEmpty(row: Int, col: Int): Boolean
   def isSolvable: Boolean
   def isSolved: Boolean
   def solve(): Unit
@@ -21,19 +22,17 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
   //state:
   private val puzzle: Array[Array[Int]] = Array.ofDim[Int](Size, Size)
-  private var open: Boolean = true
+  private var isOpen: Boolean = true
   private var isEmpty: Boolean = true
 
-  def nonEmpty: Boolean = !this.isEmpty
-
   override def set(row: Int, col: Int, value: Int): Unit = {
-    if(open){
+    if(isOpen){
       puzzle(row)(col) = value
       isEmpty = false
     }
   }
 
-  private def isEmpty(row: Int, col: Int): Boolean = {
+  override def isEmpty(row: Int, col: Int): Boolean = {
     puzzle(row)(col) == 0
   }
 
@@ -70,12 +69,12 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
       }
       //solution found for all slots:
       if (run) {
-        open = false
+        isOpen = false
       }
     }
 
     go()
-    open = true
+    isOpen = true
   }
 
   override def toString: String = {
