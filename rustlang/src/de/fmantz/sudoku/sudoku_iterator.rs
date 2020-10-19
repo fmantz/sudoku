@@ -1,13 +1,11 @@
 use std::fs::File;
-use std::io::{self, BufRead, Error};
-use std::path::Path;
+use std::io::{self, Error};
 use crate::sudoku_puzzle::SudokuPuzzleData;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_io::NEW_SUDOKU_SEPARATOR;
 use crate::sudoku_io::EMPTY_CHAR;
 use crate::sudoku_io::QQWING_EMPTY_CHAR;
 use crate::sudoku_puzzle::PUZZLE_SIZE;
-use std::borrow::Borrow;
 use std::str::Chars;
 
 pub struct PuzzleLines {
@@ -19,8 +17,9 @@ impl Iterator for PuzzleLines {
     type Item = SudokuPuzzleData;
 
     fn next(&mut self) -> Option<SudokuPuzzleData> {
-        //Find first line wiht data:
-        let mut first_line = self.re_init();
+
+        //Find first line with data:
+        let first_line = self.re_init();
         if first_line.is_none() {
             return None
         }
@@ -58,7 +57,7 @@ impl PuzzleLines {
 
     fn re_init(&mut self) -> Option<Result<String, Error>> {
         let mut cur_line = self.lines.next();
-        while (cur_line.is_some()) {
+        while cur_line.is_some() {
             match cur_line.get_or_insert(Ok("".to_string())) {
                 Err(_) => {
                     cur_line = None;

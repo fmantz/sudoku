@@ -11,8 +11,11 @@ use crate::sudoku_iterator::PuzzleLines;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::time::{Duration, Instant};
 
 fn main() {
+
+    /*
     println!("Hello, world!");
     let mut bit_set: SudokuBitSet = SudokuBitSet::new();
     bit_set.save_value(2);
@@ -29,13 +32,22 @@ fn main() {
 
     let test:SudokuPuzzleData = SudokuPuzzle::new();
     println!("{}\n\n", test.to_string());
+    */
 
+    let start = Instant::now();
     let file_data = read_lines("/home/florian/temp/sudoku2.txt");
     if let Ok(lines) = file_data {
         // Consumes the iterator, returns an (Optional) String
         let mut puzzles = PuzzleLines::new(lines);
         let mut puzzle = puzzles.next().unwrap();
+
         println!("{}\n\n", puzzle.to_pretty_string());
+        puzzle.solve();
+        println!("{}\n\n", puzzle.to_pretty_string());
+        let duration = start.elapsed();
+
+        println!("Time elapsed in expensive_function() is: {:?}", duration);
+
     } else if let Err(myerror) = file_data {
         println!("{}\n\n", myerror);
     }

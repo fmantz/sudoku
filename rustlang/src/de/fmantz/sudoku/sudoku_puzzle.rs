@@ -145,7 +145,7 @@ impl SudokuPuzzleData {
     }
 
     #[inline]
-    fn check_col(&self, col: usize, mut bits: &mut SudokuBitSet) -> () {
+    fn check_col(&self, col: usize, bits: &mut SudokuBitSet) -> () {
         for row in 0..PUZZLE_SIZE {
             let value: u8 = self.puzzle[row][col];
             bits.save_value(value);
