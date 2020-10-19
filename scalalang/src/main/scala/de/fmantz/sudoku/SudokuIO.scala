@@ -6,7 +6,7 @@ import scala.io.{BufferedSource, Source}
 
 object SudokuIO {
 
-	final val NewSudokuSeperator: String = "Grid"
+	final val NewSudokuSeparator: String = "Grid"
 	final val EmptyChar: Char = '0'
 	final val QQWingEmptyChar: Char = '.' //https://qqwing.com
 
@@ -25,7 +25,7 @@ object SudokuIO {
   def write(fileName: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
 		val writer = new PrintWriter(new File(fileName))
 		try {
-			val pattern = s"$NewSudokuSeperator %d"
+			val pattern = s"$NewSudokuSeparator %d"
 			puzzles.zipWithIndex.foreach({ case (sudoku, index) =>
         writer.println(pattern.format(index + 1))
         writer.println(sudoku)

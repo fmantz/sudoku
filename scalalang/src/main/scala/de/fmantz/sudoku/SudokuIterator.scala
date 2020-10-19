@@ -14,7 +14,7 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 		curLine = ""
 		while (source.hasNext && curLine.isEmpty) {
 			val readLine = source.next()
-			if (!readLine.startsWith(SudokuIO.NewSudokuSeperator)) {
+			if (!readLine.startsWith(SudokuIO.NewSudokuSeparator)) {
 				curLine = readLine
 			} else {
 				curLine = ""

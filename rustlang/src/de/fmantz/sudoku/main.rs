@@ -1,8 +1,12 @@
 mod sudoku_bit_set;
 mod sudoku_puzzle;
+mod sudoku_io;
+mod sudoku_iterator;
+
 use crate::sudoku_bit_set::SudokuBitSet;
 use crate::sudoku_puzzle::SudokuPuzzleData;
 use crate::sudoku_puzzle::SudokuPuzzle;
+use crate::sudoku_iterator::PuzzleLines;
 
 fn main() {
     println!("Hello, world!");
@@ -22,5 +26,11 @@ fn main() {
     let test:SudokuPuzzleData = SudokuPuzzle::new();
     println!("{}\n\n", test.to_string());
     println!("{}\n\n", test.to_pretty_string());
+
+    /*
+    if let Ok(lines) = read_lines("./hosts") {
+        lines
+    }
+    */
 
 }
