@@ -5,6 +5,7 @@ use crate::sudoku_puzzle::SudokuPuzzleData;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_io::NEW_SUDOKU_SEPARATOR;
 use crate::sudoku_io::EMPTY_CHAR;
+use crate::sudoku_io::QQWING_EMPTY_CHAR;
 use crate::sudoku_puzzle::PUZZLE_SIZE;
 use std::borrow::Borrow;
 use std::str::Chars;
@@ -81,7 +82,12 @@ impl PuzzleLines {
         for col in 0..PUZZLE_SIZE {
             let ch = chars_of_line.next();
             if ch.is_some() {
-                let number: u8 = ch.unwrap() as u8 - EMPTY_CHAR as u8;
+                let char_unwrapped = ch.unwrap();
+                let number: u8 = if char_unwrapped == QQWING_EMPTY_CHAR {
+                    0
+                } else {
+                    (char_unwrapped as i32 - EMPTY_CHAR as i32) as u8 //result is in [0 - 9]
+                };
                 puzzle.set(row, col, number);
             }
         }

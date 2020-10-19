@@ -8,6 +8,10 @@ use crate::sudoku_puzzle::SudokuPuzzleData;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_iterator::PuzzleLines;
 
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
+
 fn main() {
     println!("Hello, world!");
     let mut bit_set: SudokuBitSet = SudokuBitSet::new();
@@ -25,12 +29,20 @@ fn main() {
 
     let test:SudokuPuzzleData = SudokuPuzzle::new();
     println!("{}\n\n", test.to_string());
-    println!("{}\n\n", test.to_pretty_string());
 
-    /*
-    if let Ok(lines) = read_lines("./hosts") {
-        lines
+    let file_data = read_lines("/home/florian/temp/sudoku2.txt");
+    if let Ok(lines) = file_data {
+        // Consumes the iterator, returns an (Optional) String
+        let mut puzzles = PuzzleLines::new(lines);
+        let mut puzzle = puzzles.next().unwrap();
+        println!("{}\n\n", puzzle.to_pretty_string());
+    } else if let Err(myerror) = file_data {
+        println!("{}\n\n", myerror);
     }
-    */
+}
 
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+    where P: AsRef<Path>, {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
 }
