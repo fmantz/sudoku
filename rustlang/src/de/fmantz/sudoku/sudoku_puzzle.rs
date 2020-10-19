@@ -122,23 +122,18 @@ impl SudokuPuzzleData {
      * @param relaxed true means it is still solvable, false it contains all possible numbers once
     */
     fn is_row_ok(&self, row:usize, relaxed: bool) -> bool {
-        let bits: SudokuBitSet = self.check_row_2p(row);
+        let mut bits: SudokuBitSet = SudokuBitSet::new();
+        self.check_row(row, & mut  bits);
         return bits.is_found_numbers_unique() && (relaxed || bits.is_all_numbers_found());
     }
 
     #[inline]
-    fn check_row_3p(&self, row: usize, mut bits: SudokuBitSet) -> SudokuBitSet {
+    fn check_row(&self, row: usize, bits: & mut SudokuBitSet) -> () {
         let selected_row: [u8; PUZZLE_SIZE as usize] = self.puzzle[row];
         for col in 0.. PUZZLE_SIZE {
             let value: u8 = selected_row[col];
             bits.save_value(value);
         }
-        return bits;
-    }
-
-    #[inline]
-    fn check_row_2p(&self, row: usize) -> SudokuBitSet {
-        return self.check_row_3p( row, SudokuBitSet::new());
     }
 
     /**
@@ -146,22 +141,17 @@ impl SudokuPuzzleData {
      * @param relaxed true means it is still solvable, false it contains all possible numbers once
      */
     fn is_col_ok(&self, row:usize, relaxed: bool) -> bool {
-        let bits: SudokuBitSet = self.check_col_2p(row);
+        let mut bits: SudokuBitSet = SudokuBitSet::new();
+        self.check_col(row, & mut bits);
         return bits.is_found_numbers_unique() && (relaxed || bits.is_all_numbers_found());
     }
 
     #[inline]
-    fn check_col_3p(&self, col: usize, mut bits: SudokuBitSet) -> SudokuBitSet {
+    fn check_col(&self, col: usize, mut bits: & mut SudokuBitSet) -> () {
         for row in 0.. PUZZLE_SIZE {
             let value: u8 = self.puzzle[row][col];
             bits.save_value(value);
         }
-        return bits;
-    }
-
-    #[inline]
-    fn check_col_2p(&self, col: usize) -> SudokuBitSet {
-        return self.check_col_3p( col, SudokuBitSet::new());
     }
 
     /**
@@ -170,12 +160,13 @@ impl SudokuPuzzleData {
      * @param relaxed true means it is still solvable, false it contains all possible numbers once
     */
     fn is_square_ok(&self, row_square_index: usize, col_square_index: usize, relaxed: bool) -> bool {
-        let bits: SudokuBitSet = self.check_square_2p(row_square_index, col_square_index);
+        let mut bits: SudokuBitSet = SudokuBitSet::new();
+        self.check_square(row_square_index, col_square_index, & mut bits);
         return bits.is_found_numbers_unique() && (relaxed || bits.is_all_numbers_found());
     }
 
     #[inline]
-    fn check_square_3p(&self, row_square_index: usize, col_square_index: usize, mut bits: SudokuBitSet) -> SudokuBitSet {
+    fn check_square(&self, row_square_index: usize, col_square_index: usize, bits: & mut SudokuBitSet) -> () {
         let row_square_offset: usize = row_square_index * SQUARE_SIZE;
         let col_square_offset: usize = col_square_index * SQUARE_SIZE;
         for row in 0.. SQUARE_SIZE {
@@ -184,12 +175,6 @@ impl SudokuPuzzleData {
                 bits.save_value(value);
             }
         }
-        return bits;
-    }
-
-    #[inline]
-    fn check_square_2p(&self, row_square_index: usize, col_square_index: usize) -> SudokuBitSet {
-        return self.check_square_3p( row_square_index, col_square_index, SudokuBitSet::new());
     }
 
     #[inline]
@@ -217,14 +202,15 @@ impl SudokuPuzzleData {
      */
     #[inline]
     fn create_solution_space(&self, row : usize, col: usize) -> SudokuBitSet {
-        let bits_row: SudokuBitSet = self.check_row_2p(row);
-        let bits_row_col: SudokuBitSet = self.check_col_3p(col, bits_row);
-        let bits_row_col_square: SudokuBitSet = self.check_square_3p(
+        let mut bits : SudokuBitSet = SudokuBitSet::new();
+        self.check_row(row, &mut bits);
+        self.check_col(col, &mut bits);
+        self.check_square(
             row / SQUARE_SIZE,
             col / SQUARE_SIZE,
-            bits_row_col
+            &mut bits
         );
-        return bits_row_col_square;
+        return bits;
     }
 
 }
