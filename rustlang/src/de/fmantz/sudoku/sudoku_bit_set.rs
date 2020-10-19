@@ -3,20 +3,19 @@ use crate::sudoku_puzzle::PUZZLE_SIZE;
 const CHECK_BIT: u16 = !0 >> (16 - PUZZLE_SIZE); //binary: Size times "1"
 
 pub struct SudokuBitSet {
-    bits : u16,
-    not_found_before: bool
+    bits: u16,
+    not_found_before: bool,
 }
 
 impl SudokuBitSet {
-
     pub fn new() -> Self {
         SudokuBitSet {
-            bits:0,
-            not_found_before: true
+            bits: 0,
+            not_found_before: true,
         }
     }
 
-    pub fn save_value(&mut self, value: u8) -> (){
+    pub fn save_value(&mut self, value: u8) -> () {
         if value > 0 {
             let check_bit: u16 = 1 << (value - 1); //set for each number a bit by index from left, number 1 has index zero
             self.not_found_before = self.not_found_before && SudokuBitSet::first_match(self.bits, check_bit);
@@ -26,7 +25,7 @@ impl SudokuBitSet {
 
     #[inline]
     fn first_match(bits: u16, check_bit: u16) -> bool {
-        return (bits & check_bit) == 0
+        return (bits & check_bit) == 0;
     }
 
     pub fn is_all_numbers_found(&self) -> bool {
@@ -38,7 +37,7 @@ impl SudokuBitSet {
     }
 
     pub fn is_found_numbers_unique(&self) -> bool {
-        return self.not_found_before
+        return self.not_found_before;
     }
 
     pub fn is_solution(&self, sol: u8) -> bool {
@@ -53,12 +52,10 @@ impl SudokuBitSet {
     pub fn to_string(&self) -> String {
         return format!("BITS={:#018b}", self.bits);
     }
-
 }
 
 #[cfg(test)]
 mod tests {
-
     use crate::sudoku_bit_set::SudokuBitSet;
 
     #[test]
@@ -85,5 +82,4 @@ mod tests {
         test_object.save_value(9);
         assert_eq!(test_object.is_all_numbers_found(), true);
     }
-
 }
