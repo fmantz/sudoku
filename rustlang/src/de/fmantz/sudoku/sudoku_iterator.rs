@@ -2,10 +2,10 @@ use std::fs::File;
 use std::io::{self, Error};
 use crate::sudoku_puzzle::SudokuPuzzleData;
 use crate::sudoku_puzzle::SudokuPuzzle;
-use crate::sudoku_io::NEW_SUDOKU_SEPARATOR;
-use crate::sudoku_io::EMPTY_CHAR;
-use crate::sudoku_io::QQWING_EMPTY_CHAR;
-use crate::sudoku_puzzle::PUZZLE_SIZE;
+use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
+use crate::sudoku_constants::EMPTY_CHAR;
+use crate::sudoku_constants::QQWING_EMPTY_CHAR;
+use crate::sudoku_constants::PUZZLE_SIZE;
 use std::str::Chars;
 
 pub struct PuzzleLines {

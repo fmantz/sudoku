@@ -40,7 +40,7 @@ class SudokuIOTests extends AnyFlatSpec with Matchers {
 		val rs = ArrayBuffer.empty[String]
 		val buffer = ArrayBuffer.empty[String]
 		for (line <- Source.fromFile(fileName).getLines()) {
-			if (line.isEmpty || line.startsWith(SudokuIO.NewSudokuSeparator)) {
+			if (line.isEmpty || line.startsWith(SudokuConstants.NewSudokuSeparator)) {
 				if (buffer.nonEmpty) {
 					rs.append(buffer.mkString("\n"))
 				}

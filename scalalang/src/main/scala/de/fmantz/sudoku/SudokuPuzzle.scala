@@ -11,17 +11,12 @@ trait SudokuPuzzle {
   def toPrettyString: String
 }
 
-object SudokuPuzzle {
-  final val Size = 9
-  final val SquareSize = 3
-}
-
 class SudokuPuzzleImpl extends SudokuPuzzle {
 
-  import SudokuPuzzle._
+  import SudokuConstants._
 
   //state:
-  private val puzzle: Array[Array[Int]] = Array.ofDim[Int](Size, Size)
+  private val puzzle: Array[Array[Int]] = Array.ofDim[Int](PuzzleSize, PuzzleSize)
   private var isOpen: Boolean = true
   private var isEmpty: Boolean = true
 
@@ -48,12 +43,12 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
     def go(): Unit = {
       var row = 0
       var run = true
-      while (run && row < Size) {
+      while (run && row < PuzzleSize) {
         var col = 0
-        while (run && col < Size) {
+        while (run && col < PuzzleSize) {
           if (isEmpty(row, col)) {
             val solutionSpace = createSolutionSpace(row, col)
-            for (n <- 1 to Size) {
+            for (n <- 1 to PuzzleSize) {
               if (solutionSpace.isSolution(n)) {
                 set(row, col, n)
                 go()
@@ -79,27 +74,27 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
   override def toString: String = {
     val buffer = new ListBuffer[String]
-    for (row <- 0 until Size) {
+    for (row <- 0 until PuzzleSize) {
       buffer.append(puzzle(row).mkString)
     }
     buffer.mkString("\n")
   }
 
   override def toPrettyString: String = {
-    val dottedLine = "-" * (Size * 3 + SquareSize - 1)
+    val dottedLine = "-" * (PuzzleSize * 3 + SquareSize - 1)
     val empty = "*"
     val buffer = new ListBuffer[String]
-    for (row <- 0 until Size) {
+    for (row <- 0 until PuzzleSize) {
       val formattedRow = puzzle(row).zipWithIndex.map({ case (colValue, col) =>
         val rs = if (colValue == 0) s" $empty " else s" $colValue "
-        if (col + 1 < Size && col % SquareSize == 2) {
+        if (col + 1 < PuzzleSize && col % SquareSize == 2) {
           rs + "|"
         } else {
           rs
         }
       }).mkString("")
       buffer.append(formattedRow)
-      if (row < (Size - 1) && (row + 1) % SquareSize == 0) {
+      if (row < (PuzzleSize - 1) && (row + 1) % SquareSize == 0) {
         buffer.append(dottedLine)
       }
     }
@@ -121,7 +116,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   ): SudokuBitSet = {
     val selectedRow = puzzle(row)
     var col = 0
-    while (col < Size) {
+    while (col < PuzzleSize) {
       val value = selectedRow(col)
       bits.saveValue(value)
       col += 1
@@ -143,7 +138,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
     bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
     var row = 0
-    while (row < Size) {
+    while (row < PuzzleSize) {
       val value = puzzle(row)(col)
       bits.saveValue(value)
       row += 1
@@ -182,9 +177,9 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   }
 
   @inline private def checkConditions(relaxed: Boolean): Boolean = {
-    (0 until Size).forall(row => isRowOK(row, relaxed)) &&
-      (0 until Size).forall(col => isColOK(col, relaxed)) &&
-        (0 until Size).forall(i => isSquareOK(i / SquareSize, i % SquareSize, relaxed))
+    (0 until PuzzleSize).forall(row => isRowOK(row, relaxed)) &&
+      (0 until PuzzleSize).forall(col => isColOK(col, relaxed)) &&
+        (0 until PuzzleSize).forall(i => isSquareOK(i / SquareSize, i % SquareSize, relaxed))
   }
 
   /**

@@ -1,7 +1,6 @@
 use crate::sudoku_bit_set::SudokuBitSet;
-
-pub const PUZZLE_SIZE: usize = 9;
-const SQUARE_SIZE: usize = 3;
+use crate::sudoku_constants::PUZZLE_SIZE;
+use crate::sudoku_constants::SQUARE_SIZE;
 
 pub trait SudokuPuzzle {
     fn new() -> Self;

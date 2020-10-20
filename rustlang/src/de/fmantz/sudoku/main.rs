@@ -2,6 +2,7 @@ mod sudoku_bit_set;
 mod sudoku_puzzle;
 mod sudoku_io;
 mod sudoku_iterator;
+mod sudoku_constants;
 
 use crate::sudoku_bit_set::SudokuBitSet;
 use crate::sudoku_puzzle::SudokuPuzzleData;

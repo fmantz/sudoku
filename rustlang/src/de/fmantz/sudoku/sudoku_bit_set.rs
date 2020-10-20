@@ -1,4 +1,4 @@
-use crate::sudoku_puzzle::PUZZLE_SIZE;
+use crate::sudoku_constants::PUZZLE_SIZE;
 
 const CHECK_BIT: u16 = !0 >> (16 - PUZZLE_SIZE); //binary: Size times "1"
 

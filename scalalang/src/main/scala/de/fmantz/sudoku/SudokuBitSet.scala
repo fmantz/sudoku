@@ -1,7 +1,7 @@
 package de.fmantz.sudoku
 
 object SudokuBitSet {
-  private final val CheckBits = ~0 >>> (32 - SudokuPuzzle.Size) //binary: Size times "1"
+  private final val CheckBits = ~0 >>> (32 - SudokuConstants.PuzzleSize) //binary: Size times "1"
 }
 
 class SudokuBitSet {
@@ -49,6 +49,6 @@ class SudokuBitSet {
   }
 
   override def toString: String = {
-     s"BITS=%0${SudokuPuzzle.Size}d".format(this.bits.toBinaryString.toInt)
+     s"BITS=%0${SudokuConstants.PuzzleSize}d".format(this.bits.toBinaryString.toInt)
   }
 }
