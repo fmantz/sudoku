@@ -6,7 +6,7 @@ edition = "2018"
 
 [[bin]]
 name= "sudoku"
-path = "src/de/fmantz/sudoku/main.rs"
+path = "src/de/fmantz/sudoku/sudoku_solver.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
