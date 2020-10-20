@@ -8,11 +8,11 @@ use crate::sudoku_constants::QQWING_EMPTY_CHAR;
 use crate::sudoku_constants::PUZZLE_SIZE;
 use std::str::Chars;
 
-pub struct Puzzles {
+pub struct SudokuIterator {
     lines: io::Lines<io::BufReader<File>>
 }
 
-impl Iterator for Puzzles {
+impl Iterator for SudokuIterator {
 
     type Item = SudokuPuzzleData;
 
@@ -29,7 +29,7 @@ impl Iterator for Puzzles {
 
         //Read first line:
         let mut line_data : String  = first_line.unwrap().unwrap();
-        Puzzles::read_line(& mut line_data, &mut puzzle, 0);
+        SudokuIterator::read_line(& mut line_data, &mut puzzle, 0);
 
         //Read other lines:
         for row in 1.. (PUZZLE_SIZE - 1) {
@@ -41,16 +41,16 @@ impl Iterator for Puzzles {
             if next_line_data.is_err() {
                 return None;
             }
-            Puzzles::read_line(&mut next_line_data.unwrap(), &mut puzzle, row);
+            SudokuIterator::read_line(&mut next_line_data.unwrap(), &mut puzzle, row);
         }
         return Some(puzzle);
     }
 }
 
-impl Puzzles {
+impl SudokuIterator {
 
     pub fn new(lines: io::Lines<io::BufReader<File>>) -> Self {
-        Puzzles {
+        SudokuIterator {
             lines: lines
         }
     }
