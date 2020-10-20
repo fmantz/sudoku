@@ -33,7 +33,7 @@ impl SudokuIO {
     pub fn write(
         filename: &str,
         puzzles: SudokuIterator,
-        f: fn(SudokuPuzzleData) -> SudokuPuzzleData
+        f: fn(& mut SudokuPuzzleData) -> ()
     ) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
@@ -43,10 +43,11 @@ impl SudokuIO {
         };
         let mut writer = BufWriter::new(&write_file);
         let mut i:u32 = 0;
-        for puzzle in puzzles {
+        for mut puzzle in puzzles {
             i += 1;
+            f(&mut puzzle);
             writeln!(& mut writer, "{} {}", NEW_SUDOKU_SEPARATOR, i);
-            writeln!(& mut writer, "{}", &f(puzzle).to_string());
+            writeln!(& mut writer, "{}", puzzle.to_string());
             match writer.flush() {
                 Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
                 Ok(()) => () /*do nothing */
@@ -58,7 +59,7 @@ impl SudokuIO {
     pub fn write_qqwing(
         filename: &str,
         puzzles: SudokuIterator,
-        f: fn(SudokuPuzzleData) -> SudokuPuzzleData
+        f: fn(&mut SudokuPuzzleData) -> ()
     ) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
@@ -67,7 +68,9 @@ impl SudokuIO {
             Ok(file) => file
         };
         let mut writer = BufWriter::new(&write_file);
-        for puzzle in puzzles {
+        for mut puzzle in puzzles {
+            f(&mut puzzle); //do someting!
+            println!("{}", puzzle.to_string());
             //writeln!(& mut writer, "{}", &f(puzzle).to_string());
             /*
             match writer.flush() {

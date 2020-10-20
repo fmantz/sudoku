@@ -26,12 +26,6 @@ fn main() {
             panic!("Problem opening the file: {:?}", error);
         },
         Ok(puzzles )  => {
-
-            fn solveSudoku(mut s : SudokuPuzzleData) -> SudokuPuzzleData {
-                s.solve();
-                return s;
-            }
-
             SudokuIO::write_qqwing("/home/florian/temp/sudoku2_solution.txt",puzzles, solveSudoku);
 
             //SudokuIO::write_qqwing("/home/florian/temp/sudoku2.txt", puzzels_solved);
@@ -39,6 +33,10 @@ fn main() {
             println!("Time elapsed in expensive_function() is: {:?}", duration);
         }
     }
+}
+
+fn solveSudoku( s : & mut SudokuPuzzleData) -> () {
+    s.solve();
 }
 
 
