@@ -21,24 +21,19 @@ fn main() {
     let start = Instant::now();
     let puzzles = SudokuIO::read("/home/florian/temp/sudoku2.txt");
 
-        for p in puzzles.unwrap() {
-            println!("{}\n", p.to_string());
-        }
-
-    /*
     match puzzles {
         Err(error ) => {
             panic!("Problem opening the file: {:?}", error);
         },
         Ok(puzzles )  => {
-            SudokuIO::write_qqwing("/home/florian/temp/sudoku2_solution.txt",puzzles, solveSudoku);
+            SudokuIO::write_qqwing("/home/florian/temp/sudoku2_solution.txt", puzzles, solveSudoku);
 
             //SudokuIO::write_qqwing("/home/florian/temp/sudoku2.txt", puzzels_solved);
             let duration = start.elapsed();
             println!("Time elapsed in expensive_function() is: {:?}", duration);
         }
     }
-    */
+
 }
 
 fn solveSudoku( s : & mut SudokuPuzzleData) -> () {

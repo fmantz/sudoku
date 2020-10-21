@@ -32,7 +32,7 @@ impl Iterator for SudokuIterator {
         SudokuIterator::read_line(&line_data, &mut puzzle, 0);
 
         //Read other lines:
-        for row in 1.. (PUZZLE_SIZE - 1) {
+        for row in 1.. PUZZLE_SIZE {
             let next_line = self.lines.next();
             if next_line.is_none() {
                 return None;
@@ -43,9 +43,6 @@ impl Iterator for SudokuIterator {
             }
             SudokuIterator::read_line(&next_line_data.unwrap(), &mut puzzle, row);
         }
-
-        println!("<XXX> {}\n </XXX>", puzzle.to_string());
-
         return Some(puzzle);
     }
 }
@@ -80,7 +77,7 @@ impl SudokuIterator {
         return rs;
     }
 
-    fn read_line(line_data: &str, puzzle: &mut SudokuPuzzleData, row: usize) {
+    fn read_line(line_data: &str, puzzle: &mut SudokuPuzzleData, row: usize) -> () {
         //Read string into puzzle
         let mut chars_of_line: Chars = line_data.chars();
         for col in 0..PUZZLE_SIZE {
@@ -90,13 +87,13 @@ impl SudokuIterator {
                 let number: u8 = if char_unwrapped == QQWING_EMPTY_CHAR {
                     0
                 } else {
-                    print!(">>>{}", char_unwrapped);
-                    let char_as_u8 = (char_unwrapped as i32 - EMPTY_CHAR as i32) as u8; //result is in [0 - 9]
+                    let char_as_u8 : u8 = (char_unwrapped as i32 - EMPTY_CHAR as i32) as u8; //result is in [0 - 9]
                     char_as_u8
                 };
                 puzzle.set(row, col, number);
+            } else {
+                break;
             }
         }
-        println!("");
     }
 }

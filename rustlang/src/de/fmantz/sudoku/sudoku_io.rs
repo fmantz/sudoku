@@ -70,7 +70,7 @@ impl SudokuIO {
         let mut writer = BufWriter::new(&write_file);
         for mut puzzle in puzzles {
             f(&mut puzzle); //do someting!
-            println!("{}", puzzle.to_string());
+            println!("{}\n ", puzzle.to_string());
             //writeln!(& mut writer, "{}", &f(puzzle).to_string());
             /*
             match writer.flush() {
