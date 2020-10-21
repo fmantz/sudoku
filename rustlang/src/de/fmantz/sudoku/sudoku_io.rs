@@ -82,3 +82,20 @@ impl SudokuIO {
         return Ok(());
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use crate::sudoku_io::SudokuIO;
+    use crate::sudoku_puzzle::SudokuPuzzleData;
+    use crate::sudoku_puzzle::SudokuPuzzle;
+
+    #[test]
+    fn test() -> () {
+        let puzzles = SudokuIO::read("/home/florian/temp/sudoku2.txt");
+        for p in puzzles.unwrap() {
+            println!("{}", p.to_string());
+        }
+    }
+
+}

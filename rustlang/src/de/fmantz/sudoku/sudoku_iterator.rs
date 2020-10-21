@@ -74,7 +74,6 @@ impl SudokuIterator {
                 }
             };
         }
-        println!("{:?}", rs); //TODO iterator broken!
         return rs;
     }
 
