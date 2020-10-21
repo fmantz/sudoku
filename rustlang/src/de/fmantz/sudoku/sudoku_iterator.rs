@@ -43,6 +43,9 @@ impl Iterator for SudokuIterator {
             }
             SudokuIterator::read_line(&next_line_data.unwrap(), &mut puzzle, row);
         }
+
+        println!("<XXX> {}\n </XXX>", puzzle.to_string());
+
         return Some(puzzle);
     }
 }
@@ -87,10 +90,13 @@ impl SudokuIterator {
                 let number: u8 = if char_unwrapped == QQWING_EMPTY_CHAR {
                     0
                 } else {
-                    (char_unwrapped as i32 - EMPTY_CHAR as i32) as u8 //result is in [0 - 9]
+                    print!(">>>{}", char_unwrapped);
+                    let char_as_u8 = (char_unwrapped as i32 - EMPTY_CHAR as i32) as u8; //result is in [0 - 9]
+                    char_as_u8
                 };
                 puzzle.set(row, col, number);
             }
         }
+        println!("");
     }
 }
