@@ -28,7 +28,7 @@ impl Iterator for SudokuIterator {
         let mut puzzle: SudokuPuzzleData = SudokuPuzzleData::new();
 
         //Read first line:
-        let mut line_data : String  = first_line.unwrap().unwrap();
+        let mut line_data : String  = first_line.unwrap();
         SudokuIterator::read_line(& mut line_data, &mut puzzle, 0);
 
         //Read other lines:
@@ -55,24 +55,27 @@ impl SudokuIterator {
         }
     }
 
-    fn re_init(&mut self) -> Option<Result<String, Error>> {
-        let mut cur_line = self.lines.next();
-        while cur_line.is_some() {
-            match cur_line.get_or_insert(Ok("".to_string())) {
+    fn re_init(&mut self) -> Option<String> {
+        let mut maybe_cur_line = self.lines.next();
+        let mut rs = None;
+        while maybe_cur_line.is_some() {
+            match maybe_cur_line.unwrap() {
                 Err(_) => {
-                    cur_line = None;
+                    maybe_cur_line = None;
                     break;
                 },
                 Ok(cur_line_string) => {
                     if cur_line_string.is_empty() || cur_line_string.starts_with(NEW_SUDOKU_SEPARATOR) {
-                        cur_line = self.lines.next();
+                        maybe_cur_line = self.lines.next();
                     } else {
+                        rs = Some(cur_line_string);
                         break;
                     }
                 }
             };
         }
-        cur_line
+        println!("{:?}", rs); //TODO iterator broken!
+        return rs;
     }
 
     fn read_line(line_data: &mut String, puzzle: &mut SudokuPuzzleData, row: usize) {
