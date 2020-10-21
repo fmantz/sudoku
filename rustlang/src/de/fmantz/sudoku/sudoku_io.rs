@@ -47,7 +47,7 @@ impl SudokuIO {
             i += 1;
             f(&i, &mut puzzle);
             writeln!(& mut writer, "{} {}", NEW_SUDOKU_SEPARATOR, i);
-            writeln!(& mut writer, "{}", puzzle.to_string());
+            writeln!(& mut writer, "{}\n", puzzle.to_string());
             match writer.flush() {
                 Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
                 Ok(()) => () /*do nothing */
@@ -71,7 +71,7 @@ impl SudokuIO {
         let mut i:u32 = 0;
         for mut puzzle in puzzles {
             f(&i, &mut puzzle); //do someting!
-            writeln!(& mut writer, "{}", puzzle.to_string());
+            writeln!(& mut writer, "{}\n", puzzle.to_string());
             match writer.flush() {
                 Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
                 Ok(()) => ()/*do nothing */

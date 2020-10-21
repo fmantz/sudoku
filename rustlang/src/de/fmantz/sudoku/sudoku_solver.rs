@@ -15,22 +15,43 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use std::time::{Duration, Instant};
 use std::iter::Map;
+use std::env;
 
 fn main() {
-
-    let start : Instant = Instant::now();
-    let puzzles: Result<SudokuIterator, String>  = SudokuIO::read("/home/florian/temp/sudoku2.txt");
-
-    match puzzles {
-        Err(error ) => {
-            panic!("Problem opening the file: {:?}", error);
-        },
-        Ok(puzzles )  => {
-            SudokuIO::write_qqwing("/home/florian/temp/sudoku2_solution.txt", puzzles, solve_current_sudoku);
-            let duration = start.elapsed();
-            //println!("output:" + new File(outputFileName).getAbsolutePath);
-            println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
-
+    let args: Vec<String> = env::args().collect();
+    if args.is_empty() {
+        println!(">SudokuSolver inputFile [outputFile]");
+        println!("-First argument must be path to sudoku puzzles!");
+        println!("-Second argument can be output path for sudoku puzzles solution!");
+    } else {
+        let start: Instant = Instant::now();
+        let input_file_name : &String = args.get(1).unwrap();
+        let output_file_name: String = if args.len() > 2 {
+            let second_argument: String = args.get(2).unwrap().to_string();
+            second_argument
+        } else {
+            let path = Path::new(input_file_name);
+            let parent = path.parent();
+            let generated_file_name : String  = if parent.is_some() {
+                let simple_file_name : String = path.file_name().unwrap().to_str().unwrap().to_string();
+                let new_file_name : String = format!("SOLUTION_{}", simple_file_name);
+                parent.unwrap().join(new_file_name).to_str().unwrap().to_string()
+            } else {
+                "./sudoku_solution.txt".to_string()
+            };
+            generated_file_name
+        };
+        let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
+        match puzzles {
+            Err(error) => {
+                panic!("Problem opening the file: {:?}", error);
+            },
+            Ok(puzzles) => {
+                SudokuIO::write_qqwing(&output_file_name, puzzles, solve_current_sudoku);
+                let duration = start.elapsed();
+                println!("output: {} ", Path::new(&output_file_name).to_str().unwrap());
+                println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
+            }
         }
     }
 }
