@@ -43,7 +43,7 @@ object SudokuSolver {
 				println(s"ERROR: Sudoku $index is not correctly solved!")
 			}
 		} else {
-			println(s"Sudoku index is unsolvable!")
+			println(s"Sudoku index is unsolvable:\n" + sudoku.toPrettyString)
 		}
 		sudoku
 	}

@@ -18,26 +18,34 @@ use std::iter::Map;
 
 fn main() {
 
-    let start = Instant::now();
-    let puzzles = SudokuIO::read("/home/florian/temp/sudoku2.txt");
+    let start : Instant = Instant::now();
+    let puzzles: Result<SudokuIterator, String>  = SudokuIO::read("/home/florian/temp/sudoku2.txt");
 
     match puzzles {
         Err(error ) => {
             panic!("Problem opening the file: {:?}", error);
         },
         Ok(puzzles )  => {
-            SudokuIO::write_qqwing("/home/florian/temp/sudoku2_solution.txt", puzzles, solveSudoku);
-
-            //SudokuIO::write_qqwing("/home/florian/temp/sudoku2.txt", puzzels_solved);
+            SudokuIO::write_qqwing("/home/florian/temp/sudoku2_solution.txt", puzzles, solve_current_sudoku);
             let duration = start.elapsed();
-            println!("Time elapsed in expensive_function() is: {:?}", duration);
+            //println!("output:" + new File(outputFileName).getAbsolutePath);
+            println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
+
         }
     }
-
 }
 
-fn solveSudoku( s : & mut SudokuPuzzleData) -> () {
-    s.solve();
+fn solve_current_sudoku(index: &u32, sudoku : & mut SudokuPuzzleData) -> () {
+    if sudoku.is_solved() {
+        println!("Sudoku {} is already solved!", index);
+    } else if sudoku.is_solvable() {
+        sudoku.solve();
+        if !sudoku.is_solved() {
+            println!("ERROR: Sudoku {} is not correctly solved!", index);
+        }
+    } else {
+        println!("Sudoku {} is unsolvable:\n {}" , index, sudoku.to_pretty_string());
+    }
 }
 
 
