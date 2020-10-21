@@ -28,8 +28,8 @@ impl Iterator for SudokuIterator {
         let mut puzzle: SudokuPuzzleData = SudokuPuzzleData::new();
 
         //Read first line:
-        let mut line_data : String  = first_line.unwrap();
-        SudokuIterator::read_line(& mut line_data, &mut puzzle, 0);
+        let line_data : String = first_line.unwrap();
+        SudokuIterator::read_line(&line_data, &mut puzzle, 0);
 
         //Read other lines:
         for row in 1.. (PUZZLE_SIZE - 1) {
@@ -41,7 +41,7 @@ impl Iterator for SudokuIterator {
             if next_line_data.is_err() {
                 return None;
             }
-            SudokuIterator::read_line(&mut next_line_data.unwrap(), &mut puzzle, row);
+            SudokuIterator::read_line(&next_line_data.unwrap(), &mut puzzle, row);
         }
         return Some(puzzle);
     }
@@ -77,7 +77,7 @@ impl SudokuIterator {
         return rs;
     }
 
-    fn read_line(line_data: &mut String, puzzle: &mut SudokuPuzzleData, row: usize) {
+    fn read_line(line_data: &str, puzzle: &mut SudokuPuzzleData, row: usize) {
         //Read string into puzzle
         let mut chars_of_line: Chars = line_data.chars();
         for col in 0..PUZZLE_SIZE {
