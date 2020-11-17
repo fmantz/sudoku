@@ -87,10 +87,74 @@ mod tests {
     use crate::sudoku_io::SudokuIO;
     use crate::sudoku_puzzle::SudokuPuzzleData;
     use crate::sudoku_puzzle::SudokuPuzzle;
+    use std::io::{self, BufRead, BufWriter, Write};
+    use std::path::{Path, MAIN_SEPARATOR};
+    use std::path::PathBuf;
+    use std::fs::File;
+    use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
+    use crate::sudoku_iterator::SudokuIterator;
 
     #[test]
-    fn test() -> () {
+    fn read_should_correctly_parse_sudokus() -> () {
+        let mut dir:PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt").to_string());
+        let filename :&str = dir.as_os_str().to_str().unwrap();
+        let expected_rs : Vec<String> = match read_file(filename) {
+            Err(why) => panic!("{}", why),
+            Ok(puzzles) => puzzles
+        };
+        let rs : Vec<SudokuPuzzleData> = match SudokuIO::read(filename) {
+            Err(why) => panic!("{}", why),
+            Ok(puzzles) => puzzles.collect()
+        };
+        for (index, read) in rs.iter().enumerate(){
+            assert_eq!(read.to_string(), expected_rs[index]);
+        }
+        assert_eq!(expected_rs.len(), 51);
+    }
 
+    #[test]
+    fn read_should_read_correct_number_of_documents() -> () {
+        let mut dir:PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "sudoku.txt").to_string());
+        let filename :&str = dir.as_os_str().to_str().unwrap();
+        let expected_length : usize = match read_file(filename) {
+            Err(why) => panic!("{}", why),
+            Ok(puzzles) => puzzles.len()
+        };
+        let read_length : usize = match SudokuIO::read(filename) {
+            Err(why) => panic!("{}", why),
+            Ok(puzzles) => puzzles.count()
+        };
+        assert_eq!(read_length, expected_length);
+    }
+
+    pub fn read_file (filename: &str) -> Result<Vec<String>, String> {
+        let mut rs:Vec<String> = Vec::new();
+        let mut buffer:Vec<String> = Vec::new();
+        let path = Path::new(&filename);
+        let display = path.display();
+        let file_data = match File::open(&path) {
+            Err(why) => return Err(format!("couldn't read {}: {}", display, why)),
+            Ok(file) => io::BufReader::new(file).lines()
+        };
+        file_data.for_each(|maybe_line|{
+            let line = maybe_line.unwrap();
+            if line.is_empty() || line.starts_with(NEW_SUDOKU_SEPARATOR) {
+                if !buffer.is_empty() {
+                    let puzzle = buffer.join("\n");
+                    rs.push(puzzle)
+                }
+                buffer.clear();
+            } else {
+                buffer.push(line.trim().to_string());
+            }
+        });
+        if !buffer.is_empty() {
+            let puzzle = buffer.join("\n");
+            rs.push(puzzle)
+        }
+        return Ok(rs);
     }
 
 }

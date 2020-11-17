@@ -12,7 +12,7 @@ use crate::sudoku_io::SudokuIO;
 
 use std::fs::File;
 use std::io::{self, BufRead};
-use std::path::Path;
+use std::path::{Path, MAIN_SEPARATOR};
 use std::time::{Duration, Instant};
 use std::iter::Map;
 use std::env;
@@ -37,7 +37,7 @@ fn main() {
                 let new_file_name : String = format!("SOLUTION_{}", simple_file_name);
                 parent.unwrap().join(new_file_name).to_str().unwrap().to_string()
             } else {
-                "./sudoku_solution.txt".to_string()
+                format!(".{}sudoku_solution.txt", MAIN_SEPARATOR).to_string()
             };
             generated_file_name
         };

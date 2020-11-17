@@ -24,7 +24,7 @@ class SudokuIOTests extends AnyFlatSpec with Matchers {
 		}
 	}
 
-	it should "correct number of documents" in {
+	it should "read correct number of documents" in {
 		val fileName = this.getClass.getResource("/").getPath + "/sudoku.txt"
 		val expectedLength = readFile(fileName).length
 		val (source, puzzles) = SudokuIO.read(fileName)
