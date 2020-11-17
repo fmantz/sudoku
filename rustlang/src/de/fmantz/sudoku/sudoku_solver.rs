@@ -1,21 +1,21 @@
+use std::env;
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::iter::Map;
+use std::path::{MAIN_SEPARATOR, Path};
+use std::time::{Duration, Instant};
+
+use crate::sudoku_bit_set::SudokuBitSet;
+use crate::sudoku_io::SudokuIO;
+use crate::sudoku_iterator::SudokuIterator;
+use crate::sudoku_puzzle::SudokuPuzzle;
+use crate::sudoku_puzzle::SudokuPuzzleData;
+
 mod sudoku_bit_set;
 mod sudoku_puzzle;
 mod sudoku_io;
 mod sudoku_iterator;
 mod sudoku_constants;
-
-use crate::sudoku_bit_set::SudokuBitSet;
-use crate::sudoku_puzzle::SudokuPuzzleData;
-use crate::sudoku_puzzle::SudokuPuzzle;
-use crate::sudoku_iterator::SudokuIterator;
-use crate::sudoku_io::SudokuIO;
-
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::{Path, MAIN_SEPARATOR};
-use std::time::{Duration, Instant};
-use std::iter::Map;
-use std::env;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -25,16 +25,16 @@ fn main() {
         println!("-Second argument can be output path for sudoku puzzles solution!");
     } else {
         let start: Instant = Instant::now();
-        let input_file_name : &String = args.get(1).unwrap();
+        let input_file_name: &String = args.get(1).unwrap();
         let output_file_name: String = if args.len() > 2 {
             let second_argument: String = args.get(2).unwrap().to_string();
             second_argument
         } else {
             let path = Path::new(input_file_name);
             let parent = path.parent();
-            let generated_file_name : String  = if parent.is_some() {
-                let simple_file_name : String = path.file_name().unwrap().to_str().unwrap().to_string();
-                let new_file_name : String = format!("SOLUTION_{}", simple_file_name);
+            let generated_file_name: String = if parent.is_some() {
+                let simple_file_name: String = path.file_name().unwrap().to_str().unwrap().to_string();
+                let new_file_name: String = format!("SOLUTION_{}", simple_file_name);
                 parent.unwrap().join(new_file_name).to_str().unwrap().to_string()
             } else {
                 format!(".{}sudoku_solution.txt", MAIN_SEPARATOR).to_string()
@@ -45,7 +45,7 @@ fn main() {
         match puzzles {
             Err(error) => {
                 panic!("Problem opening the file: {:?}", error);
-            },
+            }
             Ok(puzzles) => {
                 SudokuIO::write_qqwing(&output_file_name, puzzles, solve_current_sudoku);
                 let duration = start.elapsed();
@@ -56,7 +56,7 @@ fn main() {
     }
 }
 
-fn solve_current_sudoku(index: &u32, sudoku : & mut SudokuPuzzleData) -> () {
+fn solve_current_sudoku(index: &u32, sudoku: &mut SudokuPuzzleData) -> () {
     if sudoku.is_solved() {
         println!("Sudoku {} is already solved!", index);
     } else if sudoku.is_solvable() {
@@ -65,48 +65,47 @@ fn solve_current_sudoku(index: &u32, sudoku : & mut SudokuPuzzleData) -> () {
             println!("ERROR: Sudoku {} is not correctly solved!", index);
         }
     } else {
-        println!("Sudoku {} is unsolvable:\n {}" , index, sudoku.to_pretty_string());
+        println!("Sudoku {} is unsolvable:\n {}", index, sudoku.to_pretty_string());
     }
 }
 
 
 #[cfg(test)]
 mod tests {
-
-    use crate::sudoku_io::SudokuIO;
-    use crate::sudoku_puzzle::SudokuPuzzleData;
-    use crate::sudoku_puzzle::SudokuPuzzle;
-    use crate::sudoku_constants::{NEW_SUDOKU_SEPARATOR, EMPTY_CHAR, QQWING_EMPTY_CHAR};
-    use crate::sudoku_iterator::SudokuIterator;
-
-    use std::io::{self, BufRead, BufWriter, Write};
-    use std::path::{Path, MAIN_SEPARATOR};
-    use std::path::PathBuf;
     use std::fs::File;
+    use std::io::{self, BufRead, BufWriter, Write};
+    use std::path::{MAIN_SEPARATOR, Path};
+    use std::path::PathBuf;
     use std::time::{Duration, Instant};
+
+    use crate::sudoku_constants::{EMPTY_CHAR, NEW_SUDOKU_SEPARATOR, QQWING_EMPTY_CHAR};
+    use crate::sudoku_io::SudokuIO;
+    use crate::sudoku_iterator::SudokuIterator;
+    use crate::sudoku_puzzle::SudokuPuzzle;
+    use crate::sudoku_puzzle::SudokuPuzzleData;
 
     #[test]
     fn solve_should_solve_50_sudokus_from_project_euler_by_simple_backtracking_algorithm() -> () {
-       check_solve("p096_sudoku.txt");
+        check_solve("p096_sudoku.txt");
     }
 
     #[test]
     fn solve_should_solve_100_sudokus_generated_with_qqwing_by_simple_backtracking_algorithm() -> () {
-       check_solve("sudoku.txt");
+        check_solve("sudoku.txt");
     }
 
-    pub fn check_solve (filename: &str) -> () {
-        let mut dir:PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    pub fn check_solve(filename: &str) -> () {
+        let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt").to_string());
-        let filename :&str = dir.as_os_str().to_str().unwrap();
+        let filename: &str = dir.as_os_str().to_str().unwrap();
         let start: Instant = Instant::now();
-        let mut rs : SudokuIterator = match SudokuIO::read(filename) {
+        let mut rs: SudokuIterator = match SudokuIO::read(filename) {
             Err(why) => panic!("{}", why),
             Ok(puzzles) => puzzles
         };
         for (index, mut sudoku) in rs.enumerate() {
-            let sudoku_number :usize = index + 1;
-            let input : String = sudoku.to_string();
+            let sudoku_number: usize = index + 1;
+            let input: String = sudoku.to_string();
             assert_eq!(sudoku.is_solvable(), true, "Sudoku {} is not well-defined:\n {}", sudoku_number, sudoku.to_pretty_string());
             sudoku.solve();
             let output = sudoku.to_string();
@@ -124,7 +123,7 @@ mod tests {
         println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
     }
 
-    pub fn is_blank (c: char) -> bool {
+    pub fn is_blank(c: char) -> bool {
         return c == EMPTY_CHAR || c == QQWING_EMPTY_CHAR;
     }
 }

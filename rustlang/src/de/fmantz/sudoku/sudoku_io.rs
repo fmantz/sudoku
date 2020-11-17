@@ -1,29 +1,29 @@
+use std::fmt::format;
 use std::fs::File;
 use std::io::{self, BufRead, BufWriter, Write};
+use std::iter::Map;
 use std::path::Path;
 use std::time::{Duration, Instant};
-use crate::sudoku_iterator::SudokuIterator;
-use std::fmt::format;
+
 use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
+use crate::sudoku_iterator::SudokuIterator;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
-use std::iter::Map;
 
-pub struct SudokuIO{} //no data!
+pub struct SudokuIO {} //no data!
 
 impl SudokuIO {
-
     /**
       * Read usual 9x9 Suduko from text file
       */
-    pub fn read (filename: &str) -> Result<SudokuIterator, String> {
+    pub fn read(filename: &str) -> Result<SudokuIterator, String> {
         let path = Path::new(&filename);
         let display = path.display();
         let file_data = match File::open(&path) {
             Err(why) => return Err(format!("couldn't read {}: {}", display, why)),
             Ok(file) => io::BufReader::new(file).lines()
         };
-        let mut puzzles : SudokuIterator = SudokuIterator::new(file_data);
+        let mut puzzles: SudokuIterator = SudokuIterator::new(file_data);
         return Ok(puzzles);
     }
 
@@ -33,7 +33,7 @@ impl SudokuIO {
     pub fn write(
         filename: &str,
         puzzles: SudokuIterator,
-        f: fn(&u32, & mut SudokuPuzzleData) -> ()
+        f: fn(&u32, &mut SudokuPuzzleData) -> (),
     ) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
@@ -42,12 +42,12 @@ impl SudokuIO {
             Ok(file) => file
         };
         let mut writer = BufWriter::new(&write_file);
-        let mut i:u32 = 0;
+        let mut i: u32 = 0;
         for mut puzzle in puzzles {
             i += 1;
             f(&i, &mut puzzle);
-            writeln!(& mut writer, "{} {}", NEW_SUDOKU_SEPARATOR, i);
-            writeln!(& mut writer, "{}\n", puzzle.to_string());
+            writeln!(&mut writer, "{} {}", NEW_SUDOKU_SEPARATOR, i);
+            writeln!(&mut writer, "{}\n", puzzle.to_string());
             match writer.flush() {
                 Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
                 Ok(()) => () /*do nothing */
@@ -59,7 +59,7 @@ impl SudokuIO {
     pub fn write_qqwing(
         filename: &str,
         puzzles: SudokuIterator,
-        f: fn(&u32, &mut SudokuPuzzleData) -> ()
+        f: fn(&u32, &mut SudokuPuzzleData) -> (),
     ) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
@@ -68,10 +68,10 @@ impl SudokuIO {
             Ok(file) => file
         };
         let mut writer = BufWriter::new(&write_file);
-        let mut i:u32 = 0;
+        let mut i: u32 = 0;
         for mut puzzle in puzzles {
             f(&i, &mut puzzle); //do someting!
-            writeln!(& mut writer, "{}\n", puzzle.to_string());
+            writeln!(&mut writer, "{}\n", puzzle.to_string());
             match writer.flush() {
                 Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
                 Ok(()) => ()/*do nothing */
@@ -83,31 +83,31 @@ impl SudokuIO {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::sudoku_io::SudokuIO;
-    use crate::sudoku_puzzle::SudokuPuzzleData;
-    use crate::sudoku_puzzle::SudokuPuzzle;
-    use std::io::{self, BufRead, BufWriter, Write};
-    use std::path::{Path, MAIN_SEPARATOR};
-    use std::path::PathBuf;
     use std::fs::File;
+    use std::io::{self, BufRead, BufWriter, Write};
+    use std::path::{MAIN_SEPARATOR, Path};
+    use std::path::PathBuf;
+
     use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
+    use crate::sudoku_io::SudokuIO;
     use crate::sudoku_iterator::SudokuIterator;
+    use crate::sudoku_puzzle::SudokuPuzzle;
+    use crate::sudoku_puzzle::SudokuPuzzleData;
 
     #[test]
     fn read_should_correctly_parse_sudokus() -> () {
-        let mut dir:PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt").to_string());
-        let filename :&str = dir.as_os_str().to_str().unwrap();
-        let expected_rs : Vec<String> = match read_file(filename) {
+        let filename: &str = dir.as_os_str().to_str().unwrap();
+        let expected_rs: Vec<String> = match read_file(filename) {
             Err(why) => panic!("{}", why),
             Ok(puzzles) => puzzles
         };
-        let rs : Vec<SudokuPuzzleData> = match SudokuIO::read(filename) {
+        let rs: Vec<SudokuPuzzleData> = match SudokuIO::read(filename) {
             Err(why) => panic!("{}", why),
             Ok(puzzles) => puzzles.collect()
         };
-        for (index, read) in rs.iter().enumerate(){
+        for (index, read) in rs.iter().enumerate() {
             assert_eq!(read.to_string(), expected_rs[index]);
         }
         assert_eq!(expected_rs.len(), 51);
@@ -115,30 +115,30 @@ mod tests {
 
     #[test]
     fn read_should_read_correct_number_of_documents() -> () {
-        let mut dir:PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "sudoku.txt").to_string());
-        let filename :&str = dir.as_os_str().to_str().unwrap();
-        let expected_length : usize = match read_file(filename) {
+        let filename: &str = dir.as_os_str().to_str().unwrap();
+        let expected_length: usize = match read_file(filename) {
             Err(why) => panic!("{}", why),
             Ok(puzzles) => puzzles.len()
         };
-        let read_length : usize = match SudokuIO::read(filename) {
+        let read_length: usize = match SudokuIO::read(filename) {
             Err(why) => panic!("{}", why),
             Ok(puzzles) => puzzles.count()
         };
         assert_eq!(read_length, expected_length);
     }
 
-    pub fn read_file (filename: &str) -> Result<Vec<String>, String> {
-        let mut rs:Vec<String> = Vec::new();
-        let mut buffer:Vec<String> = Vec::new();
+    pub fn read_file(filename: &str) -> Result<Vec<String>, String> {
+        let mut rs: Vec<String> = Vec::new();
+        let mut buffer: Vec<String> = Vec::new();
         let path = Path::new(&filename);
         let display = path.display();
         let file_data = match File::open(&path) {
             Err(why) => return Err(format!("couldn't read {}: {}", display, why)),
             Ok(file) => io::BufReader::new(file).lines()
         };
-        file_data.for_each(|maybe_line|{
+        file_data.for_each(|maybe_line| {
             let line = maybe_line.unwrap();
             if line.is_empty() || line.starts_with(NEW_SUDOKU_SEPARATOR) {
                 if !buffer.is_empty() {
@@ -156,5 +156,4 @@ mod tests {
         }
         return Ok(rs);
     }
-
 }
