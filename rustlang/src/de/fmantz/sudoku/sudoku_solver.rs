@@ -70,3 +70,61 @@ fn solve_current_sudoku(index: &u32, sudoku : & mut SudokuPuzzleData) -> () {
 }
 
 
+#[cfg(test)]
+mod tests {
+
+    use crate::sudoku_io::SudokuIO;
+    use crate::sudoku_puzzle::SudokuPuzzleData;
+    use crate::sudoku_puzzle::SudokuPuzzle;
+    use crate::sudoku_constants::{NEW_SUDOKU_SEPARATOR, EMPTY_CHAR, QQWING_EMPTY_CHAR};
+    use crate::sudoku_iterator::SudokuIterator;
+
+    use std::io::{self, BufRead, BufWriter, Write};
+    use std::path::{Path, MAIN_SEPARATOR};
+    use std::path::PathBuf;
+    use std::fs::File;
+    use std::time::{Duration, Instant};
+
+    #[test]
+    fn solve_should_solve_50_sudokus_from_project_euler_by_simple_backtracking_algorithm() -> () {
+       check_solve("p096_sudoku.txt");
+    }
+
+    #[test]
+    fn solve_should_solve_100_sudokus_generated_with_qqwing_by_simple_backtracking_algorithm() -> () {
+       check_solve("sudoku.txt");
+    }
+
+    pub fn check_solve (filename: &str) -> () {
+        let mut dir:PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt").to_string());
+        let filename :&str = dir.as_os_str().to_str().unwrap();
+        let start: Instant = Instant::now();
+        let mut rs : SudokuIterator = match SudokuIO::read(filename) {
+            Err(why) => panic!("{}", why),
+            Ok(puzzles) => puzzles
+        };
+        for (index, mut sudoku) in rs.enumerate() {
+            let sudoku_number :usize = index + 1;
+            let input : String = sudoku.to_string();
+            assert_eq!(sudoku.is_solvable(), true, "Sudoku {} is not well-defined:\n {}", sudoku_number, sudoku.to_pretty_string());
+            sudoku.solve();
+            let output = sudoku.to_string();
+            assert_eq!(sudoku.is_solved(), true, "Sudoku {} is not solved:\n {}", sudoku_number, sudoku.to_pretty_string());
+            assert_eq!(input.len(), output.len(), "sudoku strings have not same length");
+            let output_char_vec: Vec<char> = output.chars().collect();
+            for (i, in_char) in input.char_indices() {
+                let out_char = output_char_vec[i];
+                if !is_blank(in_char) {
+                    assert_eq!(in_char, out_char) //puzzle should not be changed!
+                }
+            }
+        }
+        let duration = start.elapsed();
+        println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
+    }
+
+    pub fn is_blank (c: char) -> bool {
+        return c == EMPTY_CHAR || c == QQWING_EMPTY_CHAR;
+    }
+}

@@ -6,11 +6,11 @@ import org.scalatest.matchers.should.Matchers
 
 class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
 
-  "solve" should "solve 50 sudokos from project euler by simple backtracking algorithm" in {
+  "solve" should "solve 50 sudokus from project euler by simple backtracking algorithm" in {
     checkSolve(fileName = "p096_sudoku.txt")
   }
 
-  it should "solve 100 sudokos generated with www.qqwing.com by simple backtracking algorithm" in {
+  it should "solve 100 sudokus generated with www.qqwing.com by simple backtracking algorithm" in {
     checkSolve(fileName = "sudoku.txt")
   }
 
@@ -22,16 +22,16 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
       puzzles.zipWithIndex.foreach({ case (sudoku, index) =>
         val sudokuNumber = index + 1
         val input = sudoku.toString
-        require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n $sudoku")
+        require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n ${sudoku.toPrettyString}")
         sudoku.solve()
         val output = sudoku.toString
         require(sudoku.isSolved, s"Sudoku $sudokuNumber is not solved:\n ${sudoku.toPrettyString}")
         require(input.length == output.length, "sudoku strings have not same length")
         for (i <- input.indices) {
-          val in = input.charAt(i)
-          val out = output.charAt(i)
-          if (!isBlank(in) && in != out) {
-            input shouldBe output
+          val inChar = input.charAt(i)
+          val outChar = output.charAt(i)
+          if (!isBlank(inChar)) {
+            inChar shouldBe outChar //puzzle should not be changed!
           }
         }
       })
