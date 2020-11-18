@@ -32,9 +32,9 @@ impl SudokuBitSet {
         return self.bits == CHECK_BIT;
     }
 
-    pub fn has_solution(&self) -> bool {
-        return !SudokuBitSet::is_all_numbers_found(self);
-    }
+    // pub fn has_solution(&self) -> bool {
+    //     return !self.is_all_numbers_found();
+    // }
 
     pub fn is_found_numbers_unique(&self) -> bool {
         return self.not_found_before;
@@ -49,14 +49,22 @@ impl SudokuBitSet {
         };
     }
 
-    pub fn to_string(&self) -> String {
-        return format!("BITS={:#018b}", self.bits);
-    }
+//    pub fn to_string(&self) -> String {
+//        return format!("BITS={:#011b}", self.bits);
+//    }
+
 }
 
 #[cfg(test)]
 mod tests {
     use crate::sudoku_bit_set::SudokuBitSet;
+
+//    #[test]
+//    fn to_string_should_work_correctly() -> () {
+//        let mut test_object: SudokuBitSet = SudokuBitSet::new();
+//        test_object.save_value(5);
+//        assert_eq!(test_object.to_string(), "BITS=0b000010000")
+//    }
 
     #[test]
     fn is_found_numbers_unique_should_work_correctly() -> () {

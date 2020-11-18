@@ -1,11 +1,8 @@
-use std::fmt::format;
 use std::fs::File;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::iter::Map;
 use std::path::Path;
-use std::time::{Duration, Instant};
 
-use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
+//use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
 use crate::sudoku_iterator::SudokuIterator;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
@@ -13,6 +10,7 @@ use crate::sudoku_puzzle::SudokuPuzzleData;
 pub struct SudokuIO {} //no data!
 
 impl SudokuIO {
+
     /**
       * Read usual 9x9 Suduko from text file
       */
@@ -23,38 +21,38 @@ impl SudokuIO {
             Err(why) => return Err(format!("couldn't read {}: {}", display, why)),
             Ok(file) => io::BufReader::new(file).lines()
         };
-        let mut puzzles: SudokuIterator = SudokuIterator::new(file_data);
+        let puzzles: SudokuIterator = SudokuIterator::new(file_data);
         return Ok(puzzles);
     }
 
-    /**
-     * Read Suduko to text file
-     */
-    pub fn write(
-        filename: &str,
-        puzzles: SudokuIterator,
-        f: fn(&u32, &mut SudokuPuzzleData) -> (),
-    ) -> Result<(), String> {
-        let path = Path::new(filename);
-        let display = path.display();
-        let write_file = match File::create(&path) {
-            Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
-            Ok(file) => file
-        };
-        let mut writer = BufWriter::new(&write_file);
-        let mut i: u32 = 0;
-        for mut puzzle in puzzles {
-            i += 1;
-            f(&i, &mut puzzle);
-            writeln!(&mut writer, "{} {}", NEW_SUDOKU_SEPARATOR, i);
-            writeln!(&mut writer, "{}\n", puzzle.to_string());
-            match writer.flush() {
-                Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
-                Ok(()) => () /*do nothing */
-            }
-        }
-        return Ok(());
-    }
+    // /**
+    //  * Read Suduko to text file
+    //  */
+    // pub fn write(
+    //     filename: &str,
+    //     puzzles: SudokuIterator,
+    //     f: fn(&u32, &mut SudokuPuzzleData) -> (),
+    // ) -> Result<(), String> {
+    //     let path = Path::new(filename);
+    //     let display = path.display();
+    //     let write_file = match File::create(&path) {
+    //         Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
+    //         Ok(file) => file
+    //     };
+    //     let mut writer = BufWriter::new(&write_file);
+    //     let mut i: u32 = 0;
+    //     for mut puzzle in puzzles {
+    //         i += 1;
+    //         f(&i, &mut puzzle);
+    //         writeln!(&mut writer, "{} {}", NEW_SUDOKU_SEPARATOR, i);
+    //         writeln!(&mut writer, "{}\n", puzzle.to_string());
+    //         match writer.flush() {
+    //             Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
+    //             Ok(()) => () /*do nothing */
+    //         }
+    //     }
+    //     return Ok(());
+    // }
 
     pub fn write_qqwing(
         filename: &str,
@@ -70,8 +68,15 @@ impl SudokuIO {
         let mut writer = BufWriter::new(&write_file);
         let mut i: u32 = 0;
         for mut puzzle in puzzles {
+            i +=1;
             f(&i, &mut puzzle); //do someting!
-            writeln!(&mut writer, "{}\n", puzzle.to_string());
+            let write_rs = writeln!(&mut writer, "{}\n", puzzle.to_string());
+            match write_rs {
+                Err(error) => {
+                    panic!("Problem with saving solved puzzle: {:?}", error);
+                }
+                Ok(()) => { /* do nothing */ }
+            };
             match writer.flush() {
                 Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
                 Ok(()) => ()/*do nothing */
@@ -84,13 +89,12 @@ impl SudokuIO {
 #[cfg(test)]
 mod tests {
     use std::fs::File;
-    use std::io::{self, BufRead, BufWriter, Write};
+    use std::io::{self, BufRead};
     use std::path::{MAIN_SEPARATOR, Path};
     use std::path::PathBuf;
 
     use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
     use crate::sudoku_io::SudokuIO;
-    use crate::sudoku_iterator::SudokuIterator;
     use crate::sudoku_puzzle::SudokuPuzzle;
     use crate::sudoku_puzzle::SudokuPuzzleData;
 

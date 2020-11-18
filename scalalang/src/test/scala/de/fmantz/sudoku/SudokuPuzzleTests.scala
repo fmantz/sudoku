@@ -10,7 +10,7 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     checkSolve(fileName = "p096_sudoku.txt")
   }
 
-  it should "solve 100 sudokus generated with www.qqwing.com by simple backtracking algorithm" in {
+  it should "solve 10 sudokus generated with www.qqwing.com by simple backtracking algorithm" in {
     checkSolve(fileName = "sudoku.txt")
   }
 

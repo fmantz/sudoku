@@ -5,6 +5,12 @@ import org.scalatest.matchers.should.Matchers
 
 class SudokuBitSetTests extends AnyFlatSpec with Matchers {
 
+//  "toString" should "work correctly" in {
+//    val testObject = new SudokuBitSet
+//    testObject.saveValue(value = 5)
+//    testObject.toString shouldBe "BITS=0b000010000"
+//  }
+
   "isFoundNumbersUnique" should "work correctly" in {
 
     val testObject = new SudokuBitSet

@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{self, Error};
+use std::io::{self};
 use std::str::Chars;
 
 use crate::sudoku_constants::EMPTY_CHAR;
@@ -60,7 +60,6 @@ impl SudokuIterator {
         while maybe_cur_line.is_some() {
             match maybe_cur_line.unwrap() {
                 Err(_) => {
-                    maybe_cur_line = None;
                     break;
                 }
                 Ok(cur_line_string) => {

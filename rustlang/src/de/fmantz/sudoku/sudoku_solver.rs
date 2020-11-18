@@ -1,11 +1,7 @@
 use std::env;
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::iter::Map;
 use std::path::{MAIN_SEPARATOR, Path};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
-use crate::sudoku_bit_set::SudokuBitSet;
 use crate::sudoku_io::SudokuIO;
 use crate::sudoku_iterator::SudokuIterator;
 use crate::sudoku_puzzle::SudokuPuzzle;
@@ -47,7 +43,13 @@ fn main() {
                 panic!("Problem opening the file: {:?}", error);
             }
             Ok(puzzles) => {
-                SudokuIO::write_qqwing(&output_file_name, puzzles, solve_current_sudoku);
+                let write_rs : Result<(), String> = SudokuIO::write_qqwing(&output_file_name, puzzles, solve_current_sudoku);
+                match write_rs {
+                    Err(error) => {
+                        panic!("Problem with saving solved puzzle: {:?}", error);
+                    }
+                    Ok(()) => { /* do nothing */ }
+                };
                 let duration = start.elapsed();
                 println!("output: {} ", Path::new(&output_file_name).to_str().unwrap());
                 println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
@@ -72,17 +74,15 @@ fn solve_current_sudoku(index: &u32, sudoku: &mut SudokuPuzzleData) -> () {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::File;
-    use std::io::{self, BufRead, BufWriter, Write};
-    use std::path::{MAIN_SEPARATOR, Path};
-    use std::path::PathBuf;
-    use std::time::{Duration, Instant};
 
-    use crate::sudoku_constants::{EMPTY_CHAR, NEW_SUDOKU_SEPARATOR, QQWING_EMPTY_CHAR};
+    use std::path::MAIN_SEPARATOR;
+    use std::path::PathBuf;
+    use std::time::Instant;
+
+    use crate::sudoku_constants::{EMPTY_CHAR, QQWING_EMPTY_CHAR};
     use crate::sudoku_io::SudokuIO;
     use crate::sudoku_iterator::SudokuIterator;
     use crate::sudoku_puzzle::SudokuPuzzle;
-    use crate::sudoku_puzzle::SudokuPuzzleData;
 
     #[test]
     fn solve_should_solve_50_sudokus_from_project_euler_by_simple_backtracking_algorithm() -> () {
@@ -90,16 +90,16 @@ mod tests {
     }
 
     #[test]
-    fn solve_should_solve_100_sudokus_generated_with_qqwing_by_simple_backtracking_algorithm() -> () {
+    fn solve_should_solve_10_sudokus_generated_with_qqwing_by_simple_backtracking_algorithm() -> () {
         check_solve("sudoku.txt");
     }
 
     pub fn check_solve(filename: &str) -> () {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt").to_string());
-        let filename: &str = dir.as_os_str().to_str().unwrap();
+        dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, filename).to_string());
+        let filename_with_path: &str = dir.as_os_str().to_str().unwrap();
         let start: Instant = Instant::now();
-        let mut rs: SudokuIterator = match SudokuIO::read(filename) {
+        let rs: SudokuIterator = match SudokuIO::read(filename_with_path) {
             Err(why) => panic!("{}", why),
             Ok(puzzles) => puzzles
         };

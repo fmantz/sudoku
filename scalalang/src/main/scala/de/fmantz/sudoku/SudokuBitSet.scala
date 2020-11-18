@@ -31,9 +31,9 @@ class SudokuBitSet {
     bits == CheckBits
   }
 
-  def hasSolution: Boolean = {
-    !isAllNumbersFound
-  }
+//  def hasSolution: Boolean = {
+//    !isAllNumbersFound
+//  }
 
   def isFoundNumbersUnique: Boolean = {
     notFoundBefore
@@ -48,7 +48,8 @@ class SudokuBitSet {
     }
   }
 
-  override def toString: String = {
-     s"BITS=%0${SudokuConstants.PuzzleSize}d".format(this.bits.toBinaryString.toInt)
-  }
+//  override def toString: String = {
+//     s"BITS=0b%0${SudokuConstants.PuzzleSize}d".format(this.bits.toBinaryString.toInt)
+//  }
+
 }
