@@ -15,7 +15,7 @@ mod sudoku_constants;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.is_empty() {
+    if args.len() < 2 {
         println!(">SudokuSolver inputFile [outputFile]");
         println!("-First argument must be path to sudoku puzzles!");
         println!("-Second argument can be output path for sudoku puzzles solution!");

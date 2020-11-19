@@ -1,0 +1,7 @@
+version: "3.8"
+sudoku:
+  image: "sudoku:01"
+  volumes:
+    - ./performance:/performance
+  command: python manage.py migrate  
+
