@@ -7,6 +7,6 @@ README
 * Build native by "sbt -DNATIVE clean nativeLink"  (will last some time)
 * Run native file by "./target/scala-2.11/sudoku-out ./src/test/resources/p096_sudoku.txt"
 * Sudokus can be generated e.g. with https://qqwing.com/download.html "java -jar qqwing-1.3.4.jar --generate 1000 --difficulty expert --compact > sudoku.txt"
-* Sodokus can be fast solved by qqwing "cat sudoku.txt | java -jar qqwing-1.3.4.jar --solve --compact > soduko_sol.txt"
+* Sodokus can be fast solved by qqwing "cat sudoku.txt | java -jar qqwing-1.3.4.jar --solve --compact > sudoku_sol.txt"
 * Note in my tests qqwing unfortunately produces results that are not ordered accordingly the input puzzles but randomly (it's a multithreading application)
 

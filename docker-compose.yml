@@ -1,7 +1,7 @@
 version: "3.8"
-sudoku:
-  image: "sudoku:01"
-  volumes:
-    - ./performance:/performance
-  command: python manage.py migrate  
-
+services:
+  sudoku:
+      image: "sudoku:0.1"
+      volumes:
+        - ./performance:/root/performance
+      command: bash /root/performance/test.sh   
