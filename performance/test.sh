@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export LEVEL=3
+export LEVEL=4
 export NEWDIR="$(date '+%Y-%m-%d_%H-%M-%S').logs"
 
 mkdir /root/performance/$NEWDIR
@@ -31,8 +31,9 @@ echo *****************************************
 
 let NUMBER_OF_PUZZLES=$(($NUMBER_OF_PUZZLES*10))
 
-done
-
+#Update result csvs:
 scala /root/performance/prepare_data.sh /root/performance/${NEWDIR}
+
+done
 
 exit
