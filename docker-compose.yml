@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  sudoku:
+      image: "sudoku:0.1"
+      deploy:
+        resources: 
+          limits:
+            cpus: '1.00' 
+          reservations:
+            cpus: '1.00'  
+      volumes:
+        - ./performance:/root/performance
+      command: bash /root/performance/test.sh   

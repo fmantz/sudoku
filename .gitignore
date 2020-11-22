@@ -1,0 +1,31 @@
+# sbt
+# (may want to keep parts of 'project')
+bin/
+target/
+build/
+*.logs/
+
+# eclipse
+build
+.classpath
+.project
+.settings
+.worksheet
+
+# intellij idea
+*.log
+*.iml
+*.ipr
+*.iws
+.idea
+*.class
+*.lib
+*.jar
+*.tar.gz
+
+# execution files:
+*.pid
+*.attach_pid*
+
+#mac:
+.DS_Store

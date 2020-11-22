@@ -1,0 +1,30 @@
+#
+# sudoku - Sudoku solver for comparison Scala with Rust
+#        - The motivation is explained in the README.md file in the top level folder.
+# Copyright (C) 2020 Florian Mantz
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+[package]
+name = "sudoku"
+version = "0.1.0"
+authors = ["Florian Mantz"]
+edition = "2018"
+
+[[bin]]
+name= "sudoku"
+path = "src/de/fmantz/sudoku/sudoku_solver.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
