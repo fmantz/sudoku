@@ -24,12 +24,15 @@ object SudokuBitSet {
   private final val CheckBits = ~0 >>> (32 - SudokuConstants.PuzzleSize) //binary: Size times "1"
 }
 
-class SudokuBitSet {
+class SudokuBitSet( private var bits: Int) {
+
+  def this(){
+    this(bits = 0)
+  }
 
   import SudokuBitSet._
 
   //stores numbers as bits:
-  private var bits: Int = 0
   private var notFoundBefore: Boolean = true
 
   /**

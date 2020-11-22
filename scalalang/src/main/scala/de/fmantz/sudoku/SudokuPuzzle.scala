@@ -60,6 +60,9 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
    * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
    */
   override def solve(): Unit = {
+
+    val turbo = SudokuTurbo.create(this.puzzle)
+
     def go(): Unit = {
       var row = 0
       var run = true
@@ -67,12 +70,14 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
         var col = 0
         while (run && col < PuzzleSize) {
           if (isEmpty(row, col)) {
-            val solutionSpace = createSolutionSpace(row, col)
+            val solutionSpace = turbo.createSolutionSpace(row, col) //TODO faster!
             for (n <- 1 to PuzzleSize) {
               if (solutionSpace.isSolution(n)) {
                 set(row, col, n)
+                turbo.saveValue(row, col, n)
                 go()
                 set(row, col, value = 0) //backtrack!
+                turbo.revertValue(row, col, n)
               }
             }
             //solution found for slot!
