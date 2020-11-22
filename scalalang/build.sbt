@@ -1,17 +1,29 @@
+//scalastyle:off
+/*
+ * sudoku - Sudoku solver for comparison Scala with Rust
+ *        - The motivation is explained in the README.txt file in the top level folder.
+ * Copyright (C) 2020 Florian Mantz
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+//scalastyle:on
+
 lazy val isNative = sys.props.get("NATIVE").isDefined
 lazy val enablePluginsList = if(isNative) Seq(ScalaNativePlugin) else Seq.empty
 enablePlugins(enablePluginsList:_*)
 
-// The simplest possible sbt build file is just one line:
 scalaVersion := "2.11.12"
-// That is, to create a valid sbt build, all you've got to do is define the
-// version of Scala you'd like your project to use.
-
-// ============================================================================
-
-// Lines like the above defining `scalaVersion` are called "settings" Settings
-// are key/value pairs. In the case of `scalaVersion`, the key is "scalaVersion"
-// and the value is "2.12.8"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 

@@ -1,3 +1,21 @@
+/*
+ * sudoku - Sudoku solver for comparison Scala with Rust
+ *        - The motivation is explained in the README.txt file in the top level folder.
+ * Copyright (C) 2020 Florian Mantz
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 use crate::sudoku_bit_set::SudokuBitSet;
 use crate::sudoku_constants::PUZZLE_SIZE;
 use crate::sudoku_constants::SQUARE_SIZE;
@@ -47,6 +65,10 @@ impl SudokuPuzzle for SudokuPuzzleData {
         return self.check_conditions(true);
     }
 
+    /**
+     * solves the sudoku by a simple backtracking algorithm (brute force)
+     * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
+     */
     fn solve(&mut self) -> () {
         fn go(puzzle: &mut SudokuPuzzleData) -> () {
             let mut run: bool = true;
@@ -114,6 +136,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
 
 //private functions here:
 impl SudokuPuzzleData {
+
     /**
      * @param row in [0,9]
      * @param relaxed true means it is still solvable, false it contains all possible numbers once

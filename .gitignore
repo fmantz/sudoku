@@ -22,3 +22,7 @@ build
 *.lib
 *.jar
 *.tar.gz
+
+# execution files:
+*.pid
+*.attach_pid*
