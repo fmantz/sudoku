@@ -26,3 +26,6 @@ build
 # execution files:
 *.pid
 *.attach_pid*
+
+#mac:
+.DS_Store
