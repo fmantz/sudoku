@@ -4,12 +4,15 @@ class SudokuTurbo private () {
 
 	import SudokuTurbo._
 
-//	private val colCounts: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
-//	private val rowCounts: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
-//	private val squareCounts: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
+	private val colCounts: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
+	private val rowCounts: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
+
 	private val colNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val rowNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val squareNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
+
+	var rowIndices: Array[Int] = Array.empty
+	var colIndices: Array[Int] = Array.empty
 
 	def createSolutionSpace(row: Int, col: Int): SudokuBitSet = {
 		val squareIndex = SudokuTurbo.calculateSquareIndex(row, col)
@@ -20,14 +23,13 @@ class SudokuTurbo private () {
 	def saveValue(row: Int, col: Int, value: Int): Unit = {
 		if (value != 0) {
 			//save col data:
-//			colCounts(row) += 1
+			colCounts(col) += 1
 			colNums(col) = storeValueAsBit(colNums(col), value)
 			//save row data:
-//			rowCounts(row) += 1
+			rowCounts(row) += 1
 			rowNums(row) = storeValueAsBit(rowNums(row), value)
 			//save square data:
 			val squareIndex = calculateSquareIndex(row, col)
-//			squareCounts(squareIndex) += 1
 			squareNums(squareIndex) = storeValueAsBit(squareNums(squareIndex), value)
 		}
 	}
@@ -35,14 +37,13 @@ class SudokuTurbo private () {
 	def revertValue(row: Int, col: Int, value: Int): Unit = {
 		if (value != 0) {
 			//save col data:
-//			colCounts(row) -= 1
+			colCounts(col) -= 1
 			colNums(col) = revertValueAsBit(colNums(col), value)
 			//save row data:
-//			rowCounts(row) -= 1
+			rowCounts(row) -= 1
 			rowNums(row) = revertValueAsBit(rowNums(row), value)
 			//save square data:
 			val squareIndex = calculateSquareIndex(row, col)
-//			squareCounts(squareIndex) -= 1
 			squareNums(squareIndex) = revertValueAsBit(squareNums(squareIndex), value)
 		}
 	}
@@ -63,6 +64,8 @@ object SudokuTurbo {
 			col = 0
 			row += 1
 		}
+		rs.rowIndices = createSortedIndices(rs.rowCounts)
+		rs.colIndices = createSortedIndices(rs.colCounts)
 		rs
 	}
 
@@ -85,5 +88,9 @@ object SudokuTurbo {
 		val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
 		container ^ checkBit
 	}
-	
+
+	private def createSortedIndices(num:Array[Int]) : Array[Int] = {
+		num.zipWithIndex.sortBy(_._1).reverse.map(_._2) ++ Array(-1) //sort according to number heuristic
+	}
+
 }

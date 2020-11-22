@@ -65,27 +65,31 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
     def go(): Unit = {
       var row = 0
+      var rowIndex = turbo.rowIndices(row)
       var run = true
       while (run && row < PuzzleSize) {
         var col = 0
+        var colIndex = turbo.colIndices(col)
         while (run && col < PuzzleSize) {
-          if (isEmpty(row, col)) {
-            val solutionSpace = turbo.createSolutionSpace(row, col) //TODO faster!
+          if (isEmpty(rowIndex, colIndex)) {
+            val solutionSpace = turbo.createSolutionSpace(rowIndex, colIndex)
             for (n <- 1 to PuzzleSize) {
               if (solutionSpace.isSolution(n)) {
-                set(row, col, n)
-                turbo.saveValue(row, col, n)
+                set(rowIndex, colIndex, n)
+                turbo.saveValue(rowIndex, colIndex, n)
                 go()
-                set(row, col, value = 0) //backtrack!
-                turbo.revertValue(row, col, n)
+                set(rowIndex, colIndex, value = 0) //backtrack!
+                turbo.revertValue(rowIndex, colIndex, n)
               }
             }
             //solution found for slot!
             run = false
           }
           col += 1
+          colIndex=turbo.colIndices(col)
         }
         row += 1
+        rowIndex=turbo.rowIndices(row)
       }
       //solution found for all slots:
       if (run) {
