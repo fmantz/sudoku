@@ -14,10 +14,36 @@ class SudokuTurbo private () {
 	var rowIndices: Array[Int] = Array.empty
 	var colIndices: Array[Int] = Array.empty
 
-	def createSolutionSpace(row: Int, col: Int): SudokuBitSet = {
-		val squareIndex = SudokuTurbo.calculateSquareIndex(row, col)
-		val bits: Int = colNums(col) | rowNums(row) | squareNums(squareIndex)
-		new SudokuBitSet(bits)
+	private var myIsSolvable : Boolean = true
+
+	private def saveValueAndCheckIsSolvable(row: Int, col: Int, value: Int): Unit = {
+		if (value != 0) {
+
+			//save col data:
+			colCounts(col) += 1
+			val oldColNumValue = colNums(col)
+			val newColNumValue = storeValueAsBit(oldColNumValue, value)
+			colNums(col) = newColNumValue
+
+			//save row data:
+			rowCounts(row) += 1
+			val oldRowNumValue = rowNums(row)
+			val newRowNumValue = storeValueAsBit(oldRowNumValue, value)
+			rowNums(row) = newRowNumValue
+
+			//save square data:
+			val squareIndex = calculateSquareIndex(row, col)
+			val oldSquareNumValue = squareNums(squareIndex)
+			val newSquareNumValue = storeValueAsBit(oldSquareNumValue, value)
+			squareNums(squareIndex) = newSquareNumValue
+
+			//If old and new value is equal the same value
+			//has already been stored before:
+			myIsSolvable &&=
+				oldColNumValue != newColNumValue &&
+					oldRowNumValue != newRowNumValue &&
+					oldSquareNumValue != newSquareNumValue
+		}
 	}
 
 	def saveValue(row: Int, col: Int, value: Int): Unit = {
@@ -48,6 +74,18 @@ class SudokuTurbo private () {
 		}
 	}
 
+	def createSolutionSpace(row: Int, col: Int): SudokuBitSet = {
+		val squareIndex = SudokuTurbo.calculateSquareIndex(row, col)
+		val bits: Int = colNums(col) | rowNums(row) | squareNums(squareIndex)
+		new SudokuBitSet(bits)
+	}
+
+	def isSolvable : Boolean = myIsSolvable
+
+	def isSolved : Boolean = {
+		 this.colNums.forall(_ == SudokuConstants.PuzzleSize) //Does not ensure the solution is correct, but the algorithm will!
+	}
+
 }
 
 object SudokuTurbo {
@@ -58,7 +96,7 @@ object SudokuTurbo {
 		while (row < SudokuConstants.PuzzleSize) {
 			val rowData = puzzleData(row)
 			while (col < SudokuConstants.PuzzleSize) {
-				rs.saveValue(row, col, rowData(col))
+				rs.saveValueAndCheckIsSolvable(row, col, rowData(col))
 				col += 1
 			}
 			col = 0

@@ -26,6 +26,8 @@ trait SudokuPuzzle {
   def set(row: Int, col: Int, value: Int): Unit
   def isEmpty(row: Int, col: Int): Boolean
   def isSolvable: Boolean
+  def checkSolution: Boolean
+  def initTurbo(): Unit
   def isSolved: Boolean
   def solve(): Unit
   def toPrettyString: String
@@ -39,6 +41,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   private val puzzle: Array[Array[Int]] = Array.ofDim[Int](PuzzleSize, PuzzleSize)
   private var isOpen: Boolean = true
   private var isEmpty: Boolean = true
+  private var turbo: SudokuTurbo = None.orNull
 
   override def set(row: Int, col: Int, value: Int): Unit = {
     if(isOpen){
@@ -51,18 +54,19 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
     puzzle(row)(col) == 0
   }
 
-  override def isSolved: Boolean = checkConditions(relaxed = false)
+  override def initTurbo() : Unit = {
+    this.turbo = SudokuTurbo.create(this.puzzle)
+  }
 
-  override def isSolvable: Boolean = checkConditions(relaxed = true)
+  override def isSolved: Boolean = turbo.isSolved
+
+  override def isSolvable: Boolean = turbo.isSolvable
 
   /**
    * solves the sudoku by a simple backtracking algorithm (brute force)
    * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
    */
   override def solve(): Unit = {
-
-    val turbo = SudokuTurbo.create(this.puzzle)
-
     def go(): Unit = {
       var row = 0
       var rowIndex = turbo.rowIndices(row)
@@ -132,11 +136,10 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
   /**
    * @param row in [0,9]
-   * @param relaxed true means it is still solvable, false it contains all possible numbers once
    */
-  private def isRowOK(row: Int, relaxed: Boolean): Boolean = {
+  private def isRowOK(row: Int): Boolean = {
     val bits: SudokuBitSet = checkRow(row)
-    bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
+    bits.isFoundNumbersUnique && bits.isAllNumbersFound
   }
 
   @inline private def checkRow(
@@ -155,11 +158,10 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
   /**
    * @param col in [0,9]
-   * @param relaxed true means it is still solvable, false it contains all possible numbers once
    */
-  private def isColOK(col: Int, relaxed: Boolean): Boolean = {
+  private def isColOK(col: Int): Boolean = {
     val bits: SudokuBitSet = checkCol(col)
-    bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
+    bits.isFoundNumbersUnique && bits.isAllNumbersFound
   }
 
   @inline private def checkCol(
@@ -178,11 +180,10 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   /**
    * @param rowSquareIndex in [0,2]
    * @param colSquareIndex in [0,2]
-   * @param relaxed true means it is still solvable, false it contains all possible numbers once
    */
-  private def isSquareOK(rowSquareIndex: Int, colSquareIndex: Int, relaxed: Boolean): Boolean = {
+  private def isSquareOK(rowSquareIndex: Int, colSquareIndex: Int): Boolean = {
     val bits = checkSquare(rowSquareIndex, colSquareIndex)
-    bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
+    bits.isFoundNumbersUnique && bits.isAllNumbersFound
   }
 
   @inline private def checkSquare(
@@ -205,25 +206,10 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
     bits
   }
 
-  @inline private def checkConditions(relaxed: Boolean): Boolean = {
-    (0 until PuzzleSize).forall(row => isRowOK(row, relaxed)) &&
-      (0 until PuzzleSize).forall(col => isColOK(col, relaxed)) &&
-        (0 until PuzzleSize).forall(i => isSquareOK(i / SquareSize, i % SquareSize, relaxed))
-  }
-
-  /**
-   * The method returns a bit set containing all numbers already used
-   */
-  @inline private def createSolutionSpace(row: Int, col: Int): SudokuBitSet = {
-    val bits = new SudokuBitSet()
-    checkRow(row, bits)
-    checkCol(col, bits)
-    checkSquare(
-      rowSquareIndex = row / SquareSize,
-      colSquareIndex = col / SquareSize,
-      bits = bits
-    )
-    bits
+  override def checkSolution: Boolean = {
+    (0 until PuzzleSize).forall(row => isRowOK(row)) &&
+      (0 until PuzzleSize).forall(col => isColOK(col)) &&
+        (0 until PuzzleSize).forall(i => isSquareOK(i / SquareSize, i % SquareSize))
   }
 
 }
