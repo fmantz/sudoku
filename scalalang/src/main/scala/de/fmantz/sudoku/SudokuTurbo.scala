@@ -24,15 +24,18 @@ class SudokuTurbo private() {
 
 	import SudokuTurbo._
 
+	//Save how many values are preset:
 	private val colCounts: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val rowCounts: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 
+	//Save values set:
 	private val colNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val rowNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val squareNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 
-	var rowIndices: Array[Int] = Array.emptyIntArray
+	//Store optimized sort order:
 	var colIndices: Array[Int] = Array.emptyIntArray
+	var rowIndices: Array[Int] = Array.emptyIntArray
 
 	private var myIsSolvable: Boolean = true
 
@@ -122,8 +125,8 @@ object SudokuTurbo {
 			col = 0
 			row += 1
 		}
-		rs.rowIndices = createSortedIndices(rs.rowCounts)
 		rs.colIndices = createSortedIndices(rs.colCounts)
+		rs.rowIndices = createSortedIndices(rs.rowCounts)
 		rs
 	}
 
@@ -148,7 +151,7 @@ object SudokuTurbo {
 	}
 
 	private def createSortedIndices(num: Array[Int]): Array[Int] = {
-		num.zipWithIndex.sortBy(_._1).reverse.map(_._2) ++ Array(-1) //sort according to numbers heuristic, large numbers first
+		num.zipWithIndex.sortBy(_._1).reverse.map(_._2) ++ Array(0) //sort according to numbers heuristic, large numbers first
 	}
 
 }

@@ -29,18 +29,20 @@ pub trait SudokuPuzzle {
     fn solve(&mut self) -> ();
     fn to_pretty_string(&self) -> String;
     fn to_string(&self) -> String;
+    fn puzzle_data(&self) -> [[u8; PUZZLE_SIZE]; PUZZLE_SIZE];
 }
 
 pub struct SudokuPuzzleData {
-    puzzle: [[u8; PUZZLE_SIZE as usize]; PUZZLE_SIZE as usize],
+    puzzle: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
     is_open: bool,
     is_empty: bool,
 }
 
 impl SudokuPuzzle for SudokuPuzzleData {
+
     fn new() -> Self {
         SudokuPuzzleData {
-            puzzle: [[0; PUZZLE_SIZE as usize]; PUZZLE_SIZE as usize],
+            puzzle: [[0; PUZZLE_SIZE]; PUZZLE_SIZE],
             is_open: true,
             is_empty: true,
         }
@@ -132,6 +134,10 @@ impl SudokuPuzzle for SudokuPuzzleData {
         }
         return buffer.join("\n");
     }
+
+    fn puzzle_data(&self) -> [[u8; PUZZLE_SIZE as usize]; PUZZLE_SIZE as usize] {
+        self.puzzle
+    }
 }
 
 //private functions here:
@@ -149,7 +155,7 @@ impl SudokuPuzzleData {
 
     #[inline]
     fn check_row(&self, row: usize, bits: &mut SudokuBitSet) -> () {
-        let selected_row: [u8; PUZZLE_SIZE as usize] = self.puzzle[row];
+        let selected_row: [u8; PUZZLE_SIZE] = self.puzzle[row];
         for col in 0..PUZZLE_SIZE {
             let value: u8 = selected_row[col];
             bits.save_value(value);

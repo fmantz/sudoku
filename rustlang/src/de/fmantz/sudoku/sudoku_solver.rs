@@ -30,6 +30,7 @@ mod sudoku_puzzle;
 mod sudoku_io;
 mod sudoku_iterator;
 mod sudoku_constants;
+mod sudoku_turbo;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

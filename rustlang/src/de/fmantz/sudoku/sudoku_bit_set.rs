@@ -26,9 +26,17 @@ pub struct SudokuBitSet {
 }
 
 impl SudokuBitSet {
+
     pub fn new() -> Self {
         SudokuBitSet {
             bits: 0,
+            not_found_before: true,
+        }
+    }
+
+    pub fn new_with_data(data: u16) -> Self {
+        SudokuBitSet {
+            bits: data,
             not_found_before: true,
         }
     }
