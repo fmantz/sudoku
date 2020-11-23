@@ -64,11 +64,11 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 		currentSudoku
 	}
 
-	private def readLine(currentSuduko: SudokuPuzzle, currentRow: Int): Unit = {
+	private def readLine(currentSudoku: SudokuPuzzle, currentRow: Int): Unit = {
 		val normalizedLine = curLine.replace(QQWingEmptyChar, EmptyChar).trim
 		val rawValues = normalizedLine.toCharArray.map(_ - EmptyChar)
 		for (col <- 0 until SudokuConstants.PuzzleSize) {
-			currentSuduko.set(currentRow, col, rawValues(col))
+			currentSudoku.set(currentRow, col, rawValues(col))
 		}
 	}
 

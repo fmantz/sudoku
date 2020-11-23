@@ -26,7 +26,6 @@ trait SudokuPuzzle {
   def set(row: Int, col: Int, value: Int): Unit
   def isEmpty(row: Int, col: Int): Boolean
   def isSolvable: Boolean
-  def checkSolution: Boolean
   def initTurbo(): Unit
   def isSolved: Boolean
   def solve(): Unit
@@ -38,7 +37,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   import SudokuConstants._
 
   //state:
-  private val puzzle: Array[Array[Int]] = Array.ofDim[Int](PuzzleSize, PuzzleSize)
+  val puzzle: Array[Array[Int]] = Array.ofDim[Int](PuzzleSize, PuzzleSize)
   private var isOpen: Boolean = true
   private var isEmpty: Boolean = true
   private var turbo: SudokuTurbo = None.orNull
@@ -132,84 +131,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
       }
     }
     buffer.mkString("\n")
-  }
-
-  /**
-   * @param row in [0,9]
-   */
-  private def isRowOK(row: Int): Boolean = {
-    val bits: SudokuBitSet = checkRow(row)
-    bits.isFoundNumbersUnique && bits.isAllNumbersFound
-  }
-
-  @inline private def checkRow(
-    row: Int,
-    bits: SudokuBitSet = new SudokuBitSet()
-  ): SudokuBitSet = {
-    val selectedRow = puzzle(row)
-    var col = 0
-    while (col < PuzzleSize) {
-      val value = selectedRow(col)
-      bits.saveValue(value)
-      col += 1
-    }
-    bits
-  }
-
-  /**
-   * @param col in [0,9]
-   */
-  private def isColOK(col: Int): Boolean = {
-    val bits: SudokuBitSet = checkCol(col)
-    bits.isFoundNumbersUnique && bits.isAllNumbersFound
-  }
-
-  @inline private def checkCol(
-    col: Int,
-    bits: SudokuBitSet = new SudokuBitSet()
-  ): SudokuBitSet = {
-    var row = 0
-    while (row < PuzzleSize) {
-      val value = puzzle(row)(col)
-      bits.saveValue(value)
-      row += 1
-    }
-    bits
-  }
-
-  /**
-   * @param rowSquareIndex in [0,2]
-   * @param colSquareIndex in [0,2]
-   */
-  private def isSquareOK(rowSquareIndex: Int, colSquareIndex: Int): Boolean = {
-    val bits = checkSquare(rowSquareIndex, colSquareIndex)
-    bits.isFoundNumbersUnique && bits.isAllNumbersFound
-  }
-
-  @inline private def checkSquare(
-    rowSquareIndex: Int,
-    colSquareIndex: Int,
-    bits: SudokuBitSet = new SudokuBitSet()
-  ): SudokuBitSet = {
-    val rowSquareOffset = rowSquareIndex * SquareSize
-    val colSquareOffset = colSquareIndex * SquareSize
-    var row = 0
-    while (row < SquareSize) {
-      var col = 0
-      while (col < SquareSize) {
-        val value = puzzle(row + rowSquareOffset)(col + colSquareOffset)
-        bits.saveValue(value)
-        col += 1
-      }
-      row += 1
-    }
-    bits
-  }
-
-  override def checkSolution: Boolean = {
-    (0 until PuzzleSize).forall(row => isRowOK(row)) &&
-      (0 until PuzzleSize).forall(col => isColOK(col)) &&
-        (0 until PuzzleSize).forall(i => isSquareOK(i / SquareSize, i % SquareSize))
   }
 
 }

@@ -1,6 +1,26 @@
+//scalastyle:off
+/*
+ * sudoku - Sudoku solver for comparison Scala with Rust
+ *        - The motivation is explained in the README.md file in the top level folder.
+ * Copyright (C) 2020 Florian Mantz
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+//scalastyle:on
 package de.fmantz.sudoku
 
-class SudokuTurbo private () {
+class SudokuTurbo private() {
 
 	import SudokuTurbo._
 
@@ -11,10 +31,10 @@ class SudokuTurbo private () {
 	private val rowNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val squareNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 
-	var rowIndices: Array[Int] = Array.empty
-	var colIndices: Array[Int] = Array.empty
+	var rowIndices: Array[Int] = Array.emptyIntArray
+	var colIndices: Array[Int] = Array.emptyIntArray
 
-	private var myIsSolvable : Boolean = true
+	private var myIsSolvable: Boolean = true
 
 	private def saveValueAndCheckIsSolvable(row: Int, col: Int, value: Int): Unit = {
 		if (value != 0) {
@@ -80,10 +100,10 @@ class SudokuTurbo private () {
 		new SudokuBitSet(bits)
 	}
 
-	def isSolvable : Boolean = myIsSolvable
+	def isSolvable: Boolean = myIsSolvable
 
-	def isSolved : Boolean = {
-		 this.colNums.forall(_ == SudokuConstants.PuzzleSize) //Does not ensure the solution is correct, but the algorithm will!
+	def isSolved: Boolean = {
+		this.colNums.forall(_ == SudokuConstants.PuzzleSize) //Does not ensure the solution is correct, but the algorithm will!
 	}
 
 }
@@ -127,8 +147,8 @@ object SudokuTurbo {
 		container ^ checkBit
 	}
 
-	private def createSortedIndices(num:Array[Int]) : Array[Int] = {
-		num.zipWithIndex.sortBy(_._1).reverse.map(_._2) ++ Array(-1) //sort according to number heuristic
+	private def createSortedIndices(num: Array[Int]): Array[Int] = {
+		num.zipWithIndex.sortBy(_._1).reverse.map(_._2) ++ Array(-1) //sort according to numbers heuristic, large numbers first
 	}
 
 }
