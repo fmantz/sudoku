@@ -78,13 +78,11 @@ fn main() {
 }
 
 fn solve_current_sudoku(index: &u32, sudoku: &mut SudokuPuzzleData) -> () {
+    sudoku.init_turbo();
     if sudoku.is_solved() {
         println!("Sudoku {} is already solved!", index);
     } else if sudoku.is_solvable() {
         sudoku.solve();
-        if !sudoku.is_solved() {
-            println!("ERROR: Sudoku {} is not correctly solved!", index);
-        }
     } else {
         println!("Sudoku {} is unsolvable:\n {}", index, sudoku.to_pretty_string());
     }

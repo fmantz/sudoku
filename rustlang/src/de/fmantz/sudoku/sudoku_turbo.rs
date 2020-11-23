@@ -116,7 +116,7 @@ impl SudokuTurbo {
         return true;
     }
 
-    pub fn create(puzzle_data: SudokuPuzzleData) -> Self {
+    pub fn create(puzzle_data: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE]) -> Self {
 
         //Save how many values are preset:
         let mut col_counts: [u8; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
@@ -144,7 +144,7 @@ impl SudokuTurbo {
         };
 
         for row in 0..PUZZLE_SIZE {
-            let row_data = puzzle_data.puzzle_data()[row];
+            let row_data = puzzle_data[row];
             for col in 0..PUZZLE_SIZE {
                 rs.save_value_and_check_is_solvable(row, col, row_data[col]);
             }

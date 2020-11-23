@@ -19,12 +19,15 @@
 use crate::sudoku_bit_set::SudokuBitSet;
 use crate::sudoku_constants::PUZZLE_SIZE;
 use crate::sudoku_constants::SQUARE_SIZE;
+use crate::sudoku_turbo::SudokuTurbo;
+use std::borrow::BorrowMut;
 
 pub trait SudokuPuzzle {
     fn new() -> Self;
     fn set(&mut self, row: usize, col: usize, value: u8) -> ();
     fn is_empty(&self, row: usize, col: usize) -> bool;
     fn is_solved(&self) -> bool;
+    fn init_turbo(&mut self) -> ();
     fn is_solvable(&self) -> bool;
     fn solve(&mut self) -> ();
     fn to_pretty_string(&self) -> String;
@@ -36,6 +39,7 @@ pub struct SudokuPuzzleData {
     puzzle: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
     is_open: bool,
     is_empty: bool,
+    turbo: Option<SudokuTurbo>
 }
 
 impl SudokuPuzzle for SudokuPuzzleData {
@@ -45,6 +49,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
             puzzle: [[0; PUZZLE_SIZE]; PUZZLE_SIZE],
             is_open: true,
             is_empty: true,
+            turbo: None
         }
     }
 
@@ -61,6 +66,10 @@ impl SudokuPuzzle for SudokuPuzzleData {
 
     fn is_solved(&self) -> bool {
         return self.check_conditions(false);
+    }
+
+    fn init_turbo(&mut self) -> () {
+        self.turbo = Some(SudokuTurbo::create(self.puzzle_data()));
     }
 
     fn is_solvable(&self) -> bool {
