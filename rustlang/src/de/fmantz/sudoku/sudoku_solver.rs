@@ -128,7 +128,8 @@ mod tests {
             assert_eq!(sudoku.is_solvable(), true, "Sudoku {} is not well-defined:\n {}", sudoku_number, sudoku.to_pretty_string());
             sudoku.solve();
             let output = sudoku.to_string();
-            assert_eq!(sudoku.is_solved(), true, "Sudoku {} is not solved:\n {}", sudoku_number, sudoku.to_pretty_string());
+            assert_eq!(check_solution(&sudoku), true, "Sudoku {} is not solved:\n {}", sudoku_number, sudoku.to_pretty_string());
+            assert_eq!(sudoku.is_solved(), true, "Sudoku {} is solved but isSolved() return false", sudoku_number);
             assert_eq!(input.len(), output.len(), "sudoku strings have not same length");
             let output_char_vec: Vec<char> = output.chars().collect();
             for (i, in_char) in input.char_indices() {

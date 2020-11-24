@@ -18,7 +18,6 @@
  */
 use crate::sudoku_bit_set::SudokuBitSet;
 use crate::sudoku_constants::{PUZZLE_SIZE, SQUARE_SIZE, CHECK_BITS};
-use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
 
 pub struct SudokuTurbo {
     //Save how many values are preset:
@@ -173,7 +172,7 @@ impl SudokuTurbo {
 
     fn create_sorted_indices(num: [u8; PUZZLE_SIZE], mut rs: [usize; PUZZLE_SIZE]) -> [usize; PUZZLE_SIZE] {
         let mut nums_with_indices: Vec<(usize, &u8)> = num.iter().enumerate().collect();
-        nums_with_indices.sort_by(|(a_num, a_index), (b_num, b_index)| b_num.cmp(a_num));
+        nums_with_indices.sort_by(|a, b| b.1.cmp(a.1)); //sort according to numbers heuristic, large numbers first
         for col in 0..PUZZLE_SIZE {
             rs[col] = nums_with_indices[col].0;
         }

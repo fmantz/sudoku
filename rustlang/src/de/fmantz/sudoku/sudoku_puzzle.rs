@@ -20,7 +20,6 @@ use crate::sudoku_bit_set::SudokuBitSet;
 use crate::sudoku_constants::PUZZLE_SIZE;
 use crate::sudoku_constants::SQUARE_SIZE;
 use crate::sudoku_turbo::SudokuTurbo;
-use std::borrow::{BorrowMut, Borrow};
 
 pub trait SudokuPuzzle {
     fn new() -> Self;

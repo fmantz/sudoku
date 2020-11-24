@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::sudoku_constants::{PUZZLE_SIZE, CHECK_BITS};
+use crate::sudoku_constants::CHECK_BITS;
 
 
 pub struct SudokuBitSet {
