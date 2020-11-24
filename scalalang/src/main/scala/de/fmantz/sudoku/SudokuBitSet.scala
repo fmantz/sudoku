@@ -20,17 +20,11 @@
 //scalastyle:on
 package de.fmantz.sudoku
 
-object SudokuBitSet {
-  private final val CheckBits = ~0 >>> (32 - SudokuConstants.PuzzleSize) //binary: Size times "1"
-}
-
 class SudokuBitSet( private var bits: Int) {
 
   def this(){
     this(bits = 0)
   }
-
-  import SudokuBitSet._
 
   //stores numbers as bits:
   private var notFoundBefore: Boolean = true
@@ -51,7 +45,7 @@ class SudokuBitSet( private var bits: Int) {
   }
 
   def isAllNumbersFound: Boolean = {
-    bits == CheckBits
+    bits == SudokuConstants.CheckBits
   }
 
 //  def hasSolution: Boolean = {

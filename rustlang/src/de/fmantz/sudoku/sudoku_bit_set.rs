@@ -16,9 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::sudoku_constants::PUZZLE_SIZE;
+use crate::sudoku_constants::{PUZZLE_SIZE, CHECK_BITS};
 
-const CHECK_BIT: u16 = !0 >> (16 - PUZZLE_SIZE); //binary: Size times "1"
 
 pub struct SudokuBitSet {
     bits: u16,
@@ -55,7 +54,7 @@ impl SudokuBitSet {
     }
 
     pub fn is_all_numbers_found(&self) -> bool {
-        return self.bits == CHECK_BIT;
+        return self.bits == CHECK_BITS;
     }
 
     // pub fn has_solution(&self) -> bool {

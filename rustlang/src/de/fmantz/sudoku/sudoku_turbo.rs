@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::sudoku_bit_set::SudokuBitSet;
-use crate::sudoku_constants::{PUZZLE_SIZE, SQUARE_SIZE};
+use crate::sudoku_constants::{PUZZLE_SIZE, SQUARE_SIZE, CHECK_BITS};
 use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
 
 pub struct SudokuTurbo {
@@ -46,8 +46,8 @@ impl SudokuTurbo {
                 self.save_value_and_check_is_solvable(row, col, row_data[col]);
             }
         }
-        SudokuTurbo::create_sorted_indices(self.col_counts, self.col_indices);
-        SudokuTurbo::create_sorted_indices(self.row_counts, self.row_indices);
+        self.col_indices = SudokuTurbo::create_sorted_indices(self.col_counts, self.col_indices);
+        self.row_indices = SudokuTurbo::create_sorted_indices(self.row_counts, self.row_indices);
         self.is_inited = true;
     }
 
@@ -84,10 +84,8 @@ impl SudokuTurbo {
     pub fn save_value(&mut self, row: usize, col: usize, value: u8) -> () {
         if value != 0 {
             //save col data:
-            self.col_counts[col] += 1;
             self.col_nums[col] = SudokuTurbo::store_value_as_bit(self.col_nums[col], value);
             //save row data:
-            self.row_counts[row] += 1;
             self.row_nums[row] = SudokuTurbo::store_value_as_bit(self.row_nums[row], value);
             //save square data:
             let square_index = SudokuTurbo::calculate_square_index(row, col);
@@ -98,10 +96,8 @@ impl SudokuTurbo {
     pub fn revert_value(&mut self, row: usize, col: usize, value: u8) -> () {
         if value != 0 {
             //save col data:
-            self.col_counts[col] -= 1;
             self.col_nums[col] = SudokuTurbo::revert_value_as_bit(self.col_nums[col], value);
             //save row data:
-            self.row_counts[row] -= 1;
             self.row_nums[row] = SudokuTurbo::revert_value_as_bit(self.row_nums[row], value);
             //save square data:
             let square_index = SudokuTurbo::calculate_square_index(row, col);
@@ -124,9 +120,9 @@ impl SudokuTurbo {
     }
 
     pub fn is_solved(&self) -> bool {
-        for col in 0..PUZZLE_SIZE {
+        for i in 0..PUZZLE_SIZE {
             //Does not ensure the solution is correct, but the algorithm will!
-            if self.col_counts[col] != (PUZZLE_SIZE as u8) {
+            if self.col_nums[i] != CHECK_BITS || self.col_nums[i] != CHECK_BITS {
                 return false;
             }
         }
@@ -175,11 +171,12 @@ impl SudokuTurbo {
         container ^ check_bit
     }
 
-    fn create_sorted_indices(num: [u8; PUZZLE_SIZE], mut rs: [usize; PUZZLE_SIZE]) -> () {
+    fn create_sorted_indices(num: [u8; PUZZLE_SIZE], mut rs: [usize; PUZZLE_SIZE]) -> [usize; PUZZLE_SIZE] {
         let mut nums_with_indices: Vec<(usize, &u8)> = num.iter().enumerate().collect();
         nums_with_indices.sort_by(|(a_num, a_index), (b_num, b_index)| b_num.cmp(a_num));
         for col in 0..PUZZLE_SIZE {
             rs[col] = nums_with_indices[col].0;
         }
+        return rs;
     }
 }

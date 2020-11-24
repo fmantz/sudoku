@@ -41,6 +41,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   private var isOpen: Boolean = true
   private var isEmpty: Boolean = true
   private var turbo: SudokuTurbo = SudokuTurbo.create()
+  private var myIsSolved: Boolean = false
 
   override def set(row: Int, col: Int, value: Int): Unit = {
     if(isOpen){
@@ -55,11 +56,16 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
   override def initTurbo() : Unit = {
     this.turbo.init(this.puzzle)
+    myIsSolved = this.turbo.isSolved
   }
 
-  override def isSolved: Boolean = turbo.isSolved
+  override def isSolved: Boolean = {
+    myIsSolved
+  }
 
-  override def isSolvable: Boolean = turbo.isSolvable
+  override def isSolvable: Boolean = {
+    turbo.isSolvable
+  }
 
   /**
    * solves the sudoku by a simple backtracking algorithm (brute force)
@@ -95,6 +101,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
       //solution found for all slots:
       if (run) {
         isOpen = false
+        myIsSolved = true
       }
     }
 

@@ -38,7 +38,8 @@ pub struct SudokuPuzzleData {
     puzzle: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
     is_open: bool,
     is_empty: bool,
-    turbo: SudokuTurbo
+    turbo: SudokuTurbo,
+    my_is_solved: bool
 }
 
 impl SudokuPuzzle for SudokuPuzzleData {
@@ -48,7 +49,8 @@ impl SudokuPuzzle for SudokuPuzzleData {
             puzzle: [[0; PUZZLE_SIZE]; PUZZLE_SIZE],
             is_open: true,
             is_empty: true,
-            turbo: SudokuTurbo::create()
+            turbo: SudokuTurbo::create(),
+            my_is_solved: false
         }
     }
 
@@ -64,15 +66,16 @@ impl SudokuPuzzle for SudokuPuzzleData {
     }
 
     fn is_solved(&self) -> bool {
-        return self.check_conditions(false);
+        return self.my_is_solved && self.check_conditions(false); //TODO
     }
 
     fn init_turbo(&mut self) -> () {
         self.turbo.init(&self.puzzle);
+        self.my_is_solved = self.turbo.is_solved();
     }
 
     fn is_solvable(&self) -> bool {
-        return self.check_conditions(true);
+        return self.turbo.is_solvable() && self.check_conditions(true); //TODO
     }
 
     /**
@@ -93,7 +96,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
                                 puzzle.set(row_index, col_index, n);
                                 puzzle.turbo.save_value(row_index, col_index, n);
                                 go(puzzle);
-                                puzzle.set(row, col, 0); //back track
+                                puzzle.set(row_index, col_index, 0); //back track
                                 puzzle.turbo.revert_value(row_index, col_index, n);
                             }
                         }
@@ -106,6 +109,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
             //solution found for all slots:
             if run {
                 puzzle.is_open = false;
+                puzzle.my_is_solved = true;
             }
         }
         go(self);

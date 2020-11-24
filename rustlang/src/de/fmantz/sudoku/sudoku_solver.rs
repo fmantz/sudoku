@@ -123,6 +123,7 @@ mod tests {
         for (index, mut sudoku) in rs.enumerate() {
             let sudoku_number: usize = index + 1;
             let input: String = sudoku.to_string();
+            sudoku.init_turbo();
             assert_eq!(sudoku.is_solvable(), true, "Sudoku {} is not well-defined:\n {}", sudoku_number, sudoku.to_pretty_string());
             sudoku.solve();
             let output = sudoku.to_string();

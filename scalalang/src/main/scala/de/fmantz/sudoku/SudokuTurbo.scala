@@ -89,10 +89,8 @@ class SudokuTurbo private() {
 	def saveValue(row: Int, col: Int, value: Int): Unit = {
 		if (value != 0) {
 			//save col data:
-			colCounts(col) += 1
 			colNums(col) = storeValueAsBit(colNums(col), value)
 			//save row data:
-			rowCounts(row) += 1
 			rowNums(row) = storeValueAsBit(rowNums(row), value)
 			//save square data:
 			val squareIndex = calculateSquareIndex(row, col)
@@ -103,10 +101,8 @@ class SudokuTurbo private() {
 	def revertValue(row: Int, col: Int, value: Int): Unit = {
 		if (value != 0) {
 			//save col data:
-			colCounts(col) -= 1
 			colNums(col) = revertValueAsBit(colNums(col), value)
 			//save row data:
-			rowCounts(row) -= 1
 			rowNums(row) = revertValueAsBit(rowNums(row), value)
 			//save square data:
 			val squareIndex = calculateSquareIndex(row, col)
@@ -125,7 +121,8 @@ class SudokuTurbo private() {
 	}
 
 	def isSolved: Boolean = {
-		this.colCounts.forall(_ == SudokuConstants.PuzzleSize) //Does not ensure the solution is correct, but the algorithm will!
+		this.colNums.forall(_ == SudokuConstants.CheckBits) &&
+			this.colNums.forall(_ == SudokuConstants.CheckBits)
 	}
 
 }
