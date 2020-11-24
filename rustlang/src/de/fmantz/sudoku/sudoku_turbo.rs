@@ -18,7 +18,7 @@
  */
 use crate::sudoku_bit_set::SudokuBitSet;
 use crate::sudoku_constants::{PUZZLE_SIZE, SQUARE_SIZE};
-use crate::sudoku_puzzle::{SudokuPuzzleData, SudokuPuzzle};
+use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
 
 pub struct SudokuTurbo {
     //Save how many values are preset:
@@ -31,12 +31,25 @@ pub struct SudokuTurbo {
     square_nums: [u16; PUZZLE_SIZE],
 
     //Store optimized sort order:
-    col_indices: [usize; PUZZLE_SIZE + 1],
-    row_indices: [usize; PUZZLE_SIZE + 1],
+    col_indices: [usize; PUZZLE_SIZE],
+    row_indices: [usize; PUZZLE_SIZE],
     my_is_solvable: bool,
+    is_inited: bool,
 }
 
 impl SudokuTurbo {
+
+    pub fn init(&mut self, puzzle_data: &[[u8; PUZZLE_SIZE]; PUZZLE_SIZE]) -> () {
+        for row in 0..PUZZLE_SIZE {
+            let row_data = puzzle_data[row];
+            for col in 0..PUZZLE_SIZE {
+                self.save_value_and_check_is_solvable(row, col, row_data[col]);
+            }
+        }
+        SudokuTurbo::create_sorted_indices(self.col_counts, self.col_indices);
+        SudokuTurbo::create_sorted_indices(self.row_counts, self.row_indices);
+        self.is_inited = true;
+    }
 
     fn save_value_and_check_is_solvable(&mut self, row: usize, col: usize, value: u8) -> () {
         if value != 0 {
@@ -102,58 +115,44 @@ impl SudokuTurbo {
         SudokuBitSet::new_with_data(bits)
     }
 
-    pub fn is_solvable(& self) -> bool {
-        self.my_is_solvable
+    pub fn is_solvable(&self) -> bool {
+        if self.is_inited {
+            self.my_is_solvable
+        } else {
+            panic!("Turbo is not inited yet!");
+        }
     }
 
-    pub fn is_solved(& self) -> bool {
+    pub fn is_solved(&self) -> bool {
         for col in 0..PUZZLE_SIZE {
             //Does not ensure the solution is correct, but the algorithm will!
-            if self.col_nums[col] != (PUZZLE_SIZE as u16) {
+            if self.col_counts[col] != (PUZZLE_SIZE as u8) {
                 return false;
             }
         }
         return true;
     }
 
-    pub fn create(puzzle_data: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE]) -> Self {
+    pub fn col_index(&self, i:usize) -> usize {
+        self.col_indices[i]
+    }
 
-        //Save how many values are preset:
-        let mut col_counts: [u8; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
-        let mut row_counts: [u8; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
+    pub fn row_index(&self, i:usize) -> usize {
+        self.row_indices[i]
+    }
 
-        //Save values set:
-        let mut col_nums: [u16; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
-        let mut row_nums: [u16; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
-        let mut square_nums: [u16; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
-
-        //Store optimized sort order:
-        let mut col_indices: [usize; PUZZLE_SIZE + 1] = [0; PUZZLE_SIZE + 1];
-        let mut row_indices: [usize; PUZZLE_SIZE + 1] = [0; PUZZLE_SIZE + 1];
-        let mut my_is_solvable : bool = true;
-
-        let mut rs = SudokuTurbo {
-            col_counts,
-            row_counts: row_counts,
-            col_nums: col_nums,
-            row_nums: row_nums,
-            square_nums: square_nums,
-            col_indices: col_indices,
-            row_indices: row_indices,
-            my_is_solvable: my_is_solvable
-        };
-
-        for row in 0..PUZZLE_SIZE {
-            let row_data = puzzle_data[row];
-            for col in 0..PUZZLE_SIZE {
-                rs.save_value_and_check_is_solvable(row, col, row_data[col]);
-            }
+    pub fn create() -> Self {
+        SudokuTurbo {
+            col_counts: [0; PUZZLE_SIZE],
+            row_counts: [0; PUZZLE_SIZE],
+            col_nums: [0; PUZZLE_SIZE],
+            row_nums: [0; PUZZLE_SIZE],
+            square_nums: [0; PUZZLE_SIZE],
+            col_indices: [0; PUZZLE_SIZE],
+            row_indices: [0; PUZZLE_SIZE],
+            my_is_solvable: true,
+            is_inited: false,
         }
-
-        SudokuTurbo::create_sorted_indices(col_counts, rs.col_indices);
-        SudokuTurbo::create_sorted_indices(row_counts, rs.row_indices);
-
-        rs
     }
 
     fn calculate_square_index(row: usize, col: usize) -> usize {
@@ -176,13 +175,11 @@ impl SudokuTurbo {
         container ^ check_bit
     }
 
-    fn create_sorted_indices(num: [u8; PUZZLE_SIZE], mut rs: [usize; PUZZLE_SIZE + 1]) -> () {
+    fn create_sorted_indices(num: [u8; PUZZLE_SIZE], mut rs: [usize; PUZZLE_SIZE]) -> () {
         let mut nums_with_indices: Vec<(usize, &u8)> = num.iter().enumerate().collect();
-        nums_with_indices.sort_by(|(a_num,a_index), (b_num, b_index)| b_num.cmp(a_num));
+        nums_with_indices.sort_by(|(a_num, a_index), (b_num, b_index)| b_num.cmp(a_num));
         for col in 0..PUZZLE_SIZE {
             rs[col] = nums_with_indices[col].0;
         }
-        rs[PUZZLE_SIZE] = 0;
     }
-
 }

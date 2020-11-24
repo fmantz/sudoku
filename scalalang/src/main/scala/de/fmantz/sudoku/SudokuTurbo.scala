@@ -38,6 +38,23 @@ class SudokuTurbo private() {
 	var rowIndices: Array[Int] = Array.emptyIntArray
 
 	private var myIsSolvable: Boolean = true
+	private var isInited: Boolean = false
+
+	def init(puzzleData: Array[Array[Int]]): Unit = {
+		var row, col = 0
+		while (row < SudokuConstants.PuzzleSize) {
+			val rowData = puzzleData(row)
+			while (col < SudokuConstants.PuzzleSize) {
+				saveValueAndCheckIsSolvable(row, col, rowData(col))
+				col += 1
+			}
+			col = 0
+			row += 1
+		}
+		colIndices = createSortedIndices(colCounts)
+		rowIndices = createSortedIndices(rowCounts)
+		isInited = true
+	}
 
 	private def saveValueAndCheckIsSolvable(row: Int, col: Int, value: Int): Unit = {
 		if (value != 0) {
@@ -103,31 +120,20 @@ class SudokuTurbo private() {
 		new SudokuBitSet(bits)
 	}
 
-	def isSolvable: Boolean = myIsSolvable
+	def isSolvable: Boolean = {
+		if(isInited) myIsSolvable else sys.error("Turbo is not inited yet!")
+	}
 
 	def isSolved: Boolean = {
-		this.colNums.forall(_ == SudokuConstants.PuzzleSize) //Does not ensure the solution is correct, but the algorithm will!
+		this.colCounts.forall(_ == SudokuConstants.PuzzleSize) //Does not ensure the solution is correct, but the algorithm will!
 	}
 
 }
 
 object SudokuTurbo {
 
-	def create(puzzleData: Array[Array[Int]]): SudokuTurbo = {
-		val rs = new SudokuTurbo()
-		var row, col = 0
-		while (row < SudokuConstants.PuzzleSize) {
-			val rowData = puzzleData(row)
-			while (col < SudokuConstants.PuzzleSize) {
-				rs.saveValueAndCheckIsSolvable(row, col, rowData(col))
-				col += 1
-			}
-			col = 0
-			row += 1
-		}
-		rs.colIndices = createSortedIndices(rs.colCounts)
-		rs.rowIndices = createSortedIndices(rs.rowCounts)
-		rs
+	def create(): SudokuTurbo = {
+		new SudokuTurbo()
 	}
 
 	private def calculateSquareIndex(row: Int, col: Int): Int = {
@@ -151,7 +157,7 @@ object SudokuTurbo {
 	}
 
 	private def createSortedIndices(num: Array[Int]): Array[Int] = {
-		num.zipWithIndex.sortBy(_._1).reverse.map(_._2) ++ Array(0) //sort according to numbers heuristic, large numbers first
+		num.zipWithIndex.sortBy(_._1).reverse.map(_._2)  //sort according to numbers heuristic, large numbers first
 	}
 
 }

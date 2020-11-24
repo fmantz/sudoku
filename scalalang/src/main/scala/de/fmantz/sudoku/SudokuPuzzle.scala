@@ -40,7 +40,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   val puzzle: Array[Array[Int]] = Array.ofDim[Int](PuzzleSize, PuzzleSize)
   private var isOpen: Boolean = true
   private var isEmpty: Boolean = true
-  private var turbo: Option[SudokuTurbo] = None //TODO Remove Option
+  private var turbo: SudokuTurbo = SudokuTurbo.create()
 
   override def set(row: Int, col: Int, value: Int): Unit = {
     if(isOpen){
@@ -54,46 +54,43 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   }
 
   override def initTurbo() : Unit = {
-    this.turbo = Some(SudokuTurbo.create(this.puzzle)) //TODO should call init but turbo should already exist!
+    this.turbo.init(this.puzzle)
   }
 
-  override def isSolved: Boolean = turbo.exists(_.isSolved)
+  override def isSolved: Boolean = turbo.isSolved
 
-  override def isSolvable: Boolean = turbo.map(_.isSolvable).getOrElse(sys.error("turbo must be initialized"))
+  override def isSolvable: Boolean = turbo.isSolvable
 
   /**
    * solves the sudoku by a simple backtracking algorithm (brute force)
    * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
    */
   override def solve(): Unit = {
-    val myTurbo = turbo.getOrElse(sys.error("turbo must be initialized"))
     def go(): Unit = {
       var row = 0
-      var rowIndex = myTurbo.rowIndices(row)
       var run = true
       while (run && row < PuzzleSize) {
+        val rowIndex = turbo.rowIndices(row)
         var col = 0
-        var colIndex = myTurbo.colIndices(col)
         while (run && col < PuzzleSize) {
+          val colIndex = turbo.colIndices(col)
           if (isEmpty(rowIndex, colIndex)) {
-            val solutionSpace = myTurbo.createSolutionSpace(rowIndex, colIndex)
+            val solutionSpace = turbo.createSolutionSpace(rowIndex, colIndex)
             for (n <- 1 to PuzzleSize) {
               if (solutionSpace.isSolution(n)) {
                 set(rowIndex, colIndex, n)
-                myTurbo.saveValue(rowIndex, colIndex, n)
+                turbo.saveValue(rowIndex, colIndex, n)
                 go()
                 set(rowIndex, colIndex, value = 0) //backtrack!
-                myTurbo.revertValue(rowIndex, colIndex, n)
+                turbo.revertValue(rowIndex, colIndex, n)
               }
             }
             //solution found for slot!
             run = false
           }
           col += 1
-          colIndex=myTurbo.colIndices(col)
         }
         row += 1
-        rowIndex=myTurbo.rowIndices(row)
       }
       //solution found for all slots:
       if (run) {

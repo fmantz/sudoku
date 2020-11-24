@@ -32,14 +32,13 @@ pub trait SudokuPuzzle {
     fn solve(&mut self) -> ();
     fn to_pretty_string(&self) -> String;
     fn to_string(&self) -> String;
-    fn puzzle_data(&self) -> [[u8; PUZZLE_SIZE]; PUZZLE_SIZE];
 }
 
 pub struct SudokuPuzzleData {
     puzzle: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
     is_open: bool,
     is_empty: bool,
-    turbo: Option<SudokuTurbo>
+    turbo: SudokuTurbo
 }
 
 impl SudokuPuzzle for SudokuPuzzleData {
@@ -49,7 +48,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
             puzzle: [[0; PUZZLE_SIZE]; PUZZLE_SIZE],
             is_open: true,
             is_empty: true,
-            turbo: None
+            turbo: SudokuTurbo::create()
         }
     }
 
@@ -69,7 +68,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
     }
 
     fn init_turbo(&mut self) -> () {
-        self.turbo = Some(SudokuTurbo::create(self.puzzle_data()));
+        self.turbo.init(&self.puzzle);
     }
 
     fn is_solvable(&self) -> bool {
@@ -84,7 +83,9 @@ impl SudokuPuzzle for SudokuPuzzleData {
         fn go(puzzle: &mut SudokuPuzzleData) -> () {
             let mut run: bool = true;
             'outer: for row in 0..PUZZLE_SIZE {
+                let row_index : usize = puzzle.turbo.row_index(row);
                 for col in 0..PUZZLE_SIZE {
+                    let col_index : usize = puzzle.turbo.row_index(col);
                     if puzzle.is_empty(row, col) {
                         let solution_space: SudokuBitSet = puzzle.create_solution_space(row, col);
                         for n in 1..(PUZZLE_SIZE + 1) as u8 {
@@ -144,9 +145,6 @@ impl SudokuPuzzle for SudokuPuzzleData {
         return buffer.join("\n");
     }
 
-    fn puzzle_data(&self) -> [[u8; PUZZLE_SIZE as usize]; PUZZLE_SIZE as usize] {
-        self.puzzle
-    }
 }
 
 //private functions here:
