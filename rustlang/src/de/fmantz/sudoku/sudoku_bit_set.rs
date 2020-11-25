@@ -18,7 +18,6 @@
  */
 use crate::sudoku_constants::CHECK_BITS;
 
-
 pub struct SudokuBitSet {
     bits: u16,
     not_found_before: bool,
