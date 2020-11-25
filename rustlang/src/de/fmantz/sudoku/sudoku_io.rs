@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
 
@@ -44,7 +45,7 @@ impl SudokuIO {
     }
 
     // /**
-    //  * Read Suduko to text file
+    //  * Write Suduko to text file
     //  */
     // pub fn write(
     //     filename: &str,
@@ -79,7 +80,7 @@ impl SudokuIO {
     ) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
-        let write_file = match File::create(&path) {
+        let write_file = match OpenOptions::new().append(true).open(&path) {
             Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
             Ok(file) => file
         };
