@@ -1,7 +1,7 @@
 # README
 
 * Build assembly `sbt clean assembly`
-* Run by `java -jar ./target/scala-2.11/sudoku-assembly-0.1.jar ./src/test/resources/p096_sudoku.txt`
+* Run by `java -jar ./target/scala-2.11/sudoku-assembly-0.2.0.jar ./src/test/resources/p096_sudoku.txt`
 * Install requirements for Scala Native first: https://scala-native.readthedocs.io/en/v0.3.9-docs/user/sbt.html
 * Build native by `sbt -DNATIVE clean nativeLink`  (will last some time)
 * Run native by `./target/scala-2.11/sudoku-out ./src/test/resources/p096_sudoku.txt`

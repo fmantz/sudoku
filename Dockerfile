@@ -33,5 +33,5 @@ RUN cd ./scalalang && sbt -DNATIVE nativeLink
 
 #Move all assembly into ./
 RUN mv ./rustlang/target/release/sudoku ./sudoku-rust
-RUN mv ./scalalang/target/scala-2.11/sudoku-assembly-0.1.jar ./sudoku-scala.jar
+RUN mv ./scalalang/target/scala-2.11/sudoku-assembly-0.2.0.jar ./sudoku-scala.jar
 RUN mv ./scalalang/target/scala-2.11/sudoku-out ./sudoku-scalanative
