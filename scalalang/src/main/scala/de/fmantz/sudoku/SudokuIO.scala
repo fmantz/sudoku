@@ -20,7 +20,7 @@
 //scalastyle:on
 package de.fmantz.sudoku
 
-import java.io.{File, PrintWriter}
+import java.io.{FileWriter, PrintWriter}
 
 import scala.io.{BufferedSource, Source}
 
@@ -36,7 +36,7 @@ object SudokuIO {
 	}
 
 //  /**
-//   * Read Suduko to text file
+//   * Write Suduko to text file
 //   */
 //  def write(fileName: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
 //		val writer = new PrintWriter(new File(fileName))
@@ -54,7 +54,7 @@ object SudokuIO {
 //	}
 
 	def writeQQWing(fileName: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
-		val writer = new PrintWriter(new File(fileName))
+		val writer = new PrintWriter(new FileWriter(fileName, true))
 		try {
 			puzzles.foreach({ sudoku =>
 				writer.println(sudoku)
