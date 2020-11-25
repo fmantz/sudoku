@@ -30,7 +30,7 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 // It's possible to define many kinds of settings, such as:
 name := "sudoku"
 organization := "de.fmantz"
-version := "0.2.0"
+version := "0.3.0"
 
 // You can define other libraries as dependencies in your build like this:
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.1.0"

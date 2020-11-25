@@ -19,7 +19,7 @@ My approach was:
 To easily try it yourself. I added a Docker-build file to the project:
 
 ```bash
-docker build . --tag sudoku:0.2
+docker build . --tag sudoku:0.3
 ```
 
 This Docker build will:
@@ -98,3 +98,9 @@ Unsurprisingly, QQWing is still the fastest, however I 'may' try to use multithr
 The Scala JAR version was still a bit faster than the Scala NATIVE version. The low memory consumption of the Rust and Scala NATIVE version was best. Not having a JVM is in this 
 respect a real advantage. In a Version 0.3 Scala NATIVE would not be available anymore, since it still does not have multithreading support. 
 I put the results of my test with 6 levels into folder [./performance/version_0.2-result](./performance/version_0.2-result).
+
+## Update: Version 0.3
+
+TODO
+
+I put the results of my test with 6 levels into folder [./performance/version_0.3-result](./performance/version_0.3-result).
