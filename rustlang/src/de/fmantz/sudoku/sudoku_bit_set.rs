@@ -23,6 +23,7 @@ pub struct SudokuBitSet {
     not_found_before: bool,
 }
 
+#[allow(dead_code)] //unfortantely some of the methods to delete are still used in tests!
 impl SudokuBitSet {
 
     pub fn new() -> Self {

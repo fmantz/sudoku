@@ -19,7 +19,7 @@ My approach was:
 To easily try it yourself. I added a Docker-build file to the project:
 
 ```bash
-docker build . --tag sudoku:0.1
+docker build . --tag sudoku:0.2
 ```
 
 This Docker build will:
@@ -75,7 +75,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.1 bash
+docker container run -it --name sudoku sudoku:0.2 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
