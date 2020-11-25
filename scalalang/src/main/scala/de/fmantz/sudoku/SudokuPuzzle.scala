@@ -26,6 +26,7 @@ trait SudokuPuzzle {
   def set(row: Int, col: Int, value: Int): Unit
   def isEmpty(row: Int, col: Int): Boolean
   def isSolvable: Boolean
+  def initTurbo(): Unit
   def isSolved: Boolean
   def solve(): Unit
   def toPrettyString: String
@@ -36,9 +37,11 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
   import SudokuConstants._
 
   //state:
-  private val puzzle: Array[Array[Int]] = Array.ofDim[Int](PuzzleSize, PuzzleSize)
+  val puzzle: Array[Array[Int]] = Array.ofDim[Int](PuzzleSize, PuzzleSize)
   private var isOpen: Boolean = true
   private var isEmpty: Boolean = true
+  private var turbo: SudokuTurbo = SudokuTurbo.create()
+  private var myIsSolved: Boolean = false
 
   override def set(row: Int, col: Int, value: Int): Unit = {
     if(isOpen){
@@ -51,9 +54,18 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
     puzzle(row)(col) == 0
   }
 
-  override def isSolved: Boolean = checkConditions(relaxed = false)
+  override def initTurbo() : Unit = {
+    this.turbo.init(this.puzzle)
+    myIsSolved = this.turbo.isSolved
+  }
 
-  override def isSolvable: Boolean = checkConditions(relaxed = true)
+  override def isSolved: Boolean = {
+    myIsSolved
+  }
+
+  override def isSolvable: Boolean = {
+    turbo.isSolvable
+  }
 
   /**
    * solves the sudoku by a simple backtracking algorithm (brute force)
@@ -64,15 +76,19 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
       var row = 0
       var run = true
       while (run && row < PuzzleSize) {
+        val rowIndex = turbo.rowIndices(row)
         var col = 0
         while (run && col < PuzzleSize) {
-          if (isEmpty(row, col)) {
-            val solutionSpace = createSolutionSpace(row, col)
+          val colIndex = turbo.colIndices(col)
+          if (isEmpty(rowIndex, colIndex)) {
+            val solutionSpace = turbo.createSolutionSpace(rowIndex, colIndex)
             for (n <- 1 to PuzzleSize) {
               if (solutionSpace.isSolution(n)) {
-                set(row, col, n)
+                set(rowIndex, colIndex, n)
+                turbo.saveValue(rowIndex, colIndex, n)
                 go()
-                set(row, col, value = 0) //backtrack!
+                set(rowIndex, colIndex, value = 0) //backtrack!
+                turbo.revertValue(rowIndex, colIndex, n)
               }
             }
             //solution found for slot!
@@ -85,6 +101,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
       //solution found for all slots:
       if (run) {
         isOpen = false
+        myIsSolved = true
       }
     }
 
@@ -119,102 +136,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
       }
     }
     buffer.mkString("\n")
-  }
-
-  /**
-   * @param row in [0,9]
-   * @param relaxed true means it is still solvable, false it contains all possible numbers once
-   */
-  private def isRowOK(row: Int, relaxed: Boolean): Boolean = {
-    val bits: SudokuBitSet = checkRow(row)
-    bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
-  }
-
-  @inline private def checkRow(
-    row: Int,
-    bits: SudokuBitSet = new SudokuBitSet()
-  ): SudokuBitSet = {
-    val selectedRow = puzzle(row)
-    var col = 0
-    while (col < PuzzleSize) {
-      val value = selectedRow(col)
-      bits.saveValue(value)
-      col += 1
-    }
-    bits
-  }
-
-  /**
-   * @param col in [0,9]
-   * @param relaxed true means it is still solvable, false it contains all possible numbers once
-   */
-  private def isColOK(col: Int, relaxed: Boolean): Boolean = {
-    val bits: SudokuBitSet = checkCol(col)
-    bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
-  }
-
-  @inline private def checkCol(
-    col: Int,
-    bits: SudokuBitSet = new SudokuBitSet()
-  ): SudokuBitSet = {
-    var row = 0
-    while (row < PuzzleSize) {
-      val value = puzzle(row)(col)
-      bits.saveValue(value)
-      row += 1
-    }
-    bits
-  }
-
-  /**
-   * @param rowSquareIndex in [0,2]
-   * @param colSquareIndex in [0,2]
-   * @param relaxed true means it is still solvable, false it contains all possible numbers once
-   */
-  private def isSquareOK(rowSquareIndex: Int, colSquareIndex: Int, relaxed: Boolean): Boolean = {
-    val bits = checkSquare(rowSquareIndex, colSquareIndex)
-    bits.isFoundNumbersUnique && (relaxed || bits.isAllNumbersFound)
-  }
-
-  @inline private def checkSquare(
-    rowSquareIndex: Int,
-    colSquareIndex: Int,
-    bits: SudokuBitSet = new SudokuBitSet()
-  ): SudokuBitSet = {
-    val rowSquareOffset = rowSquareIndex * SquareSize
-    val colSquareOffset = colSquareIndex * SquareSize
-    var row = 0
-    while (row < SquareSize) {
-      var col = 0
-      while (col < SquareSize) {
-        val value = puzzle(row + rowSquareOffset)(col + colSquareOffset)
-        bits.saveValue(value)
-        col += 1
-      }
-      row += 1
-    }
-    bits
-  }
-
-  @inline private def checkConditions(relaxed: Boolean): Boolean = {
-    (0 until PuzzleSize).forall(row => isRowOK(row, relaxed)) &&
-      (0 until PuzzleSize).forall(col => isColOK(col, relaxed)) &&
-        (0 until PuzzleSize).forall(i => isSquareOK(i / SquareSize, i % SquareSize, relaxed))
-  }
-
-  /**
-   * The method returns a bit set containing all numbers already used
-   */
-  @inline private def createSolutionSpace(row: Int, col: Int): SudokuBitSet = {
-    val bits = new SudokuBitSet()
-    checkRow(row, bits)
-    checkCol(col, bits)
-    checkSquare(
-      rowSquareIndex = row / SquareSize,
-      colSquareIndex = col / SquareSize,
-      bits = bits
-    )
-    bits
   }
 
 }

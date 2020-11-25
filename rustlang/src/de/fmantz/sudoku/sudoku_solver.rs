@@ -30,6 +30,7 @@ mod sudoku_puzzle;
 mod sudoku_io;
 mod sudoku_iterator;
 mod sudoku_constants;
+mod sudoku_turbo;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -77,13 +78,11 @@ fn main() {
 }
 
 fn solve_current_sudoku(index: &u32, sudoku: &mut SudokuPuzzleData) -> () {
+    sudoku.init_turbo();
     if sudoku.is_solved() {
         println!("Sudoku {} is already solved!", index);
     } else if sudoku.is_solvable() {
         sudoku.solve();
-        if !sudoku.is_solved() {
-            println!("ERROR: Sudoku {} is not correctly solved!", index);
-        }
     } else {
         println!("Sudoku {} is unsolvable:\n {}", index, sudoku.to_pretty_string());
     }
@@ -97,10 +96,11 @@ mod tests {
     use std::path::PathBuf;
     use std::time::Instant;
 
-    use crate::sudoku_constants::{EMPTY_CHAR, QQWING_EMPTY_CHAR};
+    use crate::sudoku_constants::{EMPTY_CHAR, QQWING_EMPTY_CHAR, PUZZLE_SIZE, SQUARE_SIZE};
     use crate::sudoku_io::SudokuIO;
     use crate::sudoku_iterator::SudokuIterator;
-    use crate::sudoku_puzzle::SudokuPuzzle;
+    use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
+    use crate::sudoku_bit_set::SudokuBitSet;
 
     #[test]
     fn solve_should_solve_50_sudokus_from_project_euler_by_simple_backtracking_algorithm() -> () {
@@ -124,10 +124,12 @@ mod tests {
         for (index, mut sudoku) in rs.enumerate() {
             let sudoku_number: usize = index + 1;
             let input: String = sudoku.to_string();
+            sudoku.init_turbo();
             assert_eq!(sudoku.is_solvable(), true, "Sudoku {} is not well-defined:\n {}", sudoku_number, sudoku.to_pretty_string());
             sudoku.solve();
             let output = sudoku.to_string();
-            assert_eq!(sudoku.is_solved(), true, "Sudoku {} is not solved:\n {}", sudoku_number, sudoku.to_pretty_string());
+            assert_eq!(check_solution(&sudoku), true, "Sudoku {} is not solved:\n {}", sudoku_number, sudoku.to_pretty_string());
+            assert_eq!(sudoku.is_solved(), true, "Sudoku {} is solved but isSolved() return false", sudoku_number);
             assert_eq!(input.len(), output.len(), "sudoku strings have not same length");
             let output_char_vec: Vec<char> = output.chars().collect();
             for (i, in_char) in input.char_indices() {
@@ -143,5 +145,82 @@ mod tests {
 
     pub fn is_blank(c: char) -> bool {
         return c == EMPTY_CHAR || c == QQWING_EMPTY_CHAR;
+    }
+
+    /**
+     * @param row in [0,9]
+     */
+    fn is_row_ok(sudoku: &SudokuPuzzleData, row: usize) -> bool {
+        let mut bits: SudokuBitSet = SudokuBitSet::new();
+        check_row(sudoku, row, &mut bits);
+        return bits.is_found_numbers_unique() && bits.is_all_numbers_found();
+    }
+
+    #[inline]
+    fn check_row(sudoku: &SudokuPuzzleData, row: usize, bits: &mut SudokuBitSet) -> () {
+        let selected_row: [u8; PUZZLE_SIZE] = sudoku.puzzle[row];
+        for col in 0..PUZZLE_SIZE {
+            let value: u8 = selected_row[col];
+            bits.save_value(value);
+        }
+    }
+
+    /**
+     * @param col in [0,9]
+     */
+    fn is_col_ok(sudoku: &SudokuPuzzleData, row: usize) -> bool {
+        let mut bits: SudokuBitSet = SudokuBitSet::new();
+        check_col(sudoku,row, &mut bits);
+        return bits.is_found_numbers_unique() && bits.is_all_numbers_found();
+    }
+
+    #[inline]
+    fn check_col(sudoku: &SudokuPuzzleData, col: usize, bits: &mut SudokuBitSet) -> () {
+        for row in 0..PUZZLE_SIZE {
+            let value: u8 = sudoku.puzzle[row][col];
+            bits.save_value(value);
+        }
+    }
+
+    /**
+     * @param rowSquareIndex in [0,2]
+     * @param colSquareIndex in [0,2]
+     */
+    fn is_square_ok(sudoku: &SudokuPuzzleData, row_square_index: usize, col_square_index: usize) -> bool {
+        let mut bits: SudokuBitSet = SudokuBitSet::new();
+        check_square(sudoku, row_square_index, col_square_index, &mut bits);
+        return bits.is_found_numbers_unique() && bits.is_all_numbers_found();
+    }
+
+    #[inline]
+    fn check_square(sudoku: &SudokuPuzzleData, row_square_index: usize, col_square_index: usize, bits: &mut SudokuBitSet) -> () {
+        let row_square_offset: usize = row_square_index * SQUARE_SIZE;
+        let col_square_offset: usize = col_square_index * SQUARE_SIZE;
+        for row in 0..SQUARE_SIZE {
+            for col in 0..SQUARE_SIZE {
+                let value: u8 = sudoku.puzzle[row + row_square_offset][col + col_square_offset];
+                bits.save_value(value);
+            }
+        }
+    }
+
+    #[inline]
+    fn check_solution(sudoku: &SudokuPuzzleData) -> bool {
+        for row in 0..PUZZLE_SIZE {
+            if !is_row_ok(sudoku,row) {
+                return false;
+            }
+            for col in 0..PUZZLE_SIZE {
+                if !is_col_ok(sudoku,col) {
+                    return false;
+                }
+                for i in 0..PUZZLE_SIZE {
+                    if !is_square_ok(sudoku,i / SQUARE_SIZE, i % SQUARE_SIZE) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }

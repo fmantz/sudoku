@@ -19,7 +19,7 @@ My approach was:
 To easily try it yourself. I added a Docker-build file to the project:
 
 ```bash
-docker build . --tag sudoku:0.1
+docker build . --tag sudoku:0.2
 ```
 
 This Docker build will:
@@ -40,7 +40,7 @@ This Docker run will:
 
 1. Create a subdirectory in folder ./performance with a timestamp.
 2. Generate x Sudokus for each level (level 1 = 1 sudoku, level 2 = 10 Sudokus, level 3 = 100 Sudokus ...). Four level are currently set. 
-  Note, the number of levels can be changed in file **./performance/test.sh**.
+  Note, the number of levels can be changed in file **[./performance/test.sh](./performance/test.sh)**.
 3. First, solve all Sudokus of the current level very fast with QQWing.
 4. Second, solve all Sudokus with the Rust version of my program.
 5. Third, solve all Sudokus with the Scala JAR version of my program.
@@ -55,7 +55,7 @@ This Docker run will:
 * The startup time of the Scala NATIVE version is a bit faster then the Scala JAR version but the overall performance is the opposite when solving many Sudokus.
 * However, the memory consumption of the Scala NATIVE version is much lower than the Scala JAR version. 
 
-I put the results of my test with 6 levels into folder ./performance/version_0.1-result. I run it in Docker on my local linux machine:
+I put the results of my test with 6 levels into folder [./performance/version_0.1-result](./performance/version_0.1-result). I run it in Docker on my local linux machine:
 
 ```bash
 OS: Manjaro Linux x86_64 
@@ -75,7 +75,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.1 bash
+docker container run -it --name sudoku sudoku:0.2 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -84,3 +84,17 @@ The **/root** directory (also current directory) will contain all command line p
 * sudoku-rust  
 * sudoku-scala.jar  
 * sudoku-scalanative
+
+
+## Update: Version 0.2
+
+Since my sudoku program was a bit slow, I thought about speeding it up a bit. Therefore I developed a 'turbo' for my algorithm which does two things:
+
+* Speedup the check if the conditions are satisfied by using precomputed bitsets.
+* Starting to search a solution in the rows and columns having the most entries first. 
+
+These two changes improved the speed of the programs a lot. Nevertheless, the speed of the Rust version was still around factor 4 times faster than the Scala version. 
+Unsurprisingly, QQWing is still the fastest, however I 'may' try to use multithreading in a next version. QQWing is using multithreading but also a much more elaborate algorithm.
+The Scala JAR version was still a bit faster than the Scala NATIVE version. The low memory consumption of the Rust and Scala NATIVE version was best. Not having a JVM is in this 
+respect a real advantage. In a Version 0.3 Scala NATIVE would not be available anymore, since it still does not have multithreading support. 
+I put the results of my test with 6 levels into folder [./performance/version_0.2-result](./performance/version_0.2-result).

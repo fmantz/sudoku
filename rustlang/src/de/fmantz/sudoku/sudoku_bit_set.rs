@@ -16,19 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::sudoku_constants::PUZZLE_SIZE;
-
-const CHECK_BIT: u16 = !0 >> (16 - PUZZLE_SIZE); //binary: Size times "1"
+use crate::sudoku_constants::CHECK_BITS;
 
 pub struct SudokuBitSet {
     bits: u16,
     not_found_before: bool,
 }
 
+#[allow(dead_code)] //unfortantely some of the methods to delete are still used in tests!
 impl SudokuBitSet {
+
     pub fn new() -> Self {
         SudokuBitSet {
             bits: 0,
+            not_found_before: true,
+        }
+    }
+
+    pub fn new_with_data(data: u16) -> Self {
+        SudokuBitSet {
+            bits: data,
             not_found_before: true,
         }
     }
@@ -47,7 +54,7 @@ impl SudokuBitSet {
     }
 
     pub fn is_all_numbers_found(&self) -> bool {
-        return self.bits == CHECK_BIT;
+        return self.bits == CHECK_BITS;
     }
 
     // pub fn has_solution(&self) -> bool {

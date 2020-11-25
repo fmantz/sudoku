@@ -55,13 +55,11 @@ object SudokuSolver {
 	}
 
 	private def solveCurrentSudoku(index: Int, sudoku: SudokuPuzzle): SudokuPuzzle = {
+		sudoku.initTurbo()
 		if (sudoku.isSolved) {
 			println(s"Sudoku $index is already solved!")
 		} else if (sudoku.isSolvable) {
 			sudoku.solve()
-			if (!sudoku.isSolved) {
-				println(s"ERROR: Sudoku $index is not correctly solved!")
-			}
 		} else {
 			println(s"Sudoku index is unsolvable:\n" + sudoku.toPrettyString)
 		}
