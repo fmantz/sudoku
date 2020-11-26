@@ -22,3 +22,4 @@ pub const NEW_SUDOKU_SEPARATOR: &str = "Grid";
 pub const EMPTY_CHAR: char = '0';
 pub const QQWING_EMPTY_CHAR: char = '.';
 pub const CHECK_BITS: u16 = !0 >> (16 - PUZZLE_SIZE); //binary: Size times "1"
+pub const PARALLELIZATION_COUNT: u16 = 1024;

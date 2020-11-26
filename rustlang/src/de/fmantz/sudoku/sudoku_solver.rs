@@ -19,11 +19,14 @@
 use std::env;
 use std::path::{MAIN_SEPARATOR, Path};
 use std::time::Instant;
+use rayon::prelude::*;
+use rayon::iter::FromParallelIterator;
 
 use crate::sudoku_io::SudokuIO;
-use crate::sudoku_iterator::SudokuIterator;
+use crate::sudoku_iterator::{SudokuIterator, SudokuGroupedIterator};
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
+use crate::sudoku_constants::PARALLELIZATION_COUNT;
 
 mod sudoku_bit_set;
 mod sudoku_puzzle;
@@ -58,26 +61,68 @@ fn main() {
         };
         let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
         match puzzles {
-            Err(error) => {
-                panic!("Problem opening the file: {:?}", error);
-            }
             Ok(puzzles) => {
-                let write_rs : Result<(), String> = SudokuIO::write_qqwing(&output_file_name, puzzles, solve_current_sudoku);
-                match write_rs {
-                    Err(error) => {
-                        panic!("Problem with saving solved puzzle: {:?}", error);
-                    }
-                    Ok(()) => { /* do nothing */ }
-                };
+
+                let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
+                let mut counter : usize = 0;
+                for mut puzzle_buffer in grouped_iterator {
+
+                    //Assign numbers to sudokus for better error messages:
+                    let mut indexed_unsolved_sudokus : Vec<(usize, SudokuPuzzleData)> = puzzle_buffer
+                        .into_iter()
+                        .enumerate()
+                        .map(|(index, unsolved_sudoku)| {counter+=1; (index + counter, unsolved_sudoku)})
+                        .collect();
+
+                    let solved_sudokus: Vec<SudokuPuzzleData> = indexed_unsolved_sudokus
+                        .par_iter() //solve in parallel
+                        .map(|(index, mut unsolved_sudoku)| {
+                            solve_current_sudoku(index, unsolved_sudoku);
+                        })
+                        .collect();
+
+                    let write_rs : Result<(), String> = SudokuIO::write_qqwing(&output_file_name, solved_sudokus);
+                    match write_rs {
+                        Ok(()) => { /* do nothing */ }
+                        Err(error) => {
+                            panic!("Problem with saving solved puzzle: {:?}", error);
+                        }
+                    };
+                }
                 let duration = start.elapsed();
                 println!("output: {} ", Path::new(&output_file_name).to_str().unwrap());
                 println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
+
+/*
+//TODO implement grouped method in iterator
+//https://github.com/rayon-rs/rayon
+use rayon::prelude::*;
+fn sum_of_squares(input: &[i32]) -> i32 {
+    input.par_iter() // <-- just change that!
+         .map(|&i| i * i)
+         .sum()
+}
+ */
+/*
+                let write_rs : Result<(), String> = SudokuIO::write_qqwing(&output_file_name, puzzles, solve_current_sudoku);
+                match write_rs {
+                    Ok(()) => { /* do nothing */ }
+                    Err(error) => {
+                        panic!("Problem with saving solved puzzle: {:?}", error);
+                    }
+                };
+
+
+ */
+            }
+            Err(error) => {
+                panic!("Problem opening the file: {:?}", error);
             }
         }
     }
 }
 
-fn solve_current_sudoku(index: &u32, sudoku: &mut SudokuPuzzleData) -> () {
+fn solve_current_sudoku(index: &usize, mut sudoku: SudokuPuzzleData) -> SudokuPuzzleData {
     sudoku.init_turbo();
     if sudoku.is_solved() {
         println!("Sudoku {} is already solved!", index);
@@ -86,8 +131,8 @@ fn solve_current_sudoku(index: &u32, sudoku: &mut SudokuPuzzleData) -> () {
     } else {
         println!("Sudoku {} is unsolvable:\n {}", index, sudoku.to_pretty_string());
     }
+    return sudoku;
 }
-
 
 #[cfg(test)]
 mod tests {

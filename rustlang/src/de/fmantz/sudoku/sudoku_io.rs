@@ -44,39 +44,9 @@ impl SudokuIO {
         return Ok(puzzles);
     }
 
-    // /**
-    //  * Write Suduko to text file
-    //  */
-    // pub fn write(
-    //     filename: &str,
-    //     puzzles: SudokuIterator,
-    //     f: fn(&u32, &mut SudokuPuzzleData) -> (),
-    // ) -> Result<(), String> {
-    //     let path = Path::new(filename);
-    //     let display = path.display();
-    //     let write_file = match File::create(&path) {
-    //         Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
-    //         Ok(file) => file
-    //     };
-    //     let mut writer = BufWriter::new(&write_file);
-    //     let mut i: u32 = 0;
-    //     for mut puzzle in puzzles {
-    //         i += 1;
-    //         f(&i, &mut puzzle);
-    //         writeln!(&mut writer, "{} {}", NEW_SUDOKU_SEPARATOR, i);
-    //         writeln!(&mut writer, "{}\n", puzzle.to_string());
-    //         match writer.flush() {
-    //             Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
-    //             Ok(()) => () /*do nothing */
-    //         }
-    //     }
-    //     return Ok(());
-    // }
-
     pub fn write_qqwing(
         filename: &str,
-        puzzles: SudokuIterator,
-        f: fn(&u32, &mut SudokuPuzzleData) -> (),
+        puzzles: Vec<SudokuPuzzleData>,
     ) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
@@ -85,20 +55,17 @@ impl SudokuIO {
             Ok(file) => file
         };
         let mut writer = BufWriter::new(&write_file);
-        let mut i: u32 = 0;
         for mut puzzle in puzzles {
-            i +=1;
-            f(&i, &mut puzzle); //do someting!
             let write_rs = writeln!(&mut writer, "{}\n", puzzle.to_string());
             match write_rs {
+                Ok(()) => { /* do nothing */ },
                 Err(error) => {
                     panic!("Problem with saving solved puzzle: {:?}", error);
                 }
-                Ok(()) => { /* do nothing */ }
             };
             match writer.flush() {
-                Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
-                Ok(()) => ()/*do nothing */
+                Ok(()) => (), /*do nothing */
+                Err(why) => return Err(format!("couldn't create {}: {}", display, why))
             }
         }
         return Ok(());

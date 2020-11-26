@@ -26,9 +26,15 @@ use crate::sudoku_constants::PUZZLE_SIZE;
 use crate::sudoku_constants::QQWING_EMPTY_CHAR;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
+use rayon::iter::{FromParallelIterator, IntoParallelIterator};
 
 pub struct SudokuIterator {
     lines: io::Lines<io::BufReader<File>>
+}
+
+pub struct SudokuGroupedIterator {
+    sudoku_iterator: SudokuIterator,
+    buffer_size: u16
 }
 
 impl Iterator for SudokuIterator {
@@ -113,3 +119,47 @@ impl SudokuIterator {
         }
     }
 }
+
+
+impl Iterator for SudokuGroupedIterator {
+
+    type Item = Vec<SudokuPuzzleData>;
+
+    fn next(&mut self) -> Option<Vec<SudokuPuzzleData>> {
+        let mut buffer:Vec<SudokuPuzzleData> = Vec::new();
+        for _index in 0..self.buffer_size {
+            match self.sudoku_iterator.next() {
+                Some(sudoku) => { buffer.push(sudoku);},
+                None => { /* do nothing */ }
+            }
+        }
+        if buffer.is_empty() {
+            return None;
+        } else {
+            return Some(buffer);
+        }
+    }
+
+}
+
+impl SudokuGroupedIterator {
+    pub fn grouped(sudoku_iterator: SudokuIterator, buffer_size: u16) -> Self {
+        SudokuGroupedIterator {
+            sudoku_iterator: sudoku_iterator,
+            buffer_size: buffer_size
+        }
+    }
+}
+
+/*
+impl FromParallelIterator<SudokuPuzzleData> for Vec<SudokuPuzzleData> {
+    fn from_par_iter<>(par_iter: I) -> Self where
+        I: IntoParallelIterator<Item=SudokuPuzzleData> {
+        unimplemented!()
+    }
+}
+
+impl SudokuParIterator for IntoParallelIterator<Item=SudokuPuzzleData> {
+
+}
+*/

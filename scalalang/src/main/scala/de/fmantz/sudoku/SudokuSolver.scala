@@ -42,7 +42,7 @@ object SudokuSolver {
 			try {
 				var index = 0
 				puzzles
-					.grouped(SudokuConstants.ParallizationCount)
+					.grouped(SudokuConstants.ParallelizationCount)
 					.foreach({ g =>
 						val puzzlesSolved = g.zipWithIndex.par.map({ case (sudoku, index) =>
 							solveCurrentSudoku(index, sudoku) //solve in parallel!
