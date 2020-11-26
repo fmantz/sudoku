@@ -20,7 +20,6 @@ use std::env;
 use std::path::{MAIN_SEPARATOR, Path};
 use std::time::Instant;
 use rayon::prelude::*;
-use rayon::iter::{FromParallelIterator, IntoParallelIterator, ParallelExtend};
 
 use crate::sudoku_io::SudokuIO;
 use crate::sudoku_iterator::{SudokuIterator, SudokuGroupedIterator};
@@ -65,7 +64,7 @@ fn main() {
 
                 let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
                 let mut counter : usize = 0;
-                for mut puzzle_buffer in grouped_iterator {
+                for puzzle_buffer in grouped_iterator {
 
                     //Assign numbers to sudokus for better error messages:
                     let mut indexed_sudokus: Vec<(usize, SudokuPuzzleData)> = puzzle_buffer

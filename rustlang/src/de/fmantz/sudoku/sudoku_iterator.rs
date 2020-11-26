@@ -19,8 +19,6 @@
 use std::fs::File;
 use std::io::{self};
 use std::str::Chars;
-use rayon::prelude::*;
-use std::mem;
 
 use crate::sudoku_constants::EMPTY_CHAR;
 use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
