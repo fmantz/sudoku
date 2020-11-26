@@ -19,6 +19,8 @@
 use std::fs::File;
 use std::io::{self};
 use std::str::Chars;
+use rayon::prelude::*;
+use std::mem;
 
 use crate::sudoku_constants::EMPTY_CHAR;
 use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
@@ -26,7 +28,6 @@ use crate::sudoku_constants::PUZZLE_SIZE;
 use crate::sudoku_constants::QQWING_EMPTY_CHAR;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
-use rayon::iter::{FromParallelIterator, IntoParallelIterator};
 
 pub struct SudokuIterator {
     lines: io::Lines<io::BufReader<File>>
@@ -150,16 +151,3 @@ impl SudokuGroupedIterator {
         }
     }
 }
-
-/*
-impl FromParallelIterator<SudokuPuzzleData> for Vec<SudokuPuzzleData> {
-    fn from_par_iter<>(par_iter: I) -> Self where
-        I: IntoParallelIterator<Item=SudokuPuzzleData> {
-        unimplemented!()
-    }
-}
-
-impl SudokuParIterator for IntoParallelIterator<Item=SudokuPuzzleData> {
-
-}
-*/
