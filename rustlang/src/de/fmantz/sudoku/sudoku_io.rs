@@ -50,7 +50,11 @@ impl SudokuIO {
     ) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
-        let write_file = match OpenOptions::new().append(true).open(&path) {
+        let write_file = match OpenOptions::new()
+            .create(true)
+            .write(true)
+            .append(true)
+            .open(&path) {
             Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
             Ok(file) => file
         };
