@@ -4,7 +4,7 @@ By chance, I watched a YouTube video on backtracking [https://www.youtube.com/wa
 I decided it would be a nice toy project to develop it in my favorite programming language **Scala**, 
 and **compare the code, performance and memory usage** afterwards with another programming language I would like to learn, **Rust**.
 
-It was actually **NOT** my goal to develop the fastest sudoku solver possible (!), 
+It was actually **NOT** my goal to develop the fastest Sudoku solver possible (!), 
 rather than comparing these two programming languages **myself**.
 I will improve the performance 'maybe' in a later version 0.2. There are lots of possibilities. 
 
@@ -24,9 +24,9 @@ docker build . --tag sudoku:0.3
 
 This Docker build will:
 
-* Download QQWing from [https://qqwing.com] for generating sudoku puzzles. It's a very fast sudoku solver using a more advanced algorithm.
-* Install Rust and compile the Rust version of the program
-* Install Scala NATIVE requirements and build two assemblies, one JAR and Scala NATIVE one. (Scala is already installed in the base image)  
+* Download QQWing from [https://qqwing.com] for generating Sudoku puzzles. It's a very fast Sudoku solver (and generator) using a more advanced algorithm.
+* Install Rust and compile the Rust version of the program.
+* Install Scala NATIVE requirements and build two assemblies, one JAR and Scala NATIVE one (until Version 0.2). Scala is already installed in the base image. 
 
 Note, the Docker image will be around **2 GB**.
 
@@ -39,14 +39,14 @@ docker-compose up
 This Docker run will:
 
 1. Create a subdirectory in folder ./performance with a timestamp.
-2. Generate x Sudokus for each level (level 1 = 1 sudoku, level 2 = 10 Sudokus, level 3 = 100 Sudokus ...). Four level are currently set. 
+2. Generate x Sudokus for each level (Level 1 = 1 Sudoku, Level 2 = 10 Sudokus, Level 3 = 100 Sudokus ...). Four levels are currently set. 
   Note, the number of levels can be changed in file **[./performance/test.sh](./performance/test.sh)**.
 3. First, solve all Sudokus of the current level very fast with QQWing.
 4. Second, solve all Sudokus with the Rust version of my program.
 5. Third, solve all Sudokus with the Scala JAR version of my program.
-6. Fourth, solve all Sudokus with the Scala NATIVE version of my program.
+6. Fourth, solve all Sudokus with the Scala NATIVE version of my program (until Version 0.2). 
 7. Create two CSVs files `mem.csv` (in kb) and `time.csv` collecting the current performance measures from the log-files.
-8. Continue with step 2 to process the next level until level 4.
+8. Continue with Step 2 to process the next level until Level 4.
 
 ## Results
 
@@ -75,7 +75,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.2 bash
+docker container run -it --name sudoku sudoku:0.3 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -103,10 +103,9 @@ I put the results of my test with 6 levels into folder [./performance/version_0.
 
 Even I have still new ideas, this will probably be my last version of my Sudoku implementation. This time I added multithreading.
 Again, my main motivation was to learn a bit Rust (I am still a bloody beginner) and compare Scala with Rust. Again, I put my results in an own folder.
-However, this time I added two sub directories. The first folder [./performance/vversion_0.3-result/cpu-1](./performance/version_0.3-result/cpu-1)
-contains the results with my usual resources restrictions on Docker (see extract from docker-compose.yml below). 
-The other folder contains the results without those restrictions [./performance/vversion_0.3-result/cpu-a](./performance/version_0.3-result/cpu-a).  
-We see, the performance still not match the one of QQWing but I got better. I would need to switch the algorithms to really compete, anyway this was not my motivation.  
+However, this time I added two sub directories. 
+
+The first folder [./performance/vversion_0.3-result/cpu-1](./performance/version_0.3-result/cpu-1) contains the results with my usual resources restrictions on Docker (see extract from docker-compose.yml below). The other folder contains the results without those restrictions [./performance/vversion_0.3-result/cpu-a](./performance/version_0.3-result/cpu-a).  We see, the performance still not match the one of QQWing but I got better. I would need to switch the algorithms to really compete, anyway this was not my motivation.  
 
 ```bash
         resources: 
@@ -116,10 +115,14 @@ We see, the performance still not match the one of QQWing but I got better. I wo
             cpus: '1.00'
 ```
 I also added a new folder two compare all results of **my** own implementations [./performance/compare_v1-v3](./performance/compare_v1-v3).
-We see the performance improved a lot between version 1 and 3. My Sudoku Rust implementations have been consistently around factor 4 faster than the Scala implementations.
+We see the performance improved a lot between Version 1 and Version 3. My Sudoku Rust implementations have been consistently around factor 4 faster than the Scala implementations.
+The next picture shows the time spend to solve 100000 Sudokus.
 
 ![Time to solve 100000 Sudokus](./performance/compare_v1-v3/time.png)
 
-And also the memory consumption was better in the Rust versions than in the Scala versions, but Scala NATIVE was not such worse. 
+Also the memory consumption was better in the Rust versions than in the Scala versions, but Scala NATIVE was not much worse. 
+The next picture shows the memory used to solve 100000 Sudokus (in kb).
 
-![Peak memory usage in kb to solve 100000 Sudokus](./performance/compare_v1-v3/time.png)
+![Peak memory usage in kb to solve 100000 Sudokus](./performance/compare_v1-v3/mem.png)
+
+Even Scala has other advantages (like it is less low level), I maybe should consider to work with Rust in the future. At least in some cases, it was fun :-). 
