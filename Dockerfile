@@ -22,16 +22,19 @@ RUN cd ./rustlang && cargo build --release
 #Scala:
 
 #Install requirements for scala native:
-RUN apt -qq --yes install clang libunwind-dev 
+#DISABLED: only useful for versions < 0.3 (!)
+#RUN apt -qq --yes install clang libunwind-dev 
 
 #Build scala application:
 ADD scalalang ./scalalang
 RUN cd ./scalalang && sbt clean test assembly
 
 #Build scala-native application:
-RUN cd ./scalalang && sbt -DNATIVE nativeLink
+#DISABLED: only useful for versions < 0.3 (!)
+#RUN cd ./scalalang && sbt -DNATIVE nativeLink
 
 #Move all assembly into ./
 RUN mv ./rustlang/target/release/sudoku ./sudoku-rust
-RUN mv ./scalalang/target/scala-2.11/sudoku-assembly-0.2.0.jar ./sudoku-scala.jar
-RUN mv ./scalalang/target/scala-2.11/sudoku-out ./sudoku-scalanative
+RUN mv ./scalalang/target/scala-2.11/sudoku-assembly-0.3.0.jar ./sudoku-scala.jar
+#DISABLED: only useful for versions < 0.3 (!)
+#RUN mv ./scalalang/target/scala-2.11/sudoku-out ./sudoku-scalanative

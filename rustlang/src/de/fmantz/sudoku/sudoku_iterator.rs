@@ -31,6 +31,11 @@ pub struct SudokuIterator {
     lines: io::Lines<io::BufReader<File>>
 }
 
+pub struct SudokuGroupedIterator {
+    sudoku_iterator: SudokuIterator,
+    buffer_size: u16
+}
+
 impl Iterator for SudokuIterator {
     type Item = SudokuPuzzleData;
 
@@ -110,6 +115,37 @@ impl SudokuIterator {
             } else {
                 break;
             }
+        }
+    }
+}
+
+
+impl Iterator for SudokuGroupedIterator {
+
+    type Item = Vec<SudokuPuzzleData>;
+
+    fn next(&mut self) -> Option<Vec<SudokuPuzzleData>> {
+        let mut buffer:Vec<SudokuPuzzleData> = Vec::new();
+        for _index in 0..self.buffer_size {
+            match self.sudoku_iterator.next() {
+                Some(sudoku) => { buffer.push(sudoku);},
+                None => { /* do nothing */ }
+            }
+        }
+        if buffer.is_empty() {
+            return None;
+        } else {
+            return Some(buffer);
+        }
+    }
+
+}
+
+impl SudokuGroupedIterator {
+    pub fn grouped(sudoku_iterator: SudokuIterator, buffer_size: u16) -> Self {
+        SudokuGroupedIterator {
+            sudoku_iterator: sudoku_iterator,
+            buffer_size: buffer_size
         }
     }
 }

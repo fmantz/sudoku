@@ -27,7 +27,7 @@ import de.fmantz.sudoku.SudokuIO.{read, writeQQWing}
 object SudokuSolver {
 
 	def main(args: Array[String]): Unit = {
-		if(args.isEmpty){
+		if (args.isEmpty) {
 			println(">SudokuSolver inputFile [outputFile]")
 			println("-First argument must be path to sudoku puzzles!")
 			println("-Second argument can be output path for sudoku puzzles solution!")
@@ -41,11 +41,14 @@ object SudokuSolver {
 			val (source, puzzles) = read(inputFileName)
 			try {
 				var index = 0
-				val puzzlesSolved = puzzles.map({ sudoku =>
-					index += 1
-					solveCurrentSudoku(index, sudoku)
-				})
-				writeQQWing(outputFileName, puzzlesSolved)
+				puzzles
+					.grouped(SudokuConstants.ParallelizationCount)
+					.foreach({ g =>
+						val puzzlesSolved = g.zipWithIndex.par.map({ case (sudoku, index) =>
+							solveCurrentSudoku(index, sudoku) //solve in parallel!
+						}).toIterator
+						writeQQWing(outputFileName, puzzlesSolved)
+					})
 				println("output:" + new File(outputFileName).getAbsolutePath)
 				println(s"All sudoku puzzles solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")
 			} finally {
