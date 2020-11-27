@@ -66,7 +66,7 @@ fn main() {
                 let mut counter : usize = 0;
                 for puzzle_buffer in grouped_iterator {
 
-                    //Assign numbers to sudokus for better error messages:
+                    //assign numbers to sudokus for better error messages:
                     let mut indexed_sudokus: Vec<(usize, SudokuPuzzleData)> = puzzle_buffer
                         .into_iter()
                         .enumerate()

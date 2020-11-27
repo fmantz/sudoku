@@ -101,6 +101,25 @@ I put the results of my test with 6 levels into folder [./performance/version_0.
 
 ## Update: Version 0.3
 
-TODO
+Even I have still new ideas, this will probably be my last version of my Sudoku implementation. This time I added multithreading.
+Again, my main motivation was to learn a bit Rust (I am still a bloody beginner) and compare Scala with Rust. Again, I put my results in an own folder.
+However, this time I added two sub directories. The first folder [./performance/vversion_0.3-result/cpu-1](./performance/version_0.3-result/cpu-1)
+contains the results with my usual resources restrictions on Docker (see extract from docker-compose.yml below). 
+The other folder contains the results without those restrictions [./performance/vversion_0.3-result/cpu-a](./performance/version_0.3-result/cpu-a).  
+We see, the performance still not match the one of QQWing but I got better. I would need to switch the algorithms to really compete, anyway this was not my motivation.  
 
-I put the results of my test with 6 levels into folder [./performance/version_0.3-result](./performance/version_0.3-result).
+```bash
+        resources: 
+          limits:
+            cpus: '1.00' 
+          reservations:
+            cpus: '1.00'
+```
+I also added a new folder two compare all results of **my** own implementations [./performance/compare_v1-v3](./performance/compare_v1-v3).
+We see the performance improved a lot between version 1 and 3. My Sudoku Rust implementations have been consistently around factor 4 faster than the Scala implementations.
+
+![Time to solve 100000 Sudokus](./performance/compare_v1-v3/time.png)
+
+And also the memory consumption was better in the Rust versions than in the Scala versions, but Scala NATIVE was not such worse. 
+
+![Peak memory usage in kb to solve 100000 Sudokus](./performance/compare_v1-v3/time.png)

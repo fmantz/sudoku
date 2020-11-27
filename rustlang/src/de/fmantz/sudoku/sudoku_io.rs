@@ -21,7 +21,6 @@ use std::fs::OpenOptions;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
 
-//use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
 use crate::sudoku_iterator::SudokuIterator;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
