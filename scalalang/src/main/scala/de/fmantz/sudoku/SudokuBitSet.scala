@@ -69,4 +69,31 @@ class SudokuBitSet( private var bits: Int) {
 //     s"BITS=0b%0${SudokuConstants.PuzzleSize}d".format(this.bits.toBinaryString.toInt)
 //  }
 
+  def possibleNumbers: Array[Int] = {
+    SudokuConstants.BitsetPossibleNumbers(this.bits)
+  }
+
+}
+
+object SudokuBitSet {
+
+  def main(args: Array[String]): Unit = {
+    val xs = (1 to 9).toVector
+    val powerset: Seq[Vector[Int]] = (0 to xs.size) flatMap xs.combinations
+    val mapping = powerset.map( s => {
+      val bitset = new SudokuBitSet(0)
+      val oppositeNumbers = (1 to 9).toVector.filterNot(s.contains)
+      oppositeNumbers.foreach(bitset.saveValue)
+      val bitsetValue = bitset.bits
+      (bitsetValue, s)
+    }).toVector.sortBy(_._1)
+
+    val codegen = mapping
+      .map(_._2)
+      .mkString(",\n")
+
+    println(codegen)
+
+  }
+
 }

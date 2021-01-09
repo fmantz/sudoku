@@ -82,14 +82,15 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
           val colIndex = turbo.colIndices(col)
           if (isEmpty(rowIndex, colIndex)) {
             val solutionSpace = turbo.createSolutionSpace(rowIndex, colIndex)
-            for (n <- 1 to PuzzleSize) {
-              if (solutionSpace.isSolution(n)) {
+            val possibleNumbers = solutionSpace.possibleNumbers
+            for (n <- possibleNumbers) {
+              //if (solutionSpace.isSolution(n)) {
                 set(rowIndex, colIndex, n)
                 turbo.saveValue(rowIndex, colIndex, n)
                 go()
                 set(rowIndex, colIndex, value = 0) //backtrack!
                 turbo.revertValue(rowIndex, colIndex, n)
-              }
+              //}
             }
             //solution found for slot!
             run = false
