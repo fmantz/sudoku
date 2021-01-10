@@ -19,7 +19,7 @@ My approach was:
 To easily try it yourself. I added a Docker-build file to the project:
 
 ```bash
-docker build . --tag sudoku:0.3
+docker build . --tag sudoku:0.4
 ```
 
 This Docker build will:
@@ -75,7 +75,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.3 bash
+docker container run -it --name sudoku sudoku:0.4 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -105,7 +105,7 @@ Even I have still new ideas, this will probably be my last version of my Sudoku 
 Again, my main motivation was to learn a bit Rust (I am still a bloody beginner) and compare Scala with Rust. Again, I put my results in an own folder.
 However, this time I added two sub directories. 
 
-The first folder [./performance/vversion_0.3-result/cpu-1](./performance/version_0.3-result/cpu-1) contains the results with my usual resources restrictions on Docker (see extract from docker-compose.yml below). The other folder contains the results without those restrictions [./performance/vversion_0.3-result/cpu-a](./performance/version_0.3-result/cpu-a).  We see, the performance still not match the one of QQWing but I got better. I would need to switch the algorithms to really compete, anyway this was not my motivation.  
+The first folder [./performance/version_0.3-result/cpu-1](./performance/version_0.3-result/cpu-1) contains the results with my usual resources restrictions on Docker (see extract from docker-compose.yml below). The other folder contains the results without those restrictions [./performance/version_0.3-result/cpu-all](./performance/version_0.3-result/cpu-all).  We see, the performance still not match the one of QQWing but I got better. I would need to switch the algorithms to really compete, anyway this was not my motivation.  
 
 ```bash
         resources: 
@@ -126,3 +126,14 @@ The next picture shows the memory used to solve 100000 Sudokus (in kb).
 ![Peak memory usage in kb to solve 100000 Sudokus](./performance/compare_v1-v3/mem.png)
 
 Even Scala has other advantages (like it is less low level), I maybe should consider to work with Rust in the future. At least in some cases, it was fun :-). 
+
+## Update: Version 0.4
+
+Finally, I made two changes. However, the performance did not improve. The speed of the Rust version did not change or got minimal faster. The speed of the Scala version got a bit worser.
+The memory consumption of the Rust version nearly did not change but the memory consumption of the Scala version improved due to the second change. 
+I did following two small changes:
+
+* A saved all possible combinations of numbers to check for an empty slot in a constant so that those number sequences must not be computed on the fly. 
+* I saved the Scala array in a 2D array of bytes instead of integers. Earlier, I did not do this change because it did not improve the performance.
+
+Again you can find all results here [./performance/version_0.4-result](./performance/version_0.4-result).

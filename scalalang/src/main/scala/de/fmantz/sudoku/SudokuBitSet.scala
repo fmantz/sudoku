@@ -56,17 +56,21 @@ class SudokuBitSet( private var bits: Int) {
     notFoundBefore
   }
 
-  def isSolution(sol: Int): Boolean = {
-    if(sol > 0){
-      val checkBit = 1 << sol - 1
-      (bits & checkBit) == 0
-    } else {
-      false
-    }
-  }
+//  def isSolution(sol: Int): Boolean = {
+//    if(sol > 0){
+//      val checkBit = 1 << sol - 1
+//      (bits & checkBit) == 0
+//    } else {
+//      false
+//    }
+//  }
 
 //  override def toString: String = {
 //     s"BITS=0b%0${SudokuConstants.PuzzleSize}d".format(this.bits.toBinaryString.toInt)
 //  }
+
+  def possibleNumbers: Array[Byte] = {
+    SudokuConstants.BitsetPossibleNumbers(this.bits)
+  }
 
 }

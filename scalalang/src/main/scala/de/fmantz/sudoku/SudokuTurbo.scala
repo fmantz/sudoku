@@ -40,7 +40,7 @@ class SudokuTurbo private() {
 	private var myIsSolvable: Boolean = true
 	private var isInited: Boolean = false
 
-	def init(puzzleData: Array[Array[Int]]): Unit = {
+	def init(puzzleData: Array[Array[Byte]]): Unit = {
 		var row, col = 0
 		while (row < SudokuConstants.PuzzleSize) {
 			val rowData = puzzleData(row)
