@@ -68,7 +68,7 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 		val normalizedLine = curLine.replace(QQWingEmptyChar, EmptyChar).trim
 		val rawValues = normalizedLine.toCharArray.map(_ - EmptyChar)
 		for (col <- 0 until SudokuConstants.PuzzleSize) {
-			currentSudoku.set(currentRow, col, rawValues(col))
+			currentSudoku.set(currentRow, col, rawValues(col).toByte)
 		}
 	}
 

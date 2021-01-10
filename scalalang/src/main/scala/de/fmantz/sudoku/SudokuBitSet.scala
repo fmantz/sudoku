@@ -56,56 +56,21 @@ class SudokuBitSet( private var bits: Int) {
     notFoundBefore
   }
 
-  def isSolution(sol: Int): Boolean = {
-    if(sol > 0){
-      val checkBit = 1 << sol - 1
-      (bits & checkBit) == 0
-    } else {
-      false
-    }
-  }
+//  def isSolution(sol: Int): Boolean = {
+//    if(sol > 0){
+//      val checkBit = 1 << sol - 1
+//      (bits & checkBit) == 0
+//    } else {
+//      false
+//    }
+//  }
 
 //  override def toString: String = {
 //     s"BITS=0b%0${SudokuConstants.PuzzleSize}d".format(this.bits.toBinaryString.toInt)
 //  }
 
-  def possibleNumbers: Array[Int] = {
+  def possibleNumbers: Array[Byte] = {
     SudokuConstants.BitsetPossibleNumbers(this.bits)
   }
 
-}
-
-object SudokuBitSet {
-
-  def main(args: Array[String]): Unit = {
-    val xs = (1 to 9).toVector
-    val powerset: Seq[Vector[Int]] = (0 to xs.size) flatMap xs.combinations
-
-    val mapping = powerset.map(s => {
-      val bitset = new SudokuBitSet(0)
-      val oppositeNumbers = (1 to 9).toVector.filterNot(s.contains)
-      oppositeNumbers.foreach(bitset.saveValue)
-      val bitsetValue = bitset.bits
-      (bitsetValue, s)
-    }).toVector.sortBy(_._1)
-
-    println("length=" + mapping.length)
-
-    val codegen = mapping
-      .map({ case (i, a) =>
-        s"const BITSET_NUMBERS_%03d: &[u8] = $a".format(i)
-      })
-      .mkString("\n")
-
-    println(codegen)
-
-    val codegen2 = mapping
-      .map({ case (i, a) =>
-        s"BITSET_NUMBERS_%03d".format(i)
-      })
-      .mkString(",\n")
-
-    println(codegen2)
-
-  }
 }

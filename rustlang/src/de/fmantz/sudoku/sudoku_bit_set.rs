@@ -50,11 +50,11 @@ impl SudokuBitSet {
 
     #[inline]
     fn first_match(bits: u16, check_bit: u16) -> bool {
-        return (bits & check_bit) == 0;
+        bits & check_bit == 0
     }
 
     pub fn is_all_numbers_found(&self) -> bool {
-        return self.bits == CHECK_BITS;
+        self.bits == CHECK_BITS
     }
 
     // pub fn has_solution(&self) -> bool {
@@ -62,21 +62,21 @@ impl SudokuBitSet {
     // }
 
     pub fn is_found_numbers_unique(&self) -> bool {
-        return self.not_found_before;
+        self.not_found_before
     }
 
-    pub fn is_solution(&self, sol: u8) -> bool {
-        if sol > 0 {
-            let check_bit: u16 = 1 << sol - 1;
-            return (self.bits & check_bit) == 0;
-        } else {
-            return false;
-        };
-    }
+    // pub fn is_solution(&self, sol: u8) -> bool {
+    //     if sol > 0 {
+    //         let check_bit: u16 = 1 << sol - 1;
+    //         return (self.bits & check_bit) == 0;
+    //     } else {
+    //         return false;
+    //     };
+    // }
 
-//    pub fn to_string(&self) -> String {
-//        return format!("BITS={:#011b}", self.bits);
-//    }
+    // pub fn to_string(&self) -> String {
+    //     return format!("BITS={:#011b}", self.bits);
+    // }
 
     pub fn possible_numbers(&self) -> &[u8] {
         BITSET_ARRAY[self.bits as usize]

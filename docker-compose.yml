@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   sudoku:
-      image: "sudoku:0.3" 
+      image: "sudoku:0.4" 
       volumes:
         - ./performance:/root/performance
       command: bash /root/performance/test.sh   

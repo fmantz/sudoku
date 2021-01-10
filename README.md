@@ -19,7 +19,7 @@ My approach was:
 To easily try it yourself. I added a Docker-build file to the project:
 
 ```bash
-docker build . --tag sudoku:0.3
+docker build . --tag sudoku:0.4
 ```
 
 This Docker build will:
@@ -75,7 +75,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.3 bash
+docker container run -it --name sudoku sudoku:0.4 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -126,3 +126,7 @@ The next picture shows the memory used to solve 100000 Sudokus (in kb).
 ![Peak memory usage in kb to solve 100000 Sudokus](./performance/compare_v1-v3/mem.png)
 
 Even Scala has other advantages (like it is less low level), I maybe should consider to work with Rust in the future. At least in some cases, it was fun :-). 
+
+## Update: Version 0.2
+
+TODO
