@@ -93,7 +93,7 @@ object SudokuBitSet {
 
     val codegen = mapping
       .map({ case (i, a) =>
-        s"private final val BitsetNumbers_%03d: Array[Int] = $a".format(i)
+        s"const BITSET_NUMBERS_%03d: &[u8] = $a".format(i)
       })
       .mkString("\n")
 
@@ -101,7 +101,7 @@ object SudokuBitSet {
 
     val codegen2 = mapping
       .map({ case (i, a) =>
-        s"BitsetNumbers_%03d".format(i)
+        s"BITSET_NUMBERS_%03d".format(i)
       })
       .mkString(",\n")
 

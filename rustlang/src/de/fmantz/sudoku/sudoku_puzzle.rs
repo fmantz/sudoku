@@ -90,14 +90,15 @@ impl SudokuPuzzle for SudokuPuzzleData {
                     let col_index : usize = puzzle.turbo.col_index(col);
                     if puzzle.is_empty(row_index, col_index) {
                         let solution_space: SudokuBitSet = puzzle.turbo.create_solution_space(row_index, col_index);
-                        for n in 1..(PUZZLE_SIZE + 1) as u8 {
-                            if solution_space.is_solution(n) {
-                                puzzle.set(row_index, col_index, n);
-                                puzzle.turbo.save_value(row_index, col_index, n);
+                        let possible_numbers = solution_space.possible_numbers();
+                        for n in possible_numbers {
+//                            if solution_space.is_solution(n) {
+                                puzzle.set(row_index, col_index, *n);
+                                puzzle.turbo.save_value(row_index, col_index, *n);
                                 go(puzzle);
                                 puzzle.set(row_index, col_index, 0); //back track
-                                puzzle.turbo.revert_value(row_index, col_index, n);
-                            }
+                                puzzle.turbo.revert_value(row_index, col_index, *n);
+ //                           }
                         }
                         //solution found for slot!
                         run = false;

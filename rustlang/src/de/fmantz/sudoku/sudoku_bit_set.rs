@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::sudoku_constants::CHECK_BITS;
+use crate::sudoku_constants::{CHECK_BITS, BITSET_ARRAY};
 
 pub struct SudokuBitSet {
     bits: u16,
@@ -77,6 +77,10 @@ impl SudokuBitSet {
 //    pub fn to_string(&self) -> String {
 //        return format!("BITS={:#011b}", self.bits);
 //    }
+
+    pub fn possible_numbers(&self) -> &[u8] {
+        BITSET_ARRAY[self.bits as usize]
+    }
 
 }
 
