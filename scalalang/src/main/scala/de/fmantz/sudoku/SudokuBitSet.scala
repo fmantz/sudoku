@@ -80,7 +80,8 @@ object SudokuBitSet {
   def main(args: Array[String]): Unit = {
     val xs = (1 to 9).toVector
     val powerset: Seq[Vector[Int]] = (0 to xs.size) flatMap xs.combinations
-    val mapping = powerset.map( s => {
+
+    val mapping = powerset.map(s => {
       val bitset = new SudokuBitSet(0)
       val oppositeNumbers = (1 to 9).toVector.filterNot(s.contains)
       oppositeNumbers.foreach(bitset.saveValue)
@@ -88,12 +89,23 @@ object SudokuBitSet {
       (bitsetValue, s)
     }).toVector.sortBy(_._1)
 
+    println("length=" + mapping.length)
+
     val codegen = mapping
-      .map(_._2)
-      .mkString(",\n")
+      .map({ case (i, a) =>
+        s"private final val BitsetNumbers_%03d: Array[Int] = $a".format(i)
+      })
+      .mkString("\n")
 
     println(codegen)
 
-  }
+    val codegen2 = mapping
+      .map({ case (i, a) =>
+        s"BitsetNumbers_%03d".format(i)
+      })
+      .mkString(",\n")
 
+    println(codegen2)
+
+  }
 }
