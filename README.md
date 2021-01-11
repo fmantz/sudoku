@@ -19,7 +19,7 @@ My approach was:
 To easily try it yourself. I added a Docker-build file to the project:
 
 ```bash
-docker build . --tag sudoku:0.4
+docker build . --tag sudoku:0.5
 ```
 
 This Docker build will:
@@ -75,7 +75,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.4 bash
+docker container run -it --name sudoku sudoku:0.5 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -137,3 +137,7 @@ I did following two small changes:
 * I saved the Scala array in a 2D array of bytes instead of integers. Earlier, I did not do this change because it did not improve the performance.
 
 Again you can find all results here [./performance/version_0.4-result](./performance/version_0.4-result).
+
+## Update: Version 0.5
+
+TODO

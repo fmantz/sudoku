@@ -20,8 +20,6 @@
 //scalastyle:on
 package de.fmantz.sudoku
 
-import scala.reflect.internal.util.Collections
-
 class SudokuBitSet( private var bits: Int) {
 
   def this(){
@@ -75,45 +73,4 @@ class SudokuBitSet( private var bits: Int) {
     SudokuConstants.BitsetPossibleNumbers(this.bits)
   }
 
-}
-
-object SudokuBitSet {
-
-  def main(args: Array[String]): Unit = {
-
-    import scala.util.Random
-
-    val xs = (1 to 9).toVector
-    val powerset: Seq[Vector[Int]] = ((0 to xs.size) flatMap xs.combinations)
-      .map(s => Random.shuffle(s))
-
-    val mapping = powerset.map(s => {
-      val bitset = new SudokuBitSet(0)
-      val oppositeNumbers = (1 to 9).toVector.filterNot(s.contains)
-      oppositeNumbers.foreach(bitset.saveValue)
-      val bitsetValue = bitset.bits
-      (bitsetValue, s)
-    }).toVector.sortBy(_._1)
-
-    println("length=" + mapping.length)
-
-    val codegen1 = mapping
-      .map({ case (i, a) =>
-        s"private final val BitsetNumbers_%03d: Array[Int] = $a".format(i).replaceAll("Vector", "Array")
-      })
-      .mkString("\n")
-
-    println(codegen1)
-
-    val codegen2 = mapping
-      .map({ case (i, a) =>
-        s"const BITSET_NUMBERS_%03d: &[u8] = $a".format(i).replaceAll("Vector\\(", "&[").replaceAll("\\)", "];")
-      })
-      .mkString("\n")
-
-    //const BITSET_NUMBERS_470: &[u8] = &[1, 4, 6];
-
-    println(codegen2)
-
-  }
 }
