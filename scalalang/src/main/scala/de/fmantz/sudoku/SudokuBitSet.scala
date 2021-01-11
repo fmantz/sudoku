@@ -74,3 +74,62 @@ class SudokuBitSet( private var bits: Int) {
   }
 
 }
+
+object SudokuBitSet {
+
+  def main(args: Array[String]): Unit = {
+
+    import scala.util.Random
+
+    val xs = (1 to 9).toVector
+    var powerset: Seq[Vector[Int]] = Vector.empty
+    var counter: Array[Array[Int]] = Array.empty
+    while(counter.isEmpty || counter.exists({ a =>
+      val avg = a.sum / 9d
+      a.exists(v => Math.abs(v - avg) > 6)
+    })) {
+      counter = Array.ofDim[Int](9, 9)
+      powerset = ((0 to xs.size) flatMap xs.combinations).map(s => Random.shuffle(s)).toVector
+      powerset.foreach( a =>
+        for(i <- a.indices){
+          val v = a(i)
+          counter(i)(v-1)+=1 //column 1 all ones
+        }
+      )
+    }
+
+    //Counter:
+    println()
+    counter
+      .zipWithIndex
+      .foreach({ case(a, i) => println(s"pos $i: ${a.mkString(", ")}")})
+    println()
+
+    val mapping: Seq[(Int, Vector[Int])] = powerset.map(s => {
+      val bitset = new SudokuBitSet(0)
+      val oppositeNumbers = (1 to 9).toVector.filterNot(s.contains)
+      oppositeNumbers.foreach(bitset.saveValue)
+      val bitsetValue = bitset.bits
+      (bitsetValue, s)
+    }).toVector.sortBy(_._1)
+
+    println("length=" + mapping.length)
+
+    val codegen1 = mapping
+      .map({ case (i, a) =>
+        s"private final val BitsetNumbers_%03d: Array[Byte] = $a".format(i).replaceAll("Vector", "Array")
+      })
+      .mkString("\n")
+
+    println(codegen1)
+
+    val codegen2 = mapping
+      .map({ case (i, a) =>
+        s"const BITSET_NUMBERS_%03d: &[u8] = $a".format(i).replaceAll("Vector\\(", "&[").replaceAll("\\)", "];")
+      })
+      .mkString("\n")
+
+    println(codegen2)
+
+  }
+}
