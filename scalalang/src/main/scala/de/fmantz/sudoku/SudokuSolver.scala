@@ -37,7 +37,7 @@ object SudokuSolver {
 			val inputFile = new File(inputFileName)
 			val defaultOutputFileName = s"${inputFile.getParentFile.getPath}${File.separator}SOLUTION_${inputFile.getName}"
 			val outputFileName = args.tail.headOption.getOrElse(defaultOutputFileName)
-			println("input:" + inputFile.getAbsolutePath)
+			println("input: " + inputFile.getAbsolutePath)
 			val (source, puzzles) = read(inputFileName)
 			try {
 				var index = 0
@@ -49,7 +49,7 @@ object SudokuSolver {
 						}).toIterator
 						writeQQWing(outputFileName, puzzlesSolved)
 					})
-				println("output:" + new File(outputFileName).getAbsolutePath)
+				println("output: " + new File(outputFileName).getAbsolutePath)
 				println(s"All sudoku puzzles solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")
 			} finally {
 				source.close()
