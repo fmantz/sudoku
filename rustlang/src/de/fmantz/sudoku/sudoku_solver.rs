@@ -58,6 +58,7 @@ fn main() {
             };
             generated_file_name
         };
+        println!("input: {}", Path::new(&input_file_name).to_str().unwrap());
         let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
         match puzzles {
             Ok(puzzles) => {
@@ -90,7 +91,7 @@ fn main() {
 
                 }
                 let duration = start.elapsed();
-                println!("output: {} ", Path::new(&output_file_name).to_str().unwrap());
+                println!("output: {}", Path::new(&output_file_name).to_str().unwrap());
                 println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
             }
             Err(error) => {
