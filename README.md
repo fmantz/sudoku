@@ -140,6 +140,6 @@ Again you can find all results here [./performance/version_0.4-result](./perform
 
 ## Update: Version 0.5
 
-I added a new small update. In Version 4.0 I added all possible combinations of numbers ("the powerset"), each as sorted array. In Version 0.5, I shuffled those arrays so that not always the same numbers are tried into empty slots first. This improved the performance of the Scala version a bit. However the performance of the Rust version did not change. 
+I added a new small update. In Version 4.0 I added all possible combinations of numbers ("the powerset"), each as sorted array. In Version 0.5, I shuffled those arrays so that not always the same numbers are tried into empty slots first. Therefore there should be less collisions. This improved the performance of the Scala version a bit. However, the performance of the Rust version did not change. 
 
 As usual, you can find the results here [./performance/version_0.5-result](./performance/version_0.5-result).
