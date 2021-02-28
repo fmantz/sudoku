@@ -49,6 +49,37 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	private var turbo: SudokuTurbo = SudokuTurbo.create()
 	private var myIsSolved: Boolean = false
 
+	//TODO:
+	val CellCount = 81
+	val myPuzzle = Array.ofDim[Byte](CellCount)
+	val myIndices = Array.ofDim[Int](CellCount)
+	val myPossibleNumbers = Array.ofDim[Int](CellCount) //Bitsets
+	val myNumbersTried = Array.ofDim[Int](CellCount) //Bitsets
+
+	//1. step go once through the puzzle and store which numbers are still possible in each cell
+	//   note: in cells that are preset by the puzzle no numbers are valid (fill myPossibleNumbers)
+
+	//2. store count possible numbers in myIndices (get possible numbers by PossibleCounts(i))
+	//   zip possible numbers by index, and sort tuple array by counts (asc)
+	//   then forget counts
+
+	//3. solve the puzzle by backtracking
+	//   i = 0
+	//   while(i < CellCount){
+	//     puzzleIndex = myIndices(i)
+	//     curMyPossibleNumbers = myPossibleNumbers(puzzelIndex) | myNumbersTried(puzzleIndex)
+	//     onePossibleSolution = OnePossibleNumbers(curMyPossibleNumbers)  //array that contain one random equaly distributed number
+	//     myNumbersTried(puzzelIndex) |= onePossibleSolution //tried numbers update
+	//     if(onePossibleSolution == 0 &&  myPossibleNumbers(puzzelIndex) != 0){
+	//     		//go backwords //also update myTriedNumbers(?)
+	//				myTriedNumbers(puzzleIndex) = 0
+	//        i-=1
+	//     } else{
+	//			myPuzzle(puzzelIndex) = onePossibleSolution
+	//     	i+=1
+	//     }
+	//   }
+
 	override def set(row: Int, col: Int, value: Byte): Unit = {
 		if (isOpen) {
 			puzzle(row)(col) = value
