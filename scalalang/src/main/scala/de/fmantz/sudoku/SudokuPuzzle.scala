@@ -53,8 +53,9 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	val CellCount = 81
 	val myPuzzle = Array.ofDim[Byte](CellCount)
 	val myIndices = Array.ofDim[Int](CellCount)
-	val myPossibleNumbers = Array.ofDim[Int](CellCount) //Bitsets
-	val myNumbersTried = Array.ofDim[Int](CellCount) //Bitsets
+	val myPossibleNumbers = Array.ofDim[Int](CellCount) //TODO: change Bitsets (three Arrays wie in Turbo)
+	val myLastPossibleNumberIndex = Array.ofDim[Int](CellCount) //next index to use in each array of possible numbers
+	//TODO try possibleNo(myLastPossibleNumberIndex) , revert possibleNo(myLastPossibleNumberIndex - 1) iff myLastPossibleNumberIndex > 0
 
 	override def set(row: Int, col: Int, value: Byte): Unit = {
 		if (isOpen) {
@@ -99,6 +100,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			}
 		}
 
+		//Test:
 		for(i <- 0 until CellCount) {
 			println(s"$i: " + SudokuConstants.BitsetPossibleNumbers(myPossibleNumbers(i)).toVector)
 		}
@@ -116,7 +118,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		//   while(i < CellCount){
 		//     puzzleIndex = myIndices(i)
 		//     curMyPossibleNumbers = myPossibleNumbers(puzzelIndex) | myNumbersTried(puzzleIndex)
-		//     onePossibleSolution = OnePossibleNumbers(curMyPossibleNumbers)  //array that contain one random equaly distributed number
+		//     onePossibleSolution = OnePossibleNumbers(curMyPossibleNumbers)
 		//     myNumbersTried(puzzelIndex) |= onePossibleSolution //tried numbers update
 		//     if(onePossibleSolution == 0 &&  myPossibleNumbers(puzzelIndex) != 0){
 		//     		//go backwords //also update myTriedNumbers(?)
@@ -139,6 +141,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	 * Save a value
 	 */
 	private def saveValue(value: Int, mem: Array[Int], index: Int): Unit = {
+		//TODO nach aussen!
 		val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
 		mem(index) |= checkBit
 	}
