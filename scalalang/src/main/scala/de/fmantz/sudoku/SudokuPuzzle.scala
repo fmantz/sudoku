@@ -119,6 +119,39 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		//   }
 	}
 
+	/**
+	 * Save a value
+	 */
+	private def saveValue(value: Int, mem: Array[Int], index: Int): Unit = {
+		if (value > 0) {
+			val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
+			mem(index) |= checkBit
+		}
+	}
+
+	private def saveValueRow(value: Int, mem: Array[Int], index: Int): Unit = {
+			val rowNumber = index / PuzzleSize
+			val fromIndex = rowNumber * PuzzleSize
+			val untilIndex = fromIndex + PuzzleSize
+			for(i <- fromIndex until untilIndex){
+					saveValue(value, mem, i)
+			}
+	}
+	
+	private def saveValueCol(value: Int, mem: Array[Int], index: Int): Unit = {
+		for(i <- index until CellCount by PuzzleSize){
+			saveValue(value, mem, i)
+		}
+	}
+
+	private def saveValueSquare(value: Int, mem: Array[Int], index: Int): Unit = {
+		val squareNumber = ???
+//		for(i <- index until CellCount by PuzzleSize){
+//			saveValue(value, mem, i)
+//		}
+	}
+
+
 	override def toString: String = {
 		val buffer = new ListBuffer[String]
 		for (row <- 0 until PuzzleSize) {
