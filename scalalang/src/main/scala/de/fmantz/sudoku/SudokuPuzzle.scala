@@ -56,44 +56,20 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	val myPossibleNumbers = Array.ofDim[Int](CellCount) //Bitsets
 	val myNumbersTried = Array.ofDim[Int](CellCount) //Bitsets
 
-	//1. step go once through the puzzle and store which numbers are still possible in each cell
-	//   note: in cells that are preset by the puzzle no numbers are valid (fill myPossibleNumbers)
-
-	//2. store count possible numbers in myIndices (get possible numbers by PossibleCounts(i))
-	//   zip possible numbers by index, and sort tuple array by counts (asc)
-	//   then forget counts
-	//   sort can be implemented very fast by only 2 scans:
-	//   a. count possible numbers in an int array (since all counts must be between 0-9)
-	//   b. have another int array for the current counter index
-	//   c. go once again thorough all numbers and put each index to postion numberOffset + countNumberInCounterpostion
-
-	//3. solve the puzzle by backtracking
-	//   i = 0
-	//   while(i < CellCount){
-	//     puzzleIndex = myIndices(i)
-	//     curMyPossibleNumbers = myPossibleNumbers(puzzelIndex) | myNumbersTried(puzzleIndex)
-	//     onePossibleSolution = OnePossibleNumbers(curMyPossibleNumbers)  //array that contain one random equaly distributed number
-	//     myNumbersTried(puzzelIndex) |= onePossibleSolution //tried numbers update
-	//     if(onePossibleSolution == 0 &&  myPossibleNumbers(puzzelIndex) != 0){
-	//     		//go backwords //also update myTriedNumbers(?)
-	//				myTriedNumbers(puzzleIndex) = 0
-	//        i-=1
-	//     } else{
-	//			myPuzzle(puzzelIndex) = onePossibleSolution
-	//     	i+=1
-	//     }
-	//   }
-
 	override def set(row: Int, col: Int, value: Byte): Unit = {
 		if (isOpen) {
-			myPuzzle(row * PuzzleSize + col) = value
+			myPuzzle(getSingleArrayIndex(row, col)) = value
 			puzzle(row)(col) = value
 			isEmpty = false
 		}
 	}
 
+	private def getSingleArrayIndex(row: Int, col: Int) = {
+		row * PuzzleSize + col
+	}
+
 	override def isEmpty(row: Int, col: Int): Boolean = {
-		myPuzzle(row * PuzzleSize + col)  == 0
+		myPuzzle(getSingleArrayIndex(row, col))  == 0
 	}
 
 	override def initTurbo(): Unit = {
@@ -114,40 +90,33 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	 * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
 	 */
 	override def solve(): Unit = {
-		def go(): Unit = {
-			var row = 0
-			var run = true
-			while (run && row < PuzzleSize) {
-				val rowIndex = turbo.rowIndices(row)
-				var col = 0
-				while (run && col < PuzzleSize) {
-					val colIndex = turbo.colIndices(col)
-					if (isEmpty(rowIndex, colIndex)) {
-						val solutionSpace = turbo.createSolutionSpace(rowIndex, colIndex)
-						val possibleNumbers = solutionSpace.possibleNumbers
-						for (n <- possibleNumbers) {
-							set(rowIndex, colIndex, n)
-							turbo.saveValue(rowIndex, colIndex, n)
-							go()
-							set(rowIndex, colIndex, value = 0) //backtrack!
-							turbo.revertValue(rowIndex, colIndex, n)
-						}
-						//solution found for slot!
-						run = false
-					}
-					col += 1
-				}
-				row += 1
-			}
-			//solution found for all slots:
-			if (run) {
-				isOpen = false
-				myIsSolved = true
-			}
-		}
+		//1. step go once through the puzzle and store which numbers are still possible in each cell
+		//   note: in cells that are preset by the puzzle no numbers are valid (fill myPossibleNumbers)
 
-		go()
-		isOpen = true
+		//2. store count possible numbers in myIndices (get possible numbers by PossibleCounts(i))
+		//   zip possible numbers by index, and sort tuple array by counts (asc)
+		//   then forget counts
+		//   sort can be implemented very fast by only 2 scans:
+		//   a. count possible numbers in an int array (since all counts must be between 0-9)
+		//   b. have another int array for the current counter index
+		//   c. go once again thorough all numbers and put each index to postion numberOffset + countNumberInCounterpostion
+
+		//3. solve the puzzle by backtracking
+		//   i = 0
+		//   while(i < CellCount){
+		//     puzzleIndex = myIndices(i)
+		//     curMyPossibleNumbers = myPossibleNumbers(puzzelIndex) | myNumbersTried(puzzleIndex)
+		//     onePossibleSolution = OnePossibleNumbers(curMyPossibleNumbers)  //array that contain one random equaly distributed number
+		//     myNumbersTried(puzzelIndex) |= onePossibleSolution //tried numbers update
+		//     if(onePossibleSolution == 0 &&  myPossibleNumbers(puzzelIndex) != 0){
+		//     		//go backwords //also update myTriedNumbers(?)
+		//				myTriedNumbers(puzzleIndex) = 0
+		//        i-=1
+		//     } else{
+		//			myPuzzle(puzzelIndex) = onePossibleSolution
+		//     	i+=1
+		//     }
+		//   }
 	}
 
 	override def toString: String = {
