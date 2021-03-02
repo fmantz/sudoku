@@ -86,13 +86,14 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
 	override def set(row: Int, col: Int, value: Byte): Unit = {
 		if (isOpen) {
+			myPuzzle(row * PuzzleSize + col) = value
 			puzzle(row)(col) = value
 			isEmpty = false
 		}
 	}
 
 	override def isEmpty(row: Int, col: Int): Boolean = {
-		puzzle(row)(col) == 0
+		myPuzzle(row * PuzzleSize + col)  == 0
 	}
 
 	override def initTurbo(): Unit = {
@@ -152,7 +153,9 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	override def toString: String = {
 		val buffer = new ListBuffer[String]
 		for (row <- 0 until PuzzleSize) {
-			buffer.append(puzzle(row).mkString)
+			val from = row * PuzzleSize
+			val until = from + PuzzleSize
+			buffer.append(myPuzzle.slice(from, until).mkString)
 		}
 		buffer.mkString("\n")
 	}
@@ -162,7 +165,10 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		val empty = "*"
 		val buffer = new ListBuffer[String]
 		for (row <- 0 until PuzzleSize) {
-			val formattedRow = puzzle(row).zipWithIndex.map({ case (colValue, col) =>
+			val from = row * PuzzleSize
+			val until = from + PuzzleSize
+			val currentRow = myPuzzle.slice(from, until)
+			val formattedRow = currentRow.zipWithIndex.map({ case (colValue, col) =>
 				val rs = if (colValue == 0) s" $empty " else s" $colValue "
 				if (col + 1 < PuzzleSize && col % SquareSize == 2) {
 					rs + "|"
