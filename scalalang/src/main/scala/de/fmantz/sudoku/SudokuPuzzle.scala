@@ -92,6 +92,16 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	override def solve(): Unit = {
 		//1. step go once through the puzzle and store which numbers are still possible in each cell
 		//   note: in cells that are preset by the puzzle no numbers are valid (fill myPossibleNumbers)
+		for(i <- myPuzzle.indices){
+			val curValue = myPuzzle(i)
+			if(curValue > 0) {
+				saveValueForCell(curValue, myPossibleNumbers, i)
+			}
+		}
+
+		for(i <- 0 until CellCount) {
+			println(s"$i: " + SudokuConstants.BitsetPossibleNumbers(myPossibleNumbers(i)).toVector)
+		}
 
 		//2. store count possible numbers in myIndices (get possible numbers by PossibleCounts(i))
 		//   zip possible numbers by index, and sort tuple array by counts (asc)
@@ -119,14 +129,18 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		//   }
 	}
 
+	private def saveValueForCell(value: Int, mem: Array[Int], index: Int) : Unit = {
+		saveValueRow(value, mem, index)
+		saveValueCol(value, mem, index)
+		saveValueSquare(value, mem, index)
+	}
+
 	/**
 	 * Save a value
 	 */
 	private def saveValue(value: Int, mem: Array[Int], index: Int): Unit = {
-		if (value > 0) {
-			val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
-			mem(index) |= checkBit
-		}
+		val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
+		mem(index) |= checkBit
 	}
 
 	private def saveValueRow(value: Int, mem: Array[Int], index: Int): Unit = {
@@ -134,21 +148,32 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			val fromIndex = rowNumber * PuzzleSize
 			val untilIndex = fromIndex + PuzzleSize
 			for(i <- fromIndex until untilIndex){
+				  //println(s"save $value in $i (row)")
 					saveValue(value, mem, i)
 			}
 	}
-	
+
 	private def saveValueCol(value: Int, mem: Array[Int], index: Int): Unit = {
-		for(i <- index until CellCount by PuzzleSize){
+		val colNumber = index % PuzzleSize
+		for(i <- colNumber until CellCount by PuzzleSize){
+			//println(s"save $value in $i (col)")
 			saveValue(value, mem, i)
 		}
 	}
 
 	private def saveValueSquare(value: Int, mem: Array[Int], index: Int): Unit = {
-		val squareNumber = ???
-//		for(i <- index until CellCount by PuzzleSize){
-//			saveValue(value, mem, i)
-//		}
+		val squareColumn = index / SquareSize
+		for(j <- 0 until SquareSize) {
+			val rowNumber = index / PuzzleSize
+			val rowOffset = (rowNumber / SquareSize) * (SquareSize * PuzzleSize)
+			val colNumber = index % PuzzleSize
+			val colOffset = (colNumber / SquareSize) * SquareSize
+			val startIndex = rowOffset + colOffset + (j * PuzzleSize)
+			for (i <- startIndex until startIndex + SquareSize) {
+//				println(s"save $value in $i (square)")
+				saveValue(value, mem, i)
+			}
+		}
 	}
 
 
