@@ -107,6 +107,13 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			println(s"$i: " + getPossibleNumbers(i).toVector)
 		}
 
+		//2. store count possible numbers in myIndices (get possible numbers by PossibleCounts(i))
+		//   zip possible numbers by index, and sort tuple array by counts (asc)
+		//   then forget counts
+		//   sort can be implemented very fast by only 2 scans:
+		//   a. count possible numbers in an int array (since all counts must be between 0-9)
+		//   b. have another int array for the current counter index
+		//   c. go once again thorough all numbers and put each index to postion numberOffset + countNumberInCounterpostion
 		val possibleCounts = Array.tabulate(CellCount)({i =>
 			if(myPuzzle(i) == 0){
 				getPossibleNumbers(i).length //calculate possible numbers!
@@ -120,23 +127,18 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			val countOfIndex = possibleCounts(i)
 			numberOffsets(countOfIndex + 1)+=1
 		}
+		for(i <- 1 until PuzzleSize){ //correct offsets
+			numberOffsets(i)+=numberOffsets(i - 1)
+		}
 		println(numberOffsets.toVector)
 		for(i <- 0 until CellCount){
 			val countOfIndex = possibleCounts(i)
 			val offset = numberOffsets(countOfIndex)
-			require(myIndices(offset) == 0, s"tried to overwrite $i / $offset ")
+//			require(myIndices(offset) == 0, s"tried to overwrite $i / $offset ")
 			myIndices(offset) = i
 			numberOffsets(countOfIndex)+=1
 		}
 		println(myIndices.toVector)
-
-		//2. store count possible numbers in myIndices (get possible numbers by PossibleCounts(i))
-		//   zip possible numbers by index, and sort tuple array by counts (asc)
-		//   then forget counts
-		//   sort can be implemented very fast by only 2 scans:
-		//   a. count possible numbers in an int array (since all counts must be between 0-9)
-		//   b. have another int array for the current counter index
-		//   c. go once again thorough all numbers and put each index to postion numberOffset + countNumberInCounterpostion
 
 		//3. solve the puzzle by backtracking
 		//   i = 0
