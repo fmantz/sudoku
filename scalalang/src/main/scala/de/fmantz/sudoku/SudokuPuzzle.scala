@@ -112,7 +112,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		for(i <- 0 until CellCount){
 			val countOfIndex = getPossibleCounts(i)
 			val offset = numberOffsets(countOfIndex)
-			require(indices(offset) == 0, s"tried to overwrite $i / $offset ")
+			require(indices(offset) == 0, s"tried to overwrite index $i = ${this.toString}")
 			indices(offset) = i
 			numberOffsets(countOfIndex)+=1
 		}
