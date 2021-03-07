@@ -27,7 +27,11 @@ import org.scalatest.matchers.should.Matchers
 
 class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
 
-  "solve" should "solve 50 sudokus from project euler by simple backtracking algorithm" in {
+  "solve" should "solve one sudoku by simple backtracking algorithm" in {
+    checkSolve(fileName = "one_sudoku.txt")
+  }
+
+  it should "solve 50 sudokus from project euler by simple backtracking algorithm" in {
     checkSolve(fileName = "p096_sudoku.txt")
   }
 

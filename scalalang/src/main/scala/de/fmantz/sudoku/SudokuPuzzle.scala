@@ -106,13 +106,13 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			val countOfIndex = getPossibleCounts(i)
 			numberOffsets(countOfIndex + 1)+=1
 		}
-		for(i <- 1 until PuzzleSize){ //correct offsets
+		for(i <- 1 until numberOffsets.length){ //correct offsets
 			numberOffsets(i)+=numberOffsets(i - 1)
 		}
 		for(i <- 0 until CellCount){
 			val countOfIndex = getPossibleCounts(i)
 			val offset = numberOffsets(countOfIndex)
-			require(indices(offset) == 0, s"tried to overwrite index $i = ${this.toString}")
+			require(indices(offset) == 0, s"tried to overwrite index $i = ${this.toString}  (offset=$offset count=$countOfIndex)") //TODO remove me later!
 			indices(offset) = i
 			numberOffsets(countOfIndex)+=1
 		}
