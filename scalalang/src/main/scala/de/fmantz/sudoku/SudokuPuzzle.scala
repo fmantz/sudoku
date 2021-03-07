@@ -43,30 +43,21 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	import SudokuConstants._
 
 	//state:
-	val puzzle: Array[Array[Byte]] = Array.ofDim[Byte](PuzzleSize, PuzzleSize)
-	private var isOpen: Boolean = true
-	private var isEmpty: Boolean = true
-	private var turbo: SudokuTurbo = SudokuTurbo.create()
 	private var myIsSolved: Boolean = false
 
-	//TODO:
-	private val CellCount = 81
-	private val myPuzzle = Array.ofDim[Byte](CellCount)
-	private val myIndices = Array.ofDim[Int](CellCount)
+	private val puzzle = Array.ofDim[Byte](CellCount)
+	private val indices = Array.ofDim[Int](CellCount)
 
-	private val possibleNumbersInitial = new SudokuNumbers()
-	private val possibleNumbersCurrent = new SudokuNumbers()
+	private val rowNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
+	private val colNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
+	private val squareNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 
 	override def set(row: Int, col: Int, value: Byte): Unit = {
-		if (isOpen) {
-			myPuzzle(getSingleArrayIndex(row, col)) = value
-			puzzle(row)(col) = value
-			isEmpty = false
-		}
+		puzzle(getSingleArrayIndex(row, col)) = value
 	}
 
 	def get(row: Int, col: Int): Byte = {
-		myPuzzle(getSingleArrayIndex(row, col))
+		puzzle(getSingleArrayIndex(row, col))
 	}
 
 	private def getSingleArrayIndex(row: Int, col: Int) = {
@@ -74,12 +65,10 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	}
 
 	override def isEmpty(row: Int, col: Int): Boolean = {
-		myPuzzle(getSingleArrayIndex(row, col))  == 0
+		puzzle(getSingleArrayIndex(row, col))  == 0
 	}
 
 	override def initTurbo(): Unit = {
-		this.turbo.init(this.puzzle)
-		myIsSolved = this.turbo.isSolved
 	}
 
 	override def isSolved: Boolean = {
@@ -87,7 +76,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	}
 
 	override def isSolvable: Boolean = {
-		turbo.isSolvable
+		true //TODO
 	}
 
 	/**
@@ -98,16 +87,11 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
 		//1. step go once through the puzzle and store which numbers are still possible in each cell
 		//   note: in cells that are preset by the puzzle no numbers are valid (fill myPossibleNumbers)
-		for(i <- myPuzzle.indices){
-			val curValue = myPuzzle(i)
+		for(i <- puzzle.indices){
+			val curValue = puzzle(i)
 			if(curValue > 0) {
-				saveValueForCell(curValue, i, possibleNumbersInitial)
+				saveValueForCell(curValue, i)
 			}
-		}
-
-		//Test:
-		for(i <- 0 until CellCount) {
-			println(s"$i: " + getPossibleNumbers(i, possibleNumbersInitial).toVector)
 		}
 
 		//2. store count possible numbers in myIndices (get possible numbers by PossibleCounts(i))
@@ -119,62 +103,48 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		//   c. go once again thorough all numbers and put each index to postion numberOffset + countNumberInCounterpostion
 		val numberOffsets = Array.ofDim[Int](PuzzleSize + 1)
 		for(i <- 0 until CellCount){
-			val countOfIndex = getPossibleCounts(i, possibleNumbersInitial)
+			val countOfIndex = getPossibleCounts(i)
 			numberOffsets(countOfIndex + 1)+=1
 		}
 		for(i <- 1 until PuzzleSize){ //correct offsets
 			numberOffsets(i)+=numberOffsets(i - 1)
 		}
-		println(numberOffsets.toVector)
 		for(i <- 0 until CellCount){
-			val countOfIndex = getPossibleCounts(i, possibleNumbersInitial)
+			val countOfIndex = getPossibleCounts(i)
 			val offset = numberOffsets(countOfIndex)
-			require(myIndices(offset) == 0, s"tried to overwrite $i / $offset ")
-			myIndices(offset) = i
+			require(indices(offset) == 0, s"tried to overwrite $i / $offset ")
+			indices(offset) = i
 			numberOffsets(countOfIndex)+=1
 		}
-		println(myIndices.toVector)
-
-		//Init runtime arrays: //TODO maybe one is enough?
-		System.arraycopy(possibleNumbersInitial.rowNums,0, possibleNumbersCurrent.rowNums, 0, SudokuConstants.PuzzleSize)
-		System.arraycopy(possibleNumbersInitial.colNums,0, possibleNumbersCurrent.colNums, 0, SudokuConstants.PuzzleSize)
-		System.arraycopy(possibleNumbersInitial.squareNums,0, possibleNumbersCurrent.squareNums, 0, SudokuConstants.PuzzleSize)
 
 		//3. solve the puzzle by backtracking (without recursion!)
 		var lastInvaldTry = 0
 		var i = 0
 		while(i < CellCount){
-			val puzzleIndex = myIndices(i)
-			val curValue = myPuzzle(puzzleIndex)
+			val puzzleIndex = indices(i)
+			val curValue = puzzle(puzzleIndex)
 			if(curValue == 0){ //Is not given?
+
 				//Is there a current guess possible?
-				val nextNumbers = getPossibleNumbers(puzzleIndex, possibleNumbersCurrent)
-				if(nextNumbers.length == 0){
-					//backtrack instantly:
-					i-=1
-					//Todo eigene methode
-					val lastPuzzleIndex = myIndices(i) //not given values are in the head of myIndices, there we can simply go one step back!
-					lastInvaldTry = myPuzzle(lastPuzzleIndex)
-					myPuzzle(lastPuzzleIndex) = 0
-					revertValueForCell(lastInvaldTry, lastPuzzleIndex, possibleNumbersCurrent)
+				val nextNumbers = getPossibleNumbers(puzzleIndex)
+				val nextNumberIndex = if(lastInvaldTry == 0) 0 else nextNumbers.indexOf(lastInvaldTry) + 1
+
+				if(nextNumberIndex < nextNumbers.length){
+					//next possible try found:
+					val nextNumber = nextNumbers(nextNumberIndex)
+					puzzle(puzzleIndex) = nextNumber
+					saveValueForCell(nextNumber, puzzleIndex)
+					lastInvaldTry = 0 //0 since sucess
+					i+=1
 				} else {
-					val nextNumberIndex = if(lastInvaldTry == 0) 0 else nextNumbers.indexOf(lastInvaldTry) + 1
-					if(nextNumberIndex < nextNumbers.length){
-						//next possible try found:
-						val nextNumber = nextNumbers(nextNumberIndex)
-						myPuzzle(puzzleIndex) = nextNumber
-						saveValueForCell(nextNumber, puzzleIndex, possibleNumbersCurrent)
-						lastInvaldTry = 0 //0 since sucess
-						i+=1
-					} else {
-						//also backtrack:
-						i-=1
-						val lastPuzzleIndex = myIndices(i) //not given values are in the head of myIndices, there we can simply go one step back!
-						lastInvaldTry = myPuzzle(lastPuzzleIndex)
-						myPuzzle(lastPuzzleIndex) = 0
-						revertValueForCell(lastInvaldTry, lastPuzzleIndex, possibleNumbersCurrent)
-					}
+					//backtrack:
+					i-=1 //not given values are in the head of myIndices, there we can simply go one step back!
+					val lastPuzzleIndex = indices(i) //not given values are in the head of myIndices, there we can simply go one step back!
+					lastInvaldTry = puzzle(lastPuzzleIndex)
+					puzzle(lastPuzzleIndex) = 0
+					revertValueForCell(lastInvaldTry, lastPuzzleIndex)
 				}
+
 			} else {
 				i+=1 //value was given!
 			}
@@ -182,25 +152,24 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		myIsSolved = true
 	}
 
-	private def saveValueForCell(value: Int, index: Int, nums: SudokuNumbers) : Unit = {
+	private def saveValueForCell(value: Int, index: Int) : Unit = {
 		val rowIndex = calculateRowIndex(index)
 		val colIndex = calculateColIndex(index)
 		val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 		val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
-		nums.rowNums(rowIndex) |= checkBit
-		nums.colNums(colIndex) |= checkBit
-		nums.squareNums(squareIndex) |= checkBit
+		rowNums(rowIndex) |= checkBit
+		colNums(colIndex) |= checkBit
+		squareNums(squareIndex) |= checkBit
 	}
 
-	private def revertValueForCell(value: Int, index: Int, nums: SudokuNumbers) : Unit = {
+	private def revertValueForCell(value: Int, index: Int) : Unit = {
 		val rowIndex = calculateRowIndex(index)
 		val colIndex = calculateColIndex(index)
 		val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 		val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
-		nums.rowNums(rowIndex) ^= checkBit
-		nums.colNums(colIndex) ^= checkBit
-		nums.squareNums(squareIndex) ^= checkBit
-		//		println(s"saved($value, $index) in ($rowIndex, $colIndex, $squareIndex)")
+		rowNums(rowIndex) ^= checkBit
+		colNums(colIndex) ^= checkBit
+		squareNums(squareIndex) ^= checkBit
 	}
 
 	private def calculateRowIndex(index: Int) = {
@@ -215,17 +184,17 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		col / SudokuConstants.SquareSize + row / SudokuConstants.SquareSize * SudokuConstants.SquareSize
 	}
 
-	private def getPossibleNumbers(index: Int, nums: SudokuNumbers) : Array[Byte]= {
+	private def getPossibleNumbers(index: Int) : Array[Byte]= {
 		val rowIndex = calculateRowIndex(index)
 		val colIndex = calculateColIndex(index)
 		val squareIndex = calculateSquareIndex(rowIndex, colIndex)
-		val possibleNumberIndex = nums.rowNums(rowIndex) | nums.colNums(colIndex) | nums.squareNums(squareIndex)
+		val possibleNumberIndex = rowNums(rowIndex) | colNums(colIndex) | squareNums(squareIndex)
 		SudokuConstants.BitsetPossibleNumbers(possibleNumberIndex)
 	}
 
-	private def getPossibleCounts(index: Int, nums: SudokuNumbers) : Int = {
-		if(myPuzzle(index) == 0){
-			getPossibleNumbers(index, nums).length //calculate possible numbers!
+	private def getPossibleCounts(index: Int) : Int = {
+		if(puzzle(index) == 0){
+			getPossibleNumbers(index).length //calculate possible numbers!
 		} else {
 			0 //number preset (no more possible!)
 		}
@@ -236,7 +205,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		for (row <- 0 until PuzzleSize) {
 			val from = row * PuzzleSize
 			val until = from + PuzzleSize
-			buffer.append(myPuzzle.slice(from, until).mkString)
+			buffer.append(puzzle.slice(from, until).mkString)
 		}
 		buffer.mkString("\n")
 	}
@@ -248,7 +217,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		for (row <- 0 until PuzzleSize) {
 			val from = row * PuzzleSize
 			val until = from + PuzzleSize
-			val currentRow = myPuzzle.slice(from, until)
+			val currentRow = puzzle.slice(from, until)
 			val formattedRow = currentRow.zipWithIndex.map({ case (colValue, col) =>
 				val rs = if (colValue == 0) s" $empty " else s" $colValue "
 				if (col + 1 < PuzzleSize && col % SquareSize == 2) {
