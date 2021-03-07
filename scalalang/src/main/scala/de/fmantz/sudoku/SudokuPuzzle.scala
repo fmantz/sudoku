@@ -53,12 +53,9 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	private val CellCount = 81
 	private val myPuzzle = Array.ofDim[Byte](CellCount)
 	private val myIndices = Array.ofDim[Int](CellCount)
-	private val myLastPossibleNumberIndex = Array.ofDim[Int](CellCount) //next index to use in each array of possible numbers
 
 	private val possibleNumbersInitial = new SudokuNumbers()
 	private val possibleNumbersCurrent = new SudokuNumbers()
-
-	//TODO try possibleNo(myLastPossibleNumberIndex) , revert possibleNo(myLastPossibleNumberIndex - 1) iff myLastPossibleNumberIndex > 0
 
 	override def set(row: Int, col: Int, value: Byte): Unit = {
 		if (isOpen) {
@@ -145,43 +142,38 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			val puzzleIndex = myIndices(i)
 			val curValue = myPuzzle(puzzleIndex)
 			if(curValue == 0){ //Is not given?
-				val nextIndex = myLastPossibleNumberIndex(puzzleIndex)
-				val nextPossibleNumbers = getPossibleNumbers(puzzleIndex, possibleNumbersInitial)
-				if(nextIndex < nextPossibleNumbers.length){
-					val nextValue = nextPossibleNumbers(nextIndex)
-					//TODO if nextValue possible
-					myLastPossibleNumberIndex(puzzleIndex)+=1
-					saveValueForCell(nextValue, puzzleIndex, possibleNumbersCurrent)
-					myPuzzle(puzzleIndex) = nextValue
+				//Is there a current guess possible?
+				val nextNumbers = getPossibleNumbers(puzzleIndex, possibleNumbersCurrent)
+				if(nextNumbers.length > 0){
+					val nextNumber = nextNumbers.head
+					myPuzzle(puzzleIndex) = nextNumber
+					saveValueForCell(nextNumber, puzzleIndex, possibleNumbersCurrent)
 					i+=1
-					//else loop
 				} else {
+					//backtrack: //TODO anders:
 					i-=1
 					val lastPuzzleIndex = myIndices(i)
-					//val lastPossibleNumbers =
+					val lastValue = myPuzzle(lastPuzzleIndex)
+					revertValueForCell(lastValue, lastPuzzleIndex, possibleNumbersCurrent)
+					val lastNumbers = getPossibleNumbers(lastPuzzleIndex, possibleNumbersCurrent)
+					val lastNextNumberIndex = lastNumbers.indexOf(lastValue) + 1 //next
+
+					if(lastNextNumberIndex < lastNumbers.length){
+						//there is another try possible:
+						val lastNextNumber = lastNumbers(lastNextNumberIndex)
+						myPuzzle(lastPuzzleIndex) = lastNextNumber
+						saveValueForCell(lastNextNumber, lastPuzzleIndex, possibleNumbersCurrent)
+						i+=1 //we were lucky!
+					} else {
+
+					}
 				}
 			} else {
-				i+=1
+				i+=1 //value was given!
 			}
 		}
-		//   i = 0
-		//   while(i < CellCount){
-		//     puzzleIndex = myIndices(i)
-		//     curMyPossibleNumbers = myPossibleNumbers(puzzelIndex) | myNumbersTried(puzzleIndex)
-		//     onePossibleSolution = OnePossibleNumbers(curMyPossibleNumbers)
-		//     myNumbersTried(puzzelIndex) |= onePossibleSolution //tried numbers update
-		//     if(onePossibleSolution == 0 &&  myPossibleNumbers(puzzelIndex) != 0){
-		//     		//go backwords //also update myTriedNumbers(?)
-		//				myTriedNumbers(puzzleIndex) = 0
-		//        i-=1
-		//     } else{
-		//			myPuzzle(puzzelIndex) = onePossibleSolution
-		//     	i+=1
-		//     }
-		//   }
 	}
 
-	//methode zeimal + einmal revert! mit neunen num arrays
 	private def saveValueForCell(value: Int, index: Int, nums: SudokuNumbers) : Unit = {
 		val rowIndex = calculateRowIndex(index)
 		val colIndex = calculateColIndex(index)
