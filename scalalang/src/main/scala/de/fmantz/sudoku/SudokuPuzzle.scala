@@ -100,8 +100,8 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		//   sort can be implemented very fast by only 2 scans:
 		//   a. count possible numbers in an int array (since all counts must be between 0-9)
 		//   b. have another int array for the current counter index
-		//   c. go once again thorough all numbers and put each index to postion numberOffset + countNumberInCounterpostion
-		val numberOffsets = Array.ofDim[Int](PuzzleSize + 1)
+		//   c. go once again thorough all numbers and put each index to position numberOffset + countNumberInCounterpostion
+		val numberOffsets = Array.ofDim[Int](PuzzleSize + 2) //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
 		for(i <- 0 until CellCount){
 			val countOfIndex = getPossibleCounts(i)
 			numberOffsets(countOfIndex + 1)+=1
