@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sudoku
+  namespace: default
+spec:
+  containers:
+  - name: sudoku
+    image: localhost:32000/sudoku:0.5
+  restartPolicy: Never
