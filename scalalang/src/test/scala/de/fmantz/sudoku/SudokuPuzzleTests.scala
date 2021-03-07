@@ -31,7 +31,7 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     checkSolve(fileName = "p096_sudoku.txt")
   }
 
-  ignore should "solve 10 sudokus generated with www.qqwing.com by simple backtracking algorithm" in {
+  it should "solve 10 sudokus generated with www.qqwing.com by simple backtracking algorithm" in {
     checkSolve(fileName = "sudoku.txt")
   }
 
@@ -41,7 +41,6 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     val (source, puzzles) = read(fileName = s"$path/$fileName")
     try {
       puzzles
-        .take(1) //TODO
         .zipWithIndex.foreach({ case (sudoku, index) =>
         val sudokuNumber = index + 1
         val input = sudoku.toString
@@ -73,17 +72,17 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
   /**
    * @param row in [0,9]
    */
-  private def isRowOK(sudoku: SudokuPuzzleImpl, row: Int): Boolean = {
+  private def isRowOK(sudoku: Array[Array[Byte]], row: Int): Boolean = {
     val bits: SudokuBitSet = checkRow(sudoku, row)
     bits.isFoundNumbersUnique && bits.isAllNumbersFound
   }
 
   @inline private def checkRow(
-    sudoku: SudokuPuzzleImpl,
+    sudoku: Array[Array[Byte]],
     row: Int,
     bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
-    val selectedRow = sudoku.puzzle(row)
+    val selectedRow = sudoku(row)
     var col = 0
     while (col < PuzzleSize) {
       val value = selectedRow(col)
@@ -96,19 +95,19 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
   /**
    * @param col in [0,9]
    */
-  private def isColOK(sudoku: SudokuPuzzleImpl, col: Int): Boolean = {
+  private def isColOK(sudoku:  Array[Array[Byte]], col: Int): Boolean = {
     val bits: SudokuBitSet = checkCol(sudoku, col)
     bits.isFoundNumbersUnique && bits.isAllNumbersFound
   }
 
   @inline private def checkCol(
-    sudoku: SudokuPuzzleImpl,
+    sudoku: Array[Array[Byte]],
     col: Int,
     bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
     var row = 0
     while (row < PuzzleSize) {
-      val value = sudoku.puzzle(row)(col)
+      val value = sudoku(row)(col)
       bits.saveValue(value)
       row += 1
     }
@@ -119,13 +118,13 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
    * @param rowSquareIndex in [0,2]
    * @param colSquareIndex in [0,2]
    */
-  private def isSquareOK(sudoku: SudokuPuzzleImpl, rowSquareIndex: Int, colSquareIndex: Int): Boolean = {
+  private def isSquareOK(sudoku: Array[Array[Byte]], rowSquareIndex: Int, colSquareIndex: Int): Boolean = {
     val bits = checkSquare(sudoku, rowSquareIndex, colSquareIndex)
     bits.isFoundNumbersUnique && bits.isAllNumbersFound
   }
 
   @inline private def checkSquare(
-    sudoku: SudokuPuzzleImpl,
+    sudoku: Array[Array[Byte]],
     rowSquareIndex: Int,
     colSquareIndex: Int,
     bits: SudokuBitSet = new SudokuBitSet()
@@ -136,7 +135,7 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     while (row < SquareSize) {
       var col = 0
       while (col < SquareSize) {
-        val value = sudoku.puzzle(row + rowSquareOffset)(col + colSquareOffset)
+        val value = sudoku(row + rowSquareOffset)(col + colSquareOffset)
         bits.saveValue(value)
         col += 1
       }
@@ -145,10 +144,21 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     bits
   }
 
-  private def checkSolution(sudoku: SudokuPuzzleImpl): Boolean = {
+  private def checkSolution(sudokuPuzzle: SudokuPuzzleImpl): Boolean = {
+    val sudoku = makeSudoku2DArray(sudokuPuzzle)
     (0 until PuzzleSize).forall(row => isRowOK(sudoku, row)) &&
-        (0 until PuzzleSize).forall(col => isColOK(sudoku, col)) &&
-          (0 until PuzzleSize).forall(i => isSquareOK(sudoku, i / SquareSize, i % SquareSize))
+      (0 until PuzzleSize).forall(col => isColOK(sudoku, col)) &&
+        (0 until PuzzleSize).forall(i => isSquareOK(sudoku, i / SquareSize, i % SquareSize))
+  }
+
+  private def makeSudoku2DArray(sudokuPuzzle: SudokuPuzzleImpl): Array[Array[Byte]] = {
+    val sudoku = Array.ofDim[Byte](PuzzleSize, PuzzleSize)
+    for (row <- 0 until PuzzleSize) {
+      for (col <- 0 until PuzzleSize) {
+        sudoku(row)(col) = sudokuPuzzle.get(row, col)
+      }
+    }
+    sudoku
   }
 
 }

@@ -65,6 +65,10 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		}
 	}
 
+	def get(row: Int, col: Int): Byte = {
+		myPuzzle(getSingleArrayIndex(row, col))
+	}
+
 	private def getSingleArrayIndex(row: Int, col: Int) = {
 		row * PuzzleSize + col
 	}
@@ -175,6 +179,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				i+=1 //value was given!
 			}
 		}
+		myIsSolved = true
 	}
 
 	private def saveValueForCell(value: Int, index: Int, nums: SudokuNumbers) : Unit = {
