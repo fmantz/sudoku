@@ -131,12 +131,13 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		}
 		println(myIndices.toVector)
 
-		//Init runtime arrays:
+		//Init runtime arrays: //TODO maybe one is enough?
 		System.arraycopy(possibleNumbersInitial.rowNums,0, possibleNumbersCurrent.rowNums, 0, SudokuConstants.PuzzleSize)
 		System.arraycopy(possibleNumbersInitial.colNums,0, possibleNumbersCurrent.colNums, 0, SudokuConstants.PuzzleSize)
 		System.arraycopy(possibleNumbersInitial.squareNums,0, possibleNumbersCurrent.squareNums, 0, SudokuConstants.PuzzleSize)
 
 		//3. solve the puzzle by backtracking (without recursion!)
+		var lastInvaldTry = 0
 		var i = 0
 		while(i < CellCount){
 			val puzzleIndex = myIndices(i)
@@ -144,28 +145,30 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			if(curValue == 0){ //Is not given?
 				//Is there a current guess possible?
 				val nextNumbers = getPossibleNumbers(puzzleIndex, possibleNumbersCurrent)
-				if(nextNumbers.length > 0){
-					val nextNumber = nextNumbers.head
-					myPuzzle(puzzleIndex) = nextNumber
-					saveValueForCell(nextNumber, puzzleIndex, possibleNumbersCurrent)
-					i+=1
-				} else {
-					//backtrack: //TODO anders:
+				if(nextNumbers.length == 0){
+					//backtrack instantly:
 					i-=1
-					val lastPuzzleIndex = myIndices(i)
-					val lastValue = myPuzzle(lastPuzzleIndex)
-					revertValueForCell(lastValue, lastPuzzleIndex, possibleNumbersCurrent)
-					val lastNumbers = getPossibleNumbers(lastPuzzleIndex, possibleNumbersCurrent)
-					val lastNextNumberIndex = lastNumbers.indexOf(lastValue) + 1 //next
-
-					if(lastNextNumberIndex < lastNumbers.length){
-						//there is another try possible:
-						val lastNextNumber = lastNumbers(lastNextNumberIndex)
-						myPuzzle(lastPuzzleIndex) = lastNextNumber
-						saveValueForCell(lastNextNumber, lastPuzzleIndex, possibleNumbersCurrent)
-						i+=1 //we were lucky!
+					//Todo eigene methode
+					val lastPuzzleIndex = myIndices(i) //not given values are in the head of myIndices, there we can simply go one step back!
+					lastInvaldTry = myPuzzle(lastPuzzleIndex)
+					myPuzzle(lastPuzzleIndex) = 0
+					revertValueForCell(lastInvaldTry, lastPuzzleIndex, possibleNumbersCurrent)
+				} else {
+					val nextNumberIndex = if(lastInvaldTry == 0) 0 else nextNumbers.indexOf(lastInvaldTry) + 1
+					if(nextNumberIndex < nextNumbers.length){
+						//next possible try found:
+						val nextNumber = nextNumbers(nextNumberIndex)
+						myPuzzle(puzzleIndex) = nextNumber
+						saveValueForCell(nextNumber, puzzleIndex, possibleNumbersCurrent)
+						lastInvaldTry = 0 //0 since sucess
+						i+=1
 					} else {
-
+						//also backtrack:
+						i-=1
+						val lastPuzzleIndex = myIndices(i) //not given values are in the head of myIndices, there we can simply go one step back!
+						lastInvaldTry = myPuzzle(lastPuzzleIndex)
+						myPuzzle(lastPuzzleIndex) = 0
+						revertValueForCell(lastInvaldTry, lastPuzzleIndex, possibleNumbersCurrent)
 					}
 				}
 			} else {
@@ -192,16 +195,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		nums.rowNums(rowIndex) ^= checkBit
 		nums.colNums(colIndex) ^= checkBit
 		nums.squareNums(squareIndex) ^= checkBit
-		//		println(s"saved($value, $index) in ($rowIndex, $colIndex, $squareIndex)")
-	}
-
-	private def revertCell(index: Int, curNums: SudokuNumbers, initialNums: SudokuNumbers) : Unit = {
-		val rowIndex = calculateRowIndex(index)
-		val colIndex = calculateColIndex(index)
-		val squareIndex = calculateSquareIndex(rowIndex, colIndex)
-		curNums.rowNums(rowIndex) = initialNums.rowNums(rowIndex)
-		curNums.colNums(colIndex) = initialNums.colNums(colIndex)
-		curNums.squareNums(squareIndex) = initialNums.squareNums(squareIndex)
 		//		println(s"saved($value, $index) in ($rowIndex, $colIndex, $squareIndex)")
 	}
 
