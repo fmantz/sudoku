@@ -112,7 +112,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		for(i <- 0 until CellCount){
 			val countOfIndex = getPossibleCounts(i)
 			val offset = numberOffsets(countOfIndex)
-			require(indices(offset) == 0, s"tried to overwrite index $i = ${this.toString}  (offset=$offset count=$countOfIndex)") //TODO remove me later!
 			indices(offset) = i
 			numberOffsets(countOfIndex)+=1
 		}
@@ -126,15 +125,26 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			if(curValue == 0){ //Is not given?
 
 				//Is there a current guess possible?
-				val nextNumbers = getPossibleNumbers(puzzleIndex)
-				val nextNumberIndex = if(lastInvaldTry == 0) 0 else nextNumbers.indexOf(lastInvaldTry) + 1
+				val rowIndex = calculateRowIndex(puzzleIndex)
+				val colIndex = calculateColIndex(puzzleIndex)
+				val squareIndex = calculateSquareIndex(rowIndex, colIndex)
+				val possibleNumberIndex = rowNums(rowIndex) | colNums(colIndex) | squareNums(squareIndex)
+				val nextNumbers = SudokuConstants.BitsetPossibleNumbers(possibleNumberIndex)
+
+				val nextNumberIndex = if(lastInvaldTry == 0) {
+					0
+				} else if(nextNumbers.length == 0){
+					Int.MaxValue //fast exit
+				} else {
+					nextNumbers.indexOf(lastInvaldTry) + 1
+				}
 
 				if(nextNumberIndex < nextNumbers.length){
-					//next possible try found:
+					//next possible number to try found:
 					val nextNumber = nextNumbers(nextNumberIndex)
 					puzzle(puzzleIndex) = nextNumber
-					saveValueForCell(nextNumber, puzzleIndex)
-					lastInvaldTry = 0 //0 since sucess
+					saveValueForCell(nextNumber, rowIndex, colIndex, squareIndex)
+					lastInvaldTry = 0 //0 since success
 					i+=1
 				} else {
 					//backtrack:
@@ -156,6 +166,13 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		val rowIndex = calculateRowIndex(index)
 		val colIndex = calculateColIndex(index)
 		val squareIndex = calculateSquareIndex(rowIndex, colIndex)
+		val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
+		rowNums(rowIndex) |= checkBit
+		colNums(colIndex) |= checkBit
+		squareNums(squareIndex) |= checkBit
+	}
+
+	private def saveValueForCell(value: Int, rowIndex: Int, colIndex:Int, squareIndex: Int) : Unit = {
 		val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
 		rowNums(rowIndex) |= checkBit
 		colNums(colIndex) |= checkBit
