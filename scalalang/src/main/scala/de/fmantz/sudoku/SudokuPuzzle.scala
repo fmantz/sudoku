@@ -126,12 +126,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 				val possibleNumberIndex = rowNums(rowIndex) | colNums(colIndex) | squareNums(squareIndex)
 				val nextNumbers = SudokuConstants.BitsetPossibleNumbers(possibleNumberIndex)
-
-				val nextNumberIndex = if(lastInvaldTry == 0) {
-					0
-				} else {
-					fastIndexOf(nextNumbers, lastInvaldTry) + 1
-				}
+				val nextNumberIndex = if(lastInvaldTry == 0) { 0 } else { fastIndexOf(nextNumbers, lastInvaldTry) + 1 }
 
 				if(nextNumberIndex < nextNumbers.length){
 					//next possible number to try found:
@@ -139,10 +134,9 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 					puzzleSorted(i) = nextNumber
 					saveValueForCell(nextNumber, rowIndex, colIndex, squareIndex)
 					lastInvaldTry = 0 //0 since success
-					i+=1
+					i+=1 //go to next cell
 				} else {
-					//backtrack:
-					i-=1 //not given values are in the head of myIndices, there we can simply go one step back!
+					i-=1 //backtrack, note not given values are in the head of myIndices, we can simply go one step back!
 					lastInvaldTry = puzzleSorted(i)
 					puzzleSorted(i) = 0
 					val lastPuzzleIndex = indices(i)
