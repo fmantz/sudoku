@@ -48,7 +48,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	private val puzzle = Array.ofDim[Byte](CellCount)
 	private val puzzleSorted = Array.ofDim[Byte](CellCount)
 	private val indices = Array.ofDim[Int](CellCount)
-	private val indicesCurrent = Array.fill[Int](CellCount)(-1)
 
 	private val rowNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val colNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
@@ -114,6 +113,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		sortPuzzle() //avoid jumping in the puzzle array
 
 		//3. solve the puzzle by backtracking (without recursion!)
+		var lastInvaldTry: Byte = 0
 		var i = 0
 		while(i < CellCount){
 			val curValue = puzzleSorted(i)
@@ -126,21 +126,27 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 				val possibleNumberIndex = rowNums(rowIndex) | colNums(colIndex) | squareNums(squareIndex)
 				val nextNumbers = SudokuConstants.BitsetPossibleNumbers(possibleNumberIndex)
-				val nextNumberIndex = indicesCurrent(i) + 1
+
+				val nextNumberIndex = if(lastInvaldTry == 0) {
+					0
+				} else if(nextNumbers.length == 0){
+					Int.MaxValue //fast exit
+				} else {
+					fastIndexOf(nextNumbers, lastInvaldTry) + 1
+				}
 
 				if(nextNumberIndex < nextNumbers.length){
 					//next possible number to try found:
 					val nextNumber = nextNumbers(nextNumberIndex)
 					puzzleSorted(i) = nextNumber
 					saveValueForCell(nextNumber, rowIndex, colIndex, squareIndex)
-					indicesCurrent(i) = nextNumberIndex
+					lastInvaldTry = 0 //0 since success
 					i+=1
 				} else {
 					//backtrack:
-					indicesCurrent(i) = -1 //forget last index for position i
 					i-=1 //not given values are in the head of myIndices, there we can simply go one step back!
-					val lastInvaldTry = puzzleSorted(i)
-					puzzleSorted(i) = 0 //find in the next step a new solution for i
+					lastInvaldTry = puzzleSorted(i)
+					puzzleSorted(i) = 0
 					val lastPuzzleIndex = indices(i)
 					revertValueForCell(lastInvaldTry, lastPuzzleIndex)
 				}
@@ -163,6 +169,19 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		for(i <- puzzle.indices) {
 			puzzle(indices(i)) = puzzleSorted(i)
 		}
+	}
+
+	private def fastIndexOf(array: Array[Byte], b: Byte): Int = {
+		var run = true
+		var index = 0
+		while(run){
+			if(array(index) != b){
+				index+=1
+			} else {
+				run = false
+			}
+		}
+		index
 	}
 
 	private def saveValueForCell(value: Int, index: Int) : Unit = {
