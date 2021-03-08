@@ -46,6 +46,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	private var myIsSolved: Boolean = false
 
 	private val puzzle = Array.ofDim[Byte](CellCount)
+	private val puzzleSorted = Array.ofDim[Byte](CellCount)
 	private val indices = Array.ofDim[Int](CellCount)
 
 	private val rowNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
@@ -115,16 +116,17 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			indices(offset) = i
 			numberOffsets(countOfIndex)+=1
 		}
+		sortPuzzle() //avoid jumping in the puzzle array
 
 		//3. solve the puzzle by backtracking (without recursion!)
 		var lastInvaldTry = 0
 		var i = 0
 		while(i < CellCount){
-			val puzzleIndex = indices(i)
-			val curValue = puzzle(puzzleIndex)
+			val curValue = puzzleSorted(i)
 			if(curValue == 0){ //Is not given?
 
 				//Is there a current guess possible?
+				val puzzleIndex = indices(i)
 				val rowIndex = calculateRowIndex(puzzleIndex)
 				val colIndex = calculateColIndex(puzzleIndex)
 				val squareIndex = calculateSquareIndex(rowIndex, colIndex)
@@ -142,16 +144,16 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				if(nextNumberIndex < nextNumbers.length){
 					//next possible number to try found:
 					val nextNumber = nextNumbers(nextNumberIndex)
-					puzzle(puzzleIndex) = nextNumber
+					puzzleSorted(i) = nextNumber
 					saveValueForCell(nextNumber, rowIndex, colIndex, squareIndex)
 					lastInvaldTry = 0 //0 since success
 					i+=1
 				} else {
 					//backtrack:
 					i-=1 //not given values are in the head of myIndices, there we can simply go one step back!
-					val lastPuzzleIndex = indices(i) //not given values are in the head of myIndices, there we can simply go one step back!
-					lastInvaldTry = puzzle(lastPuzzleIndex)
-					puzzle(lastPuzzleIndex) = 0
+					lastInvaldTry = puzzleSorted(i)
+					puzzleSorted(i) = 0
+					val lastPuzzleIndex = indices(i)
 					revertValueForCell(lastInvaldTry, lastPuzzleIndex)
 				}
 
@@ -159,7 +161,20 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				i+=1 //value was given!
 			}
 		}
+		fillPositions() //put values back to original puzzle positions
 		myIsSolved = true
+	}
+
+	private def sortPuzzle() : Unit = {
+		for(i <- puzzle.indices){
+			puzzleSorted(i) = puzzle(indices(i))
+		}
+	}
+
+	private def fillPositions(): Unit = {
+		for(i <- puzzle.indices) {
+			puzzle(indices(i)) = puzzleSorted(i)
+		}
 	}
 
 	private def saveValueForCell(value: Int, index: Int) : Unit = {
