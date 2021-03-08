@@ -119,7 +119,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		sortPuzzle() //avoid jumping in the puzzle array
 
 		//3. solve the puzzle by backtracking (without recursion!)
-		var lastInvaldTry = 0
+		var lastInvaldTry: Byte = 0
 		var i = 0
 		while(i < CellCount){
 			val curValue = puzzleSorted(i)
@@ -131,14 +131,14 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				val colIndex = calculateColIndex(puzzleIndex)
 				val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 				val possibleNumberIndex = rowNums(rowIndex) | colNums(colIndex) | squareNums(squareIndex)
+				//TODO ring-cache! 3 elements
+				//nextNumbers, lastindexOf
 				val nextNumbers = SudokuConstants.BitsetPossibleNumbers(possibleNumberIndex)
 
 				val nextNumberIndex = if(lastInvaldTry == 0) {
 					0
-				} else if(nextNumbers.length == 0){
-					Int.MaxValue //fast exit
 				} else {
-					nextNumbers.indexOf(lastInvaldTry) + 1
+					fastIndexOf(nextNumbers, lastInvaldTry) + 1
 				}
 
 				if(nextNumberIndex < nextNumbers.length){
@@ -175,6 +175,19 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		for(i <- puzzle.indices) {
 			puzzle(indices(i)) = puzzleSorted(i)
 		}
+	}
+
+	private def fastIndexOf(array: Array[Byte], b: Byte): Int = {
+		var run = true
+		var index = 0
+		while(run){
+			if(array(index) != b){
+				index+=1
+			} else {
+				run = false
+			}
+		}
+		index
 	}
 
 	private def saveValueForCell(value: Int, index: Int) : Unit = {
