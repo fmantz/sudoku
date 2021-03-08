@@ -178,16 +178,21 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	}
 
 	private def fastIndexOf(array: Array[Byte], b: Byte): Int = {
-		var run = true
-		var index = 0
-		while(run){
-			if(array(index) != b){
-				index+=1
-			} else {
-				run = false
+		val lastIndex = array.length - 1
+		if(array(lastIndex) == b){
+			lastIndex
+		} else {
+			var run = true
+			var index = 0
+			while (run) {
+				if (array(index) != b) {
+					index += 1
+				} else {
+					run = false
+				}
 			}
+			index
 		}
-		index
 	}
 
 	private def saveValueForCell(value: Int, index: Int) : Unit = {
