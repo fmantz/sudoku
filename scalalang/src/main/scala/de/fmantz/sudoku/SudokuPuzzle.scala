@@ -129,8 +129,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 
 				val nextNumberIndex = if(lastInvaldTry == 0) {
 					0
-				} else if(nextNumbers.length == 0){
-					Int.MaxValue //fast exit
 				} else {
 					fastIndexOf(nextNumbers, lastInvaldTry) + 1
 				}
