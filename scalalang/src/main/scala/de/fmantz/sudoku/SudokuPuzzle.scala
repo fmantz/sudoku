@@ -85,17 +85,23 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	 * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
 	 */
 	override def solve(): Unit = {
+		findAllPossibleValuesForEachEmptyCell()
+		if(isSolvable) {
+			preparePuzzleForSolving()
+			findSolutionNonRecursively()
+		}
+	}
 
-		//1. step go once through the puzzle and store which numbers are still possible in each cell
-		//   note: in cells that are preset by the puzzle no numbers are valid (fill myPossibleNumbers)
-		for(i <- puzzle.indices){
+	private def findAllPossibleValuesForEachEmptyCell(): Unit = {
+		for (i <- puzzle.indices) {
 			val curValue = puzzle(i)
-			if(curValue > 0) {
+			if (curValue > 0) {
 				saveValueForCell(curValue, i)
 			}
 		}
+	}
 
-		//2. organize puzzle values:
+	private def preparePuzzleForSolving(): Unit = {
 		val numberOffsets = Array.ofDim[Int](PuzzleSize + 2) //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
 		for(i <- 0 until CellCount){
 			val countOfIndex = getPossibleCounts(i)
@@ -111,13 +117,14 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			numberOffsets(countOfIndex)+=1
 		}
 		sortPuzzle() //avoid jumping in the puzzle array
+	}
 
-		//3. solve the puzzle by backtracking (without recursion!)
+	def findSolutionNonRecursively(): Unit = {
 		var lastInvaldTry: Byte = 0
 		var i = 0
-		while(i < CellCount){
+		while (i < CellCount) {
 			val curValue = puzzleSorted(i)
-			if(curValue == 0){ //Is not given?
+			if (curValue == 0) { //Is not given?
 
 				//Is there a current guess possible?
 				val puzzleIndex = indices(i)
@@ -126,17 +133,21 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 				val possibleNumberIndex = rowNums(rowIndex) | colNums(colIndex) | squareNums(squareIndex)
 				val nextNumbers = SudokuConstants.BitsetPossibleNumbers(possibleNumberIndex)
-				val nextNumberIndex = if(lastInvaldTry == 0) { 0 } else { fastIndexOf(nextNumbers, lastInvaldTry) + 1 }
+				val nextNumberIndex = if (lastInvaldTry == 0) {
+					0
+				} else {
+					fastIndexOf(nextNumbers, lastInvaldTry) + 1
+				}
 
-				if(nextNumberIndex < nextNumbers.length){
+				if (nextNumberIndex < nextNumbers.length) {
 					//next possible number to try found:
 					val nextNumber = nextNumbers(nextNumberIndex)
 					puzzleSorted(i) = nextNumber
 					saveValueForCell(nextNumber, rowIndex, colIndex, squareIndex)
 					lastInvaldTry = 0 //0 since success
-					i+=1 //go to next cell
+					i += 1 //go to next cell
 				} else {
-					i-=1 //backtrack, note not given values are in the head of myIndices, we can simply go one step back!
+					i -= 1 //backtrack, note not given values are in the head of myIndices, we can simply go one step back!
 					lastInvaldTry = puzzleSorted(i)
 					puzzleSorted(i) = 0
 					val lastPuzzleIndex = indices(i)
@@ -144,7 +155,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				}
 
 			} else {
-				i+=1 //value was given!
+				i += 1 //value was given!
 			}
 		}
 		fillPositions() //put values back to original puzzle positions
