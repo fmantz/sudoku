@@ -29,3 +29,6 @@ build
 
 #mac:
 .DS_Store
+
+#sudokus:
+performance/sudoku*.txt
