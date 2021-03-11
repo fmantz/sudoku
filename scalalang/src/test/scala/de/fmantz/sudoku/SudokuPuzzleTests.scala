@@ -48,7 +48,6 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
         .zipWithIndex.foreach({ case (sudoku, index) =>
         val sudokuNumber = index + 1
         val input = sudoku.toString
-        sudoku.initTurbo()
         require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n ${sudoku.toPrettyString}")
         sudoku.solve()
         val output = sudoku.toString

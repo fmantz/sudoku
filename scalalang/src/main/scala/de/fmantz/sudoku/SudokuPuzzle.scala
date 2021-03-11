@@ -23,19 +23,19 @@ package de.fmantz.sudoku
 import scala.collection.mutable.ListBuffer
 
 trait SudokuPuzzle {
+
+	def get(row: Int, col: Int): Byte
+
 	def set(row: Int, col: Int, value: Byte): Unit
 
-	def isEmpty(row: Int, col: Int): Boolean
-
 	def isSolvable: Boolean
-
-	def initTurbo(): Unit
 
 	def isSolved: Boolean
 
 	def solve(): Unit
 
 	def toPrettyString: String
+
 }
 
 class SudokuPuzzleImpl extends SudokuPuzzle {
@@ -43,6 +43,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	import SudokuConstants._
 
 	//state:
+	private var myIsSolvable: Boolean = true
 	private var myIsSolved: Boolean = false
 
 	private val puzzle = Array.ofDim[Byte](CellCount)
@@ -53,23 +54,16 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	private val colNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val squareNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 
+	override def get(row: Int, col: Int): Byte = {
+		puzzle(getSingleArrayIndex(row, col))
+	}
+
 	override def set(row: Int, col: Int, value: Byte): Unit = {
 		puzzle(getSingleArrayIndex(row, col)) = value
 	}
 
-	def get(row: Int, col: Int): Byte = {
-		puzzle(getSingleArrayIndex(row, col))
-	}
-
 	private def getSingleArrayIndex(row: Int, col: Int) = {
 		row * PuzzleSize + col
-	}
-
-	override def isEmpty(row: Int, col: Int): Boolean = {
-		puzzle(getSingleArrayIndex(row, col))  == 0
-	}
-
-	override def initTurbo(): Unit = {
 	}
 
 	override def isSolved: Boolean = {
@@ -77,12 +71,13 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	}
 
 	override def isSolvable: Boolean = {
-		true //TODO
+		myIsSolvable
 	}
 
 	/**
-	 * solves the sudoku by a simple backtracking algorithm (brute force)
-	 * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
+	 * solves the sudoku by a simple non-recursive backtracking algorithm (brute force)
+	 * (own simple solution, its an algorithm which may be ported to CUDA or OpenCL)
+	 * to get a faster result use e.g. https://github.com/Emerentius/sudoku
 	 */
 	override def solve(): Unit = {
 		findAllPossibleValuesForEachEmptyCell()
@@ -107,6 +102,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			val countOfIndex = getPossibleCounts(i)
 			numberOffsets(countOfIndex + 1)+=1
 		}
+		myIsSolved = numberOffsets(1) == CellCount //all cells have already a solution!
 		for(i <- 1 until numberOffsets.length){ //correct offsets
 			numberOffsets(i)+=numberOffsets(i - 1)
 		}
@@ -191,10 +187,16 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		val rowIndex = calculateRowIndex(index)
 		val colIndex = calculateColIndex(index)
 		val squareIndex = calculateSquareIndex(rowIndex, colIndex)
-		val checkBit = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
-		rowNums(rowIndex) |= checkBit
-		colNums(colIndex) |= checkBit
-		squareNums(squareIndex) |= checkBit
+		val checkBit: Int = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
+		setAndCheckBit(checkBit, rowNums, rowIndex)
+		setAndCheckBit(checkBit, colNums, colIndex)
+		setAndCheckBit(checkBit, squareNums, squareIndex)
+	}
+
+	private def setAndCheckBit(checkBit: Int, array:Array[Int], index: Int) : Unit = {
+		val oldValue = array(index)
+		array(index) |= checkBit
+		myIsSolvable &= oldValue != array(index)
 	}
 
 	private def saveValueForCell(value: Int, rowIndex: Int, colIndex:Int, squareIndex: Int) : Unit = {
