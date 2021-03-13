@@ -7,9 +7,9 @@ and **compare the code, performance and memory usage** afterwards with another p
 It was actually **NOT** my goal to develop the fastest Sudoku solver possible (!), 
 rather than comparing these two programming languages **myself**.
 I will improve the performance 'maybe' in a later version 0.2. There are lots of possibilities. 
-However, if you look for really fast Sudoku solver go to:
+However, if you look for a really fast Sudoku solver try:
 
-* qqwing.com or
+* https://qqwing.com or
 * https://github.com/Emerentius/sudoku
 
 My approach was:
