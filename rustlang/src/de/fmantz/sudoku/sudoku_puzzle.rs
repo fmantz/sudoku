@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::sudoku_constants::{PUZZLE_SIZE, CELL_COUNT, BITSET_ARRAY};
+use crate::sudoku_constants::{BITSET_ARRAY, CELL_COUNT, PUZZLE_SIZE};
 use crate::sudoku_constants::SQUARE_SIZE;
 
 pub trait SudokuPuzzle {
@@ -43,7 +43,6 @@ pub struct SudokuPuzzleData {
 }
 
 impl SudokuPuzzle for SudokuPuzzleData {
-
     fn new() -> Self {
         SudokuPuzzleData {
             my_is_solvable: true,
@@ -58,7 +57,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
     }
 
     fn get(&self, row: usize, col: usize) -> u8 {
-       self.puzzle[SudokuPuzzleData::get_single_array_index(row, col)]
+        self.puzzle[SudokuPuzzleData::get_single_array_index(row, col)]
     }
 
     fn set(&mut self, row: usize, col: usize, value: u8) -> () {
@@ -74,7 +73,8 @@ impl SudokuPuzzle for SudokuPuzzleData {
     }
 
     fn init(&mut self) -> () {
-        //TODO
+        self.find_all_possible_values_for_each_empty_cell();
+        self.prepare_puzzle_for_solving();
     }
 
     /**
@@ -83,7 +83,9 @@ impl SudokuPuzzle for SudokuPuzzleData {
      * to get a faster result use e.g. https://github.com/Emerentius/sudoku
      */
     fn solve(&mut self) -> () {
-
+        if self.is_solvable() && !self.is_solved() {
+            self.find_solution_non_recursively();
+        }
     }
 
     fn to_string(&self) -> String {
@@ -91,7 +93,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
         for row in 0..PUZZLE_SIZE {
             let from = row * PUZZLE_SIZE;
             let until = from + PUZZLE_SIZE;
-            let current_row: &[u8] = &self.puzzle[from .. until];
+            let current_row: &[u8] = &self.puzzle[from..until];
             buffer.push(std::str::from_utf8(current_row).unwrap().to_string());
         }
         return buffer.join("\n");
@@ -104,7 +106,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
         for row in 0..PUZZLE_SIZE {
             let from = row * PUZZLE_SIZE;
             let until = from + PUZZLE_SIZE;
-            let current_row = &self.puzzle[from .. until];
+            let current_row = &self.puzzle[from..until];
             let mut formatted_row: String = String::with_capacity(PUZZLE_SIZE);
             for col in 0..PUZZLE_SIZE {
                 let col_value: u8 = current_row[col];
@@ -124,7 +126,6 @@ impl SudokuPuzzle for SudokuPuzzleData {
 }
 
 impl SudokuPuzzleData {
-
     fn find_all_possible_values_for_each_empty_cell(&mut self) -> () {
         for i in 0..CELL_COUNT {
             let cur_value = self.puzzle[i];
@@ -162,9 +163,9 @@ impl SudokuPuzzleData {
 
                 //Is there a current guess possible?
                 let puzzle_index = self.indices[i];
-                let row_index :usize = SudokuPuzzleData::calculate_row_index(puzzle_index);
-                let col_index :usize = SudokuPuzzleData::calculate_col_index(puzzle_index);
-                let square_index :usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+                let row_index: usize = SudokuPuzzleData::calculate_row_index(puzzle_index);
+                let col_index: usize = SudokuPuzzleData::calculate_col_index(puzzle_index);
+                let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
                 let possible_number_index = self.row_nums[row_index] | self.col_nums[col_index] | self.square_nums[square_index];
                 let next_numbers = BITSET_ARRAY[possible_number_index as usize];
                 let next_number_index = if last_invalid_try == 0 {
@@ -187,7 +188,6 @@ impl SudokuPuzzleData {
                     let last_puzzle_index = self.indices[i];
                     self.revert_value_for_cell(last_invalid_try, last_puzzle_index);
                 }
-
             } else {
                 i += 1;
             }
@@ -197,8 +197,8 @@ impl SudokuPuzzleData {
     }
 
     fn sort_puzzle(&mut self) -> () {
-        for cellIndex in 0..CELL_COUNT {
-           self.puzzle_sorted[cellIndex] = self.puzzle[self.indices[cellIndex]];
+        for i in 0..CELL_COUNT {
+            self.puzzle_sorted[i] = self.puzzle[self.indices[i]];
         }
     }
 
@@ -212,11 +212,11 @@ impl SudokuPuzzleData {
         row * PUZZLE_SIZE + col
     }
 
-    fn fast_index_of(array: &[u8], b:&u8) -> usize {
+    fn fast_index_of(array: &[u8], number: &u8) -> usize {
         let mut index = 0;
-        for bInArray in array {
-            if bInArray != b {
-                index+=1;
+        for number_in_array in array {
+            if number_in_array != number {
+                index += 1;
             } else {
                 break;
             }
@@ -225,33 +225,33 @@ impl SudokuPuzzleData {
     }
 
     fn save_value_for_cell_and_check_is_solvable(&mut self, value: u8, index: usize) -> () {
-        let row_index :usize = SudokuPuzzleData::calculate_row_index(index);
-        let col_index :usize = SudokuPuzzleData::calculate_col_index(index);
-        let square_index :usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
-        let check_bit : u16 = 1 << (value - 1);
-        SudokuPuzzleData::set_and_check_bit(self.my_is_solvable, check_bit, &mut self.row_nums, row_index);
-        SudokuPuzzleData::set_and_check_bit(self.my_is_solvable, check_bit, &mut self.col_nums, col_index);
-        SudokuPuzzleData::set_and_check_bit(self.my_is_solvable, check_bit, &mut self.square_nums, square_index);
+        let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
+        let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
+        let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+        let check_bit: u16 = 1 << (value - 1);
+        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, &mut self.row_nums, row_index);
+        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, &mut self.col_nums, col_index);
+        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, &mut self.square_nums, square_index);
     }
 
-    fn set_and_check_bit(mut my_is_solvable: bool, check_bit: u16, array:&mut [u16], index: usize) -> () {
+    fn set_and_check_bit(check_bit: u16, array: &mut [u16], index: usize) -> bool {
         let old_value = array[index];
         array[index] |= check_bit;
-        my_is_solvable &= old_value != array[index];
+        old_value != array[index]
     }
 
     fn save_value_for_cell(&mut self, value: u8, row_index: usize, col_index: usize, square_index: usize) -> () {
-        let check_bit : u16 = 1 << (value - 1);
+        let check_bit: u16 = 1 << (value - 1);
         self.row_nums[row_index] |= check_bit;
         self.col_nums[col_index] |= check_bit;
         self.square_nums[square_index] |= check_bit;
     }
 
     fn revert_value_for_cell(&mut self, value: u8, index: usize) -> () {
-        let row_index :usize = SudokuPuzzleData::calculate_row_index(index);
-        let col_index :usize = SudokuPuzzleData::calculate_col_index(index);
-        let square_index :usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
-        let check_bit : u16 = 1 << (value - 1);
+        let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
+        let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
+        let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+        let check_bit: u16 = 1 << (value - 1);
         self.row_nums[row_index] ^= check_bit;
         self.col_nums[col_index] ^= check_bit;
         self.square_nums[square_index] ^= check_bit;
@@ -270,9 +270,9 @@ impl SudokuPuzzleData {
     }
 
     fn get_possible_numbers(&self, index: usize) -> &[u8] {
-        let row_index :usize = SudokuPuzzleData::calculate_row_index(index);
-        let col_index :usize = SudokuPuzzleData::calculate_col_index(index);
-        let square_index :usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+        let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
+        let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
+        let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
         let possible_number_index = self.row_nums[row_index] | self.col_nums[col_index] | self.square_nums[square_index];
         BITSET_ARRAY[possible_number_index as usize]
     }
@@ -284,5 +284,4 @@ impl SudokuPuzzleData {
             0
         }
     }
-
 }

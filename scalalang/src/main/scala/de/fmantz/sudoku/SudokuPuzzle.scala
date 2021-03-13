@@ -175,11 +175,11 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		}
 	}
 
-	private def fastIndexOf(array: Array[Byte], b: Byte): Int = {
+	private def fastIndexOf(array: Array[Byte], number: Byte): Int = {
 		var run = true
 		var index = 0
 		while(run){
-			if(array(index) != b){
+			if(array(index) != number){
 				index+=1
 			} else {
 				run = false
@@ -193,15 +193,15 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		val colIndex = calculateColIndex(index)
 		val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 		val checkBit: Int = 1 << (value - 1) //set for each number a bit by index from left, number 1 has index zero
-		setAndCheckBit(checkBit, rowNums, rowIndex)
-		setAndCheckBit(checkBit, colNums, colIndex)
-		setAndCheckBit(checkBit, squareNums, squareIndex)
+		myIsSolvable &= setAndCheckBit(checkBit, rowNums, rowIndex)
+		myIsSolvable &= setAndCheckBit(checkBit, colNums, colIndex)
+		myIsSolvable &= setAndCheckBit(checkBit, squareNums, squareIndex)
 	}
 
-	private def setAndCheckBit(checkBit: Int, array:Array[Int], index: Int) : Unit = {
+	private def setAndCheckBit(checkBit: Int, array:Array[Int], index: Int) : Boolean = {
 		val oldValue = array(index)
 		array(index) |= checkBit
-		myIsSolvable &= oldValue != array(index)
+		oldValue != array(index)
 	}
 
 	private def saveValueForCell(value: Int, rowIndex: Int, colIndex:Int, squareIndex: Int) : Unit = {
