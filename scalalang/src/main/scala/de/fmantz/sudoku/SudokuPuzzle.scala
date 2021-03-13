@@ -96,7 +96,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		for (i <- puzzle.indices) {
 			val curValue = puzzle(i)
 			if (curValue > 0) {
-				saveValueForCell(curValue, i)
+				saveValueForCellAndCheckIsSolvable(curValue, i)
 			}
 		}
 	}
@@ -188,7 +188,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		index
 	}
 
-	private def saveValueForCell(value: Int, index: Int) : Unit = {
+	private def saveValueForCellAndCheckIsSolvable(value: Int, index: Int) : Unit = {
 		val rowIndex = calculateRowIndex(index)
 		val colIndex = calculateColIndex(index)
 		val squareIndex = calculateSquareIndex(rowIndex, colIndex)

@@ -125,8 +125,65 @@ impl SudokuPuzzle for SudokuPuzzleData {
 
 impl SudokuPuzzleData {
 
+    fn sort_puzzle(&mut self) -> () {
+        for cellIndex in 0..CELL_COUNT {
+           self.puzzle_sorted[cellIndex] = self.puzzle[self.indices[cellIndex]];
+        }
+    }
+
+    fn fill_positions(&mut self) -> () {
+        for cellIndex in 0..CELL_COUNT {
+            self.puzzle[self.indices[cellIndex]] = self.puzzle_sorted[cellIndex];
+        }
+    }
+
     fn get_single_array_index(row: usize, col: usize) -> usize {
         row * PUZZLE_SIZE + col
+    }
+
+    fn fast_index_of(array: &[u8], b:&u8) -> usize {
+        let mut index = 0;
+        for bInArray in array {
+            if bInArray != b {
+                index+=1;
+            } else {
+                break;
+            }
+        }
+        index
+    }
+
+    fn save_value_for_cell_and_check_is_solvable(&mut self, value: u8, index: usize) -> () {
+        let row_index :usize = SudokuPuzzleData::calculate_row_index(index);
+        let col_index :usize = SudokuPuzzleData::calculate_col_index(index);
+        let square_index :usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+        let check_bit : u16 = 1 << (value - 1);
+        SudokuPuzzleData::set_and_check_bit(self.my_is_solvable, check_bit, &mut self.row_nums, row_index);
+        SudokuPuzzleData::set_and_check_bit(self.my_is_solvable, check_bit, &mut self.col_nums, col_index);
+        SudokuPuzzleData::set_and_check_bit(self.my_is_solvable, check_bit, &mut self.square_nums, square_index);
+    }
+
+    fn set_and_check_bit(mut my_is_solvable: bool, check_bit: u16, array:&mut [u16], index: usize) -> () {
+        let old_value = array[index];
+        array[index] |= check_bit;
+        my_is_solvable &= old_value != array[index];
+    }
+
+    fn save_value_for_cell(&mut self, value: u8, row_index: usize, col_index: usize, square_index: usize) -> () {
+        let check_bit : u16 = 1 << (value - 1);
+        self.row_nums[row_index] |= check_bit;
+        self.col_nums[col_index] |= check_bit;
+        self.square_nums[square_index] |= check_bit;
+    }
+
+    fn revert_value_for_cell(&mut self, value: u8, index: usize) -> () {
+        let row_index :usize = SudokuPuzzleData::calculate_row_index(index);
+        let col_index :usize = SudokuPuzzleData::calculate_col_index(index);
+        let square_index :usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+        let check_bit : u16 = 1 << (value - 1);
+        self.row_nums[row_index] ^= check_bit;
+        self.col_nums[col_index] ^= check_bit;
+        self.square_nums[square_index] ^= check_bit;
     }
 
     fn calculate_row_index(index: usize) -> usize {
