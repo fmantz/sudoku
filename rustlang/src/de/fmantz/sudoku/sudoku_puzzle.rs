@@ -125,6 +125,34 @@ impl SudokuPuzzle for SudokuPuzzleData {
 
 impl SudokuPuzzleData {
 
+    fn find_all_possible_values_for_each_empty_cell(&mut self) -> () {
+        for i in 0..CELL_COUNT {
+            let cur_value = self.puzzle[i];
+            if cur_value > 0 {
+                self.save_value_for_cell_and_check_is_solvable(cur_value, i);
+            }
+        }
+    }
+
+    fn prepare_puzzle_for_solving(&mut self) -> () {
+        let mut number_off_sets: [u8; PUZZLE_SIZE + 2] = [0; PUZZLE_SIZE + 2]; //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
+        for i in 0..CELL_COUNT {
+            let count_of_index = self.get_possible_counts(i);
+            number_off_sets[count_of_index + 1] += 1;
+        }
+        self.my_is_solved = number_off_sets[1] as usize == CELL_COUNT; //all cells have already a solution!
+        for i in 1..number_off_sets.len() { //correct offsets
+            number_off_sets[i] += number_off_sets[i - 1];
+        }
+        for i in 0..CELL_COUNT {
+            let count_of_index = self.get_possible_counts(i);
+            let off_set = number_off_sets[count_of_index] as usize;
+            self.indices[off_set] = i;
+            number_off_sets[count_of_index] += 1;
+        }
+        self.sort_puzzle(); //avoid jumping in the puzzle array
+    }
+
     fn sort_puzzle(&mut self) -> () {
         for cellIndex in 0..CELL_COUNT {
            self.puzzle_sorted[cellIndex] = self.puzzle[self.indices[cellIndex]];
@@ -132,8 +160,8 @@ impl SudokuPuzzleData {
     }
 
     fn fill_positions(&mut self) -> () {
-        for cellIndex in 0..CELL_COUNT {
-            self.puzzle[self.indices[cellIndex]] = self.puzzle_sorted[cellIndex];
+        for i in 0..CELL_COUNT {
+            self.puzzle[self.indices[i]] = self.puzzle_sorted[i];
         }
     }
 
