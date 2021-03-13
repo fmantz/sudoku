@@ -161,7 +161,7 @@ impl SudokuPuzzleData {
         let mut last_invalid_try: u8 = 0;
         let mut i = 0;
         while i < CELL_COUNT {
-            let cur_value = self.puzzle_sorted[i];
+            let cur_value = self.puzzle_sorted[i]; //kind of stack
             if cur_value == 0 { //Is not given?
 
                 //Is there a current guess possible?

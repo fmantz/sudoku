@@ -124,7 +124,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		var lastInvaldTry: Byte = 0
 		var i = 0
 		while (i < CellCount) {
-			val curValue = puzzleSorted(i)
+			val curValue = puzzleSorted(i) //kind of stack
 			if (curValue == 0) { //Is not given?
 
 				//Is there a current guess possible?
