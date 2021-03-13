@@ -64,17 +64,17 @@ impl SudokuPuzzle for SudokuPuzzleData {
         self.puzzle[SudokuPuzzleData::get_single_array_index(row, col)] = value;
     }
 
-    fn is_solved(&self) -> bool {
-        return self.my_is_solved;
+    fn init(&mut self) -> () {
+        self.find_all_possible_values_for_each_empty_cell();
+        self.prepare_puzzle_for_solving();
     }
 
     fn is_solvable(&self) -> bool {
         return self.my_is_solvable;
     }
 
-    fn init(&mut self) -> () {
-        self.find_all_possible_values_for_each_empty_cell();
-        self.prepare_puzzle_for_solving();
+    fn is_solved(&self) -> bool {
+        return self.my_is_solved;
     }
 
     /**
@@ -86,20 +86,6 @@ impl SudokuPuzzle for SudokuPuzzleData {
         if self.is_solvable() && !self.is_solved() {
             self.find_solution_non_recursively();
         }
-    }
-
-    fn to_string(&self) -> String {
-        let mut buffer: Vec<String> = Vec::new();
-        for row in 0..PUZZLE_SIZE {
-            let from = row * PUZZLE_SIZE;
-            let until = from + PUZZLE_SIZE;
-            let current_row = self.puzzle[from..until]
-                .iter()
-                .map(|i| i.to_string())
-                .collect::<String>();
-            buffer.push(current_row);
-        }
-        return buffer.join("\n");
     }
 
     fn to_pretty_string(&self) -> String {
@@ -123,6 +109,20 @@ impl SudokuPuzzle for SudokuPuzzleData {
             if row < (PUZZLE_SIZE - 1) && (row + 1) % SQUARE_SIZE == 0 {
                 buffer.push(dotted_line.clone());
             }
+        }
+        return buffer.join("\n");
+    }
+
+    fn to_string(&self) -> String {
+        let mut buffer: Vec<String> = Vec::new();
+        for row in 0..PUZZLE_SIZE {
+            let from = row * PUZZLE_SIZE;
+            let until = from + PUZZLE_SIZE;
+            let current_row = self.puzzle[from..until]
+                .iter()
+                .map(|i| i.to_string())
+                .collect::<String>();
+            buffer.push(current_row);
         }
         return buffer.join("\n");
     }

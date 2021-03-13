@@ -249,16 +249,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		}
 	}
 
-	override def toString: String = {
-		val buffer = new ListBuffer[String]
-		for (row <- 0 until PuzzleSize) {
-			val from = row * PuzzleSize
-			val until = from + PuzzleSize
-			buffer.append(puzzle.slice(from, until).mkString)
-		}
-		buffer.mkString("\n")
-	}
-
 	override def toPrettyString: String = {
 		val dottedLine = "-" * (PuzzleSize * 3 + SquareSize - 1)
 		val empty = "*"
@@ -279,6 +269,16 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			if (row < (PuzzleSize - 1) && (row + 1) % SquareSize == 0) {
 				buffer.append(dottedLine)
 			}
+		}
+		buffer.mkString("\n")
+	}
+
+	override def toString: String = {
+		val buffer = new ListBuffer[String]
+		for (row <- 0 until PuzzleSize) {
+			val from = row * PuzzleSize
+			val until = from + PuzzleSize
+			buffer.append(puzzle.slice(from, until).mkString)
 		}
 		buffer.mkString("\n")
 	}
