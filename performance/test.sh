@@ -33,17 +33,21 @@ echo *****************************************
 echo LEVEL = $c   PUZZLES = $NUMBER_OF_PUZZLES
 echo *****************************************
 
-#Generate sudokus with QQwing:
-/usr/bin/time -v -a --output=/root/performance/$NEWDIR/qqwing_gen.log -p sh -c "java -jar /root/qqwing-1.3.4.jar --generate ${NUMBER_OF_PUZZLES} --difficulty expert --compact > /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}.txt"
+#Generate sudokus with QQwing (if not already generated):
+if [[ ! -f "/root/performance/sudoku${NUMBER_OF_PUZZLES}.txt" ]]
+then
+    echo "generate '/root/performance/sudoku${NUMBER_OF_PUZZLES}.txt'"
+    /usr/bin/time -v -a --output=/root/performance/qqwing_gen.log -p sh -c "java -jar /root/qqwing-1.3.4.jar --generate ${NUMBER_OF_PUZZLES} --difficulty expert --compact > /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt"
+fi
 
 #Solve sudokus with QQwing (reference):
-/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-qqwing.log -p sh -c "cat /root/performance/$NEWDIR/sudoku${NUMBER_OF_PUZZLES}.txt | java -jar /root/qqwing-1.3.4.jar --solve --compact > /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-qqwing.txt"
+/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-qqwing.log -p sh -c "cat /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt | java -jar /root/qqwing-1.3.4.jar --solve --compact > /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-qqwing.txt"
 
 #Solve sudokus with rust sudoku:
-/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-rust.log -p sh -c "/root/sudoku-rust /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-rust.txt"
+/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-rust.log -p sh -c "/root/sudoku-rust /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-rust.txt"
 
 #Solve sudokus with scala sudoku:
-/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-scala.log -p sh -c "java -jar /root/sudoku-scala.jar /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-scala.txt"
+/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-scala.log -p sh -c "java -jar /root/sudoku-scala.jar /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-scala.txt"
 
 #DISABLED: only useful for versions < 0.3 (!)
 #Solve sudokus with scalanative sudoku:

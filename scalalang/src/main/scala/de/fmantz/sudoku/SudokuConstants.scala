@@ -25,6 +25,7 @@ object SudokuConstants {
 	final val NewSudokuSeparator: String = "Grid"
 	final val EmptyChar: Char = '0'
 	final val QQWingEmptyChar: Char = '.' //https://qqwing.com
+	final val CellCount: Int = 81
 	final val PuzzleSize: Int = 9
 	final val SquareSize: Int = 3
 	final val CheckBits = ~0 >>> (32 - SudokuConstants.PuzzleSize) //binary: Size times "1"
@@ -547,7 +548,7 @@ object SudokuConstants {
 	 * For each bitset combination there is an array pointing
 	 * to the numbers set in the bitset
 	 */
-	final val BitsetPossibleNumbers: Array[Array[Byte]] = Array(
+	final val BitsetArray: Array[Array[Byte]] = Array(
 		BitsetNumbers_000,
 		BitsetNumbers_001,
 		BitsetNumbers_002,

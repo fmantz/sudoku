@@ -18,7 +18,7 @@
 #
 [package]
 name = "sudoku"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Florian Mantz"]
 edition = "2018"
 
