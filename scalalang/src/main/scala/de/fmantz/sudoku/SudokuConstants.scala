@@ -548,7 +548,7 @@ object SudokuConstants {
 	 * For each bitset combination there is an array pointing
 	 * to the numbers set in the bitset
 	 */
-	final val BitsetPossibleNumbers: Array[Array[Byte]] = Array(
+	final val BitsetArray: Array[Array[Byte]] = Array(
 		BitsetNumbers_000,
 		BitsetNumbers_001,
 		BitsetNumbers_002,

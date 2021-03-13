@@ -70,7 +70,7 @@ class SudokuBitSet( private var bits: Int) {
 //  }
 
   def possibleNumbers: Array[Byte] = {
-    SudokuConstants.BitsetPossibleNumbers(this.bits)
+    SudokuConstants.BitsetArray(this.bits)
   }
 
 }

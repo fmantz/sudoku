@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::sudoku_constants::{PUZZLE_SIZE, CELL_COUNT};
+use crate::sudoku_constants::{PUZZLE_SIZE, CELL_COUNT, BITSET_ARRAY};
 use crate::sudoku_constants::SQUARE_SIZE;
 
 pub trait SudokuPuzzle {
@@ -127,6 +127,34 @@ impl SudokuPuzzleData {
 
     fn get_single_array_index(row: usize, col: usize) -> usize {
         row * PUZZLE_SIZE + col
+    }
+
+    fn calculate_row_index(index: usize) -> usize {
+        index / PUZZLE_SIZE
+    }
+
+    fn calculate_col_index(index: usize) -> usize {
+        index % PUZZLE_SIZE
+    }
+
+    fn calculate_square_index(row_index: usize, col_index: usize) -> usize {
+        row_index / SQUARE_SIZE * SQUARE_SIZE + col_index / SQUARE_SIZE //attention: int arithmetic
+    }
+
+    fn get_possible_numbers(&self, index: usize) -> &[u8] {
+        let row_index :usize = SudokuPuzzleData::calculate_row_index(index);
+        let col_index :usize = SudokuPuzzleData::calculate_col_index(index);
+        let square_index :usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+        let possible_number_index = self.row_nums[row_index] | self.col_nums[col_index] | self.square_nums[square_index];
+        BITSET_ARRAY[possible_number_index as usize]
+    }
+
+    fn get_possible_counts(&self, index: usize) -> usize {
+        if self.puzzle[index] == 0 {
+            self.get_possible_numbers(index).len()
+        } else {
+            0
+        }
     }
 
 }

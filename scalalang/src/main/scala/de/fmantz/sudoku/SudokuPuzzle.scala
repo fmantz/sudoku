@@ -133,7 +133,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				val colIndex = calculateColIndex(puzzleIndex)
 				val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 				val possibleNumberIndex = rowNums(rowIndex) | colNums(colIndex) | squareNums(squareIndex)
-				val nextNumbers = SudokuConstants.BitsetPossibleNumbers(possibleNumberIndex)
+				val nextNumbers = SudokuConstants.BitsetArray(possibleNumberIndex)
 				val nextNumberIndex = if (lastInvaldTry == 0) {
 					0
 				} else {
@@ -221,16 +221,16 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		squareNums(squareIndex) ^= checkBit
 	}
 
-	private def calculateRowIndex(index: Int) = {
+	private def calculateRowIndex(index: Int): Int = {
 		index / PuzzleSize
 	}
 
-	private def calculateColIndex(index: Int) = {
+	private def calculateColIndex(index: Int) : Int = {
 		index % PuzzleSize
 	}
 
-	private def calculateSquareIndex(row: Int, col: Int): Int = {
-		col / SudokuConstants.SquareSize + row / SudokuConstants.SquareSize * SudokuConstants.SquareSize
+	private def calculateSquareIndex(rowIndex: Int, colIndex: Int): Int = {
+		rowIndex / SudokuConstants.SquareSize * SudokuConstants.SquareSize + colIndex / SudokuConstants.SquareSize //attention: int arithmetic
 	}
 
 	private def getPossibleNumbers(index: Int) : Array[Byte]= {
@@ -238,7 +238,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		val colIndex = calculateColIndex(index)
 		val squareIndex = calculateSquareIndex(rowIndex, colIndex)
 		val possibleNumberIndex = rowNums(rowIndex) | colNums(colIndex) | squareNums(squareIndex)
-		SudokuConstants.BitsetPossibleNumbers(possibleNumberIndex)
+		SudokuConstants.BitsetArray(possibleNumberIndex)
 	}
 
 	private def getPossibleCounts(index: Int) : Int = {
