@@ -72,7 +72,7 @@ Memory: 7164MiB / 32068MiB
 ```
 Used programming language versions:
 
-* Scala 2.11.12 (on OpenJDK)
+* Scala 2.11.12 (on OpenJDK 11)
 * Rust Edition 2018
 
 ## Run manually
