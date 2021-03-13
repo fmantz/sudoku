@@ -16,101 +16,85 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::sudoku_bit_set::SudokuBitSet;
-use crate::sudoku_constants::PUZZLE_SIZE;
+use crate::sudoku_constants::{PUZZLE_SIZE, CELL_COUNT};
 use crate::sudoku_constants::SQUARE_SIZE;
-use crate::sudoku_turbo::SudokuTurbo;
 
 pub trait SudokuPuzzle {
     fn new() -> Self;
+    fn get(&self, row: usize, col: usize) -> u8;
     fn set(&mut self, row: usize, col: usize, value: u8) -> ();
-    fn is_empty(&self, row: usize, col: usize) -> bool;
-    fn is_solved(&self) -> bool;
-    fn init_turbo(&mut self) -> ();
+    fn init(&mut self) -> ();
     fn is_solvable(&self) -> bool;
+    fn is_solved(&self) -> bool;
     fn solve(&mut self) -> ();
     fn to_pretty_string(&self) -> String;
     fn to_string(&self) -> String;
 }
 
 pub struct SudokuPuzzleData {
-    pub puzzle: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
-    is_open: bool,
-    is_empty: bool,
-    turbo: SudokuTurbo,
+    my_is_solvable: bool,
     my_is_solved: bool,
+    puzzle: [u8; CELL_COUNT],
+    puzzle_sorted: [u8; CELL_COUNT],
+    indices: [usize; CELL_COUNT],
+    col_nums: [u16; PUZZLE_SIZE],
+    row_nums: [u16; PUZZLE_SIZE],
+    square_nums: [u16; PUZZLE_SIZE],
 }
 
 impl SudokuPuzzle for SudokuPuzzleData {
+
     fn new() -> Self {
         SudokuPuzzleData {
-            puzzle: [[0; PUZZLE_SIZE]; PUZZLE_SIZE],
-            is_open: true,
-            is_empty: true,
-            turbo: SudokuTurbo::create(),
+            my_is_solvable: true,
             my_is_solved: false,
+            puzzle: [0; CELL_COUNT],
+            puzzle_sorted: [0; CELL_COUNT],
+            indices: [0; CELL_COUNT],
+            col_nums: [0; PUZZLE_SIZE],
+            row_nums: [0; PUZZLE_SIZE],
+            square_nums: [0; PUZZLE_SIZE],
         }
+    }
+
+    fn get(&self, row: usize, col: usize) -> u8 {
+       self.puzzle[SudokuPuzzleData::get_single_array_index(row, col)]
     }
 
     fn set(&mut self, row: usize, col: usize, value: u8) -> () {
-        if self.is_open {
-            self.puzzle[row][col] = value;
-            self.is_empty = false;
-        }
-    }
-
-    fn is_empty(&self, row: usize, col: usize) -> bool {
-        return self.puzzle[row][col] == 0;
+        self.puzzle[SudokuPuzzleData::get_single_array_index(row, col)] = value;
     }
 
     fn is_solved(&self) -> bool {
         return self.my_is_solved;
     }
 
-    fn init_turbo(&mut self) -> () {
-        self.turbo.init(&self.puzzle);
-        self.my_is_solved = self.turbo.is_solved();
+    fn is_solvable(&self) -> bool {
+        return self.my_is_solvable;
     }
 
-    fn is_solvable(&self) -> bool {
-        return self.turbo.is_solvable();
+    fn init(&mut self) -> () {
+        //TODO
     }
 
     /**
-     * solves the sudoku by a simple backtracking algorithm (brute force)
-     * inspired by https://www.youtube.com/watch?v=G_UYXzGuqvM
+     * solves the sudoku by a simple non-recursive backtracking algorithm (brute force)
+     * (own simple solution, its an algorithm which may be ported to CUDA or OpenCL)
+     * to get a faster result use e.g. https://github.com/Emerentius/sudoku
      */
     fn solve(&mut self) -> () {
-        fn go(puzzle: &mut SudokuPuzzleData) -> () {
-            let mut run: bool = true;
-            'outer: for row in 0..PUZZLE_SIZE {
-                let row_index: usize = puzzle.turbo.row_index(row);
-                for col in 0..PUZZLE_SIZE {
-                    let col_index: usize = puzzle.turbo.col_index(col);
-                    if puzzle.is_empty(row_index, col_index) {
-                        let solution_space: SudokuBitSet = puzzle.turbo.create_solution_space(row_index, col_index);
-                        let possible_numbers = solution_space.possible_numbers();
-                        for n in possible_numbers {
-                            puzzle.set(row_index, col_index, *n);
-                            puzzle.turbo.save_value(row_index, col_index, *n);
-                            go(puzzle);
-                            puzzle.set(row_index, col_index, 0); //back track
-                            puzzle.turbo.revert_value(row_index, col_index, *n);
-                        }
-                        //solution found for slot!
-                        run = false;
-                        break 'outer;
-                    }
-                }
-            }
-            //solution found for all slots:
-            if run {
-                puzzle.is_open = false;
-                puzzle.my_is_solved = true;
-            }
+
+    }
+
+    fn to_string(&self) -> String {
+        let mut buffer: Vec<String> = Vec::new();
+        for row in 0..PUZZLE_SIZE {
+            let from = row * PUZZLE_SIZE;
+            let until = from + PUZZLE_SIZE;
+            let current_row: &[u8] = &self.puzzle[from .. until];
+            buffer.push(std::str::from_utf8(current_row).unwrap().to_string());
         }
-        go(self);
-        self.is_open = true;
+        return buffer.join("\n");
     }
 
     fn to_pretty_string(&self) -> String {
@@ -118,33 +102,31 @@ impl SudokuPuzzle for SudokuPuzzleData {
         let empty = "*";
         let mut buffer: Vec<String> = Vec::new();
         for row in 0..PUZZLE_SIZE {
-            let mut line: String = String::with_capacity(PUZZLE_SIZE);
+            let from = row * PUZZLE_SIZE;
+            let until = from + PUZZLE_SIZE;
+            let current_row = &self.puzzle[from .. until];
+            let mut formatted_row: String = String::with_capacity(PUZZLE_SIZE);
             for col in 0..PUZZLE_SIZE {
-                let col_value: u8 = self.puzzle[row][col];
+                let col_value: u8 = current_row[col];
                 let rs: String = if col_value == 0 { format!(" {} ", empty) } else { format!(" {} ", col_value) };
-                line.push_str(&rs);
+                formatted_row.push_str(&rs);
                 if col + 1 < PUZZLE_SIZE && col % SQUARE_SIZE == 2 {
-                    line.push_str("|");
+                    formatted_row.push_str("|");
                 }
             }
-            buffer.push(line);
+            buffer.push(formatted_row);
             if row < (PUZZLE_SIZE - 1) && (row + 1) % SQUARE_SIZE == 0 {
                 buffer.push(dotted_line.clone());
             }
         }
         return buffer.join("\n");
     }
+}
 
-    fn to_string(&self) -> String {
-        let mut buffer: Vec<String> = Vec::new();
-        for row in 0..PUZZLE_SIZE {
-            let row_as_string: String = self.puzzle[row]
-                .to_vec()
-                .into_iter()
-                .map(|i| i.to_string())
-                .collect::<String>();
-            buffer.push(row_as_string);
-        }
-        return buffer.join("\n");
+impl SudokuPuzzleData {
+
+    fn get_single_array_index(row: usize, col: usize) -> usize {
+        row * PUZZLE_SIZE + col
     }
+
 }
