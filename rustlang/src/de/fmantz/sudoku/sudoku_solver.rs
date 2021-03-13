@@ -27,11 +27,11 @@ use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
 use crate::sudoku_constants::PARALLELIZATION_COUNT;
 
-mod sudoku_bit_set;
 mod sudoku_puzzle;
 mod sudoku_io;
 mod sudoku_iterator;
 mod sudoku_constants;
+mod sudoku_bit_set;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -122,7 +122,7 @@ mod tests {
     use crate::sudoku_io::SudokuIO;
     use crate::sudoku_iterator::SudokuIterator;
     use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
-    use crate::sudoku_bit_set::SudokuBitSet;
+    use crate::sudoku_bit_set::tests::SudokuBitSet;
 
     #[test]
     fn solve_should_solve_one_sudoku_by_simple_backtracking_algorithm() -> () {
