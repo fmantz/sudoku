@@ -72,7 +72,7 @@ Memory: 7164MiB / 32068MiB
 ```
 Used programming language versions:
 
-* Scala 2.11.12
+* Scala 2.11.12 (on OpenJDK)
 * Rust Edition 2018
 
 ## Run manually
@@ -80,7 +80,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.5 bash
+docker container run -it --name sudoku sudoku:0.6 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -134,7 +134,7 @@ Even Scala has other advantages (like it is less low level), I maybe should cons
 
 ## Update: Version 0.4
 
-Finally, I made two changes. However, the performance did not improve. The speed of the Rust version did not change or got minimal faster. The speed of the Scala version got a bit worser.
+Finally, I made two changes. However, the performance did not improve. The speed of the Rust version did not change or got minimal faster. The speed of the Scala version got a bit worse.
 The memory consumption of the Rust version nearly did not change but the memory consumption of the Scala version improved due to the second change. 
 I did following two small changes:
 
