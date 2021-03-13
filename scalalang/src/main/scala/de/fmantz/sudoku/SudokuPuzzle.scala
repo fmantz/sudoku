@@ -28,6 +28,8 @@ trait SudokuPuzzle {
 
 	def set(row: Int, col: Int, value: Byte): Unit
 
+	def init(): Unit
+
 	def isSolvable: Boolean
 
 	def isSolved: Boolean
@@ -74,15 +76,18 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		myIsSolvable
 	}
 
+	override def init(): Unit = {
+		findAllPossibleValuesForEachEmptyCell()
+		preparePuzzleForSolving()
+	}
+
 	/**
 	 * solves the sudoku by a simple non-recursive backtracking algorithm (brute force)
 	 * (own simple solution, its an algorithm which may be ported to CUDA or OpenCL)
 	 * to get a faster result use e.g. https://github.com/Emerentius/sudoku
 	 */
 	override def solve(): Unit = {
-		findAllPossibleValuesForEachEmptyCell()
-		if(isSolvable) {
-			preparePuzzleForSolving()
+		if(isSolvable && !isSolved) {
 			findSolutionNonRecursively()
 		}
 	}

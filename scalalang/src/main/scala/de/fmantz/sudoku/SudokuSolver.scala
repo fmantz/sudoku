@@ -58,6 +58,7 @@ object SudokuSolver {
 	}
 
 	private def solveCurrentSudoku(index: Int, sudoku: SudokuPuzzle): SudokuPuzzle = {
+		sudoku.init()
 		if (sudoku.isSolved) {
 			println(s"Sudoku $index is already solved!")
 		} else if (sudoku.isSolvable) {
