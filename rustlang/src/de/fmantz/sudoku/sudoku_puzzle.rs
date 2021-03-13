@@ -93,8 +93,11 @@ impl SudokuPuzzle for SudokuPuzzleData {
         for row in 0..PUZZLE_SIZE {
             let from = row * PUZZLE_SIZE;
             let until = from + PUZZLE_SIZE;
-            let current_row: &[u8] = &self.puzzle[from..until];
-            buffer.push(std::str::from_utf8(current_row).unwrap().to_string());
+            let current_row = self.puzzle[from..until]
+                .iter()
+                .map(|i| i.to_string())
+                .collect::<String>();
+            buffer.push(current_row);
         }
         return buffer.join("\n");
     }
