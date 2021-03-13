@@ -150,7 +150,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 				} else {
 					i -= 1 //backtrack, note not given values are in the head of myIndices, we can simply go one step back!
 					lastInvaldTry = puzzleSorted(i)
-					puzzleSorted(i) = 0
+					puzzleSorted(i) = 0 //forget
 					val lastPuzzleIndex = indices(i)
 					revertValueForCell(lastInvaldTry, lastPuzzleIndex)
 				}

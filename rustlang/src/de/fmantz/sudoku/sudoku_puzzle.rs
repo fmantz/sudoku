@@ -153,6 +153,49 @@ impl SudokuPuzzleData {
         self.sort_puzzle(); //avoid jumping in the puzzle array
     }
 
+    fn find_solution_non_recursively(&mut self) -> () {
+        let mut last_invalid_try: u8 = 0;
+        let mut i = 0;
+        while i < CELL_COUNT {
+            let cur_value = self.puzzle_sorted[i];
+            if cur_value == 0 { //Is not given?
+
+                //Is there a current guess possible?
+                let puzzle_index = self.indices[i];
+                let row_index :usize = SudokuPuzzleData::calculate_row_index(puzzle_index);
+                let col_index :usize = SudokuPuzzleData::calculate_col_index(puzzle_index);
+                let square_index :usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+                let possible_number_index = self.row_nums[row_index] | self.col_nums[col_index] | self.square_nums[square_index];
+                let next_numbers = BITSET_ARRAY[possible_number_index as usize];
+                let next_number_index = if last_invalid_try == 0 {
+                    0
+                } else {
+                    SudokuPuzzleData::fast_index_of(next_numbers, &last_invalid_try) + 1
+                };
+
+                if next_number_index < next_numbers.len() {
+                    //next possible number to try found:
+                    let next_number = next_numbers[next_number_index];
+                    self.puzzle_sorted[i] = next_number;
+                    self.save_value_for_cell(next_number, row_index, col_index, square_index);
+                    last_invalid_try = 0; //0 since success
+                    i += 1; //go to next cell
+                } else {
+                    i -= 1; //backtrack, note not given values are in the head of myIndices, we can simply go one step back!
+                    last_invalid_try = self.puzzle_sorted[i];
+                    self.puzzle_sorted[i] = 0; //forget
+                    let last_puzzle_index = self.indices[i];
+                    self.revert_value_for_cell(last_invalid_try, last_puzzle_index);
+                }
+
+            } else {
+                i += 1;
+            }
+        }
+        self.fill_positions();
+        self.my_is_solved = true;
+    }
+
     fn sort_puzzle(&mut self) -> () {
         for cellIndex in 0..CELL_COUNT {
            self.puzzle_sorted[cellIndex] = self.puzzle[self.indices[cellIndex]];
