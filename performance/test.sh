@@ -51,7 +51,7 @@ fi
 
 #DISABLED: only useful for versions < 0.3 (!)
 #Solve sudokus with scalanative sudoku:
-#/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-scalanative.log -p sh -c "/root/sudoku-scalanative /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-scalanative.txt"
+#/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-scalanative.log -p sh -c "/root/sudoku-scalanative /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-scalanative.txt"
 
 let NUMBER_OF_PUZZLES=$(($NUMBER_OF_PUZZLES*10))
 
