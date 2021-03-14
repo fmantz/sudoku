@@ -33,8 +33,18 @@ mod sudoku_iterator;
 mod sudoku_constants;
 mod sudoku_bit_set;
 
+extern "C" {
+    fn solve_on_cuda() -> i32;
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
+
+    //TEST
+    unsafe {
+        solve_on_cuda();
+    }
+
     if args.len() < 2 {
         println!(">SudokuSolver inputFile [outputFile]");
         println!("-First argument must be path to sudoku puzzles!");
