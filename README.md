@@ -166,10 +166,10 @@ This version was also considered as pre-step for what I want to learn next: **CU
 
 ## Update: Version 0.7 (getting closer to CUDA)
 
-I implemented this version only to get another step closer to port the algorithm to CUDA. GPUs work differently to CPUs. In contrast to CPUs which are optimized for parallel tasks and a low latency, GPUs are optimized for processing data in parallel and a high throughput. Therefore, branching is bad on a GPU. Therefore I eliminated branching in the algorithm as far as possible. In particular I did following changes:
+I implemented this version only to get another step closer to port the algorithm to CUDA. GPUs work differently to CPUs. In contrast to CPUs which are optimized for parallel tasks and a low latency, GPUs are optimized for processing data in parallel and a high throughput. Therefore branching is bad on a GPU. For this reason I eliminated branching in the algorithm as far as possible. There are only two 'if then else' conditions left. In particular I did following changes:
 
 * I removed the fastIndexOf method against another index array.
 * I chose smaller datatypes for indices in the Rust version (and added some casts). 
 
-The algorithm became marginal faster in Scala as well as in Rust (I always look at 100000 Sudokus).
+The algorithm became marginal faster in Scala as well as in Rust (I always look at 100000 Sudokus). 
 As usual, you can find the results here [./performance/version_0.7-result](./performance/version_0.7-result).
