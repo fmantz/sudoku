@@ -19,7 +19,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-export LEVEL=4 #CONFIG HOW MANY LEVELS ARE RUN HERE!!!
+export LEVEL=6 #CONFIG HOW MANY LEVELS ARE RUN HERE!!!
 export NEWDIR="$(date '+%Y-%m-%d_%H-%M-%S').logs"
 
 mkdir /root/performance/$NEWDIR
