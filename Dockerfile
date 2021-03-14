@@ -35,6 +35,6 @@ RUN cd ./scalalang && sbt clean test assembly
 
 #Move all assembly into ./
 RUN mv ./rustlang/target/release/sudoku ./sudoku-rust
-RUN mv ./scalalang/target/scala-2.11/sudoku-assembly-0.6.0.jar ./sudoku-scala.jar
+RUN mv ./scalalang/target/scala-2.11/sudoku-assembly-0.7.0.jar ./sudoku-scala.jar
 #DISABLED: only useful for versions < 0.3 (!)
 #RUN mv ./scalalang/target/scala-2.11/sudoku-out ./sudoku-scalanative

@@ -162,4 +162,14 @@ The result was a algorithm that was twice as slow as Version 0.5 (in the Rust Ve
 
 As usual, you can find the results here [./performance/version_0.6-result](./performance/version_0.6-result).
 
-This version was also considered as pre-step for what I want to learn next: CUDA. On GPU threads have relatively small stacks so its best practice to avoid them on GPU programming (according to what I found on the web). Nevertheless, I may have used the stack here. The stack for each Sudoku should be bound to 81 elements. This should be small enough, I guess.
+This version was also considered as pre-step for what I want to learn next: **CUDA**. On GPU, threads have relatively small stacks, so it is best practice to avoid them (according to what I found on the web). Nevertheless, I may have used the stack here. The stack for each Sudoku should be bound to 81 elements. This should be small enough, I guess.
+
+## Update: Version 0.7 (getting closer to CUDA)
+
+I implemented this version only to get another step closer to port the algorithm to CUDA. GPUs work differently to CPUs. In contrast to CPUs which are optimized for parallel tasks and a low latency, GPUs are optimized for processing data in parallel and a high throughput. Therefore branching is bad on a GPU. For this reason I eliminated branching in the algorithm as far as possible. There are only two 'if then else' conditions left. In particular I did following changes:
+
+* I removed the fastIndexOf method against another index array.
+* I chose smaller datatypes for indices in the Rust version (and added some casts). 
+
+The algorithm became marginal faster in Scala as well as in Rust (I always look at 100000 Sudokus). 
+As usual, you can find the results here [./performance/version_0.7-result](./performance/version_0.7-result).
