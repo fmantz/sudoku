@@ -34,12 +34,20 @@ mod sudoku_constants;
 mod sudoku_bit_set;
 
 extern crate libloading as lib;
+//use std::mem; needed?
 
 fn call_dynamic() -> Result<u32, Box<dyn std::error::Error>> {
+
+    let mut data : Vec<u8> = vec![1,2,3];
+    let test_parameter: *mut u8 = data.as_mut_ptr();
+
+    // Prevent the slice from being destroyed (Leak the memory).
+    //mem::forget(testParameter); //TODO needed?
+
     unsafe {
         let lib = libloading::Library::new("../lib/libsudoku_puzzle_gpu.so")?;
-        let func: libloading::Symbol<unsafe extern fn() -> u32> = lib.get(b"solve_on_cuda")?;
-        Ok(func())
+        let func: libloading::Symbol<unsafe extern fn(*mut u8) -> u32> = lib.get(b"solve_on_cuda")?;
+        Ok(func(test_parameter))
     }
 }
 
