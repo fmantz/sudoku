@@ -1,7 +1,7 @@
 #Simple MakeFile for CUDA sudoku_gpu_lib
 CUDA_ROOT_DIR ?= "/opt/cuda"
 HOST_COMPILER := $(CUDA_ROOT_DIR)/bin/gcc
-LIB_FLAGS := -shared --compiler-options '-fPIE -fPIC'
+LIB_FLAGS := -shared --compiler-options '-fPIC'
 NVCC := $(CUDA_ROOT_DIR)/bin/nvcc -ccbin $(HOST_COMPILER) $(LIB_FLAGS)
 MKDIR_P = mkdir -p
 OUTPUT_DIR := "target/lib"

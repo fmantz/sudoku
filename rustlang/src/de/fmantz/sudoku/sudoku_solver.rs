@@ -38,7 +38,7 @@ extern crate libloading as lib;
 fn call_dynamic() -> Result<u32, Box<dyn std::error::Error>> {
     unsafe {
         let lib = libloading::Library::new("../lib/libsudoku_puzzle_gpu.so")?;
-        let func: libloading::Symbol<unsafe extern fn() -> u32> = lib.get(b"_Z13solve_on_cudav")?;
+        let func: libloading::Symbol<unsafe extern fn() -> u32> = lib.get(b"solve_on_cuda")?;
         Ok(func())
     }
 }

@@ -7,6 +7,7 @@ __global__ void cuda_hello(){
 }
 
 //simple dummy hello world:
+extern "C"  //prevent C++ name mangling!
 int solve_on_cuda(){ //library method
     printf("Hello World from CPU!\n");
 //    cuda_hello<<<500,1024>>>();
