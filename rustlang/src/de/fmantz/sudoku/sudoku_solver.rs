@@ -33,17 +33,21 @@ mod sudoku_iterator;
 mod sudoku_constants;
 mod sudoku_bit_set;
 
-extern "C" {
-    fn solve_on_cuda() -> i32;
+extern crate libloading as lib;
+
+fn call_dynamic() -> Result<u32, Box<dyn std::error::Error>> {
+    unsafe {
+        let lib = libloading::Library::new("/home/florian/git/sudoku/rustlang/lib/libsudoku_puzzle_gpu.so")?;
+        let func: libloading::Symbol<unsafe extern fn() -> u32> = lib.get(b"_Z13solve_on_cudav")?;
+        Ok(func())
+    }
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     //TEST
-    unsafe {
-        solve_on_cuda();
-    }
+    println!(" test= {:?} ", call_dynamic());
 
     if args.len() < 2 {
         println!(">SudokuSolver inputFile [outputFile]");

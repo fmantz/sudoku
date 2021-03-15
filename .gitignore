@@ -33,6 +33,5 @@ build
 #sudokus:
 performance/sudoku*.txt
 
-#static c-libs:
-*.a
-
+#shared cuda-libs:
+rustlang/lib/*.so
