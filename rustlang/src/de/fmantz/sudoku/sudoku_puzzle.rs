@@ -33,26 +33,15 @@ pub struct SudokuPuzzleData {
     my_is_solvable: bool,
     my_is_solved: bool,
     puzzle: [u8; CELL_COUNT],
-    puzzle_sorted: [u8; CELL_COUNT],
-    indices: [u8; CELL_COUNT],
-    indices_current: [i8; CELL_COUNT],
-    col_nums: [u16; PUZZLE_SIZE],
-    row_nums: [u16; PUZZLE_SIZE],
-    square_nums: [u16; PUZZLE_SIZE],
 }
 
 impl SudokuPuzzle for SudokuPuzzleData {
+
     fn new() -> Self {
         SudokuPuzzleData {
             my_is_solvable: true,
             my_is_solved: false,
             puzzle: [0; CELL_COUNT],
-            puzzle_sorted: [0; CELL_COUNT],
-            indices: [0; CELL_COUNT],
-            indices_current: [-1; CELL_COUNT],
-            col_nums: [0; PUZZLE_SIZE],
-            row_nums: [0; PUZZLE_SIZE],
-            square_nums: [0; PUZZLE_SIZE],
         }
     }
 
@@ -70,11 +59,25 @@ impl SudokuPuzzle for SudokuPuzzleData {
      * to get a faster result use e.g. https://github.com/Emerentius/sudoku
      */
     fn solve(&mut self) -> bool {
-        self.find_all_possible_values_for_each_empty_cell();
-        self.prepare_puzzle_for_solving();
-        if self.my_is_solvable && !self.my_is_solved {
-            self.find_solution_non_recursively();
+        //Early oout:
+        if !self.my_is_solvable || self.my_is_solved {
+            return self.my_is_solved;
         }
+
+        //Temporary memory to compute solution:
+        let mut puzzle_sorted: [u8; CELL_COUNT] = [0; CELL_COUNT];
+        let mut indices: [u8; CELL_COUNT] = [0; CELL_COUNT];
+        let mut row_nums: [u16; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
+        let mut col_nums: [u16; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
+        let mut square_nums: [u16; PUZZLE_SIZE] = [0; PUZZLE_SIZE];
+
+        self.find_all_possible_values_for_each_empty_cell(&mut row_nums, &mut col_nums, &mut square_nums);
+        self.prepare_puzzle_for_solving(&mut puzzle_sorted, &mut indices, &mut row_nums, &mut col_nums, &mut square_nums);
+
+        if self.my_is_solvable && !self.my_is_solved {
+            self.find_solution_non_recursively(&mut puzzle_sorted, &indices, &mut row_nums, &mut col_nums, &mut square_nums);
+        }
+
         self.my_is_solved
     }
 
@@ -119,19 +122,31 @@ impl SudokuPuzzle for SudokuPuzzleData {
 }
 
 impl SudokuPuzzleData {
-    fn find_all_possible_values_for_each_empty_cell(&mut self) -> () {
+    fn find_all_possible_values_for_each_empty_cell(
+        &mut self,
+        row_nums: &mut [u16; PUZZLE_SIZE],
+        col_nums: &mut [u16; PUZZLE_SIZE],
+        square_nums: &mut [u16; PUZZLE_SIZE],
+    ) -> () {
         for i in 0..CELL_COUNT {
             let cur_value = self.puzzle[i];
             if cur_value > 0 {
-                self.save_value_for_cell_and_check_is_solvable(cur_value, i);
+                self.save_value_for_cell_and_check_is_solvable(cur_value, i, row_nums, col_nums, square_nums);
             }
         }
     }
 
-    fn prepare_puzzle_for_solving(&mut self) -> () {
+    fn prepare_puzzle_for_solving(
+        &mut self,
+        puzzle_sorted: &mut [u8],
+        indices: &mut [u8],
+        row_nums: &mut [u16],
+        col_nums: &mut [u16],
+        square_nums: &mut [u16],
+    ) -> () {
         let mut number_off_sets: [u8; PUZZLE_SIZE + 2] = [0; PUZZLE_SIZE + 2]; //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
         for i in 0..CELL_COUNT {
-            let count_of_index = self.get_possible_counts(i);
+            let count_of_index = self.get_possible_counts(i, row_nums, col_nums, square_nums);
             number_off_sets[count_of_index + 1] += 1;
         }
         self.my_is_solved = number_off_sets[1] as usize == CELL_COUNT; //all cells have already a solution!
@@ -139,62 +154,93 @@ impl SudokuPuzzleData {
             number_off_sets[i] += number_off_sets[i - 1];
         }
         for i in 0..CELL_COUNT {
-            let count_of_index = self.get_possible_counts(i);
+            let count_of_index = self.get_possible_counts(i, row_nums, col_nums, square_nums);
             let off_set = number_off_sets[count_of_index] as usize;
-            self.indices[off_set] = i as u8;
+            indices[off_set] = i as u8;
             number_off_sets[count_of_index] += 1;
         }
-        self.sort_puzzle(); //avoid jumping in the puzzle array
+        self.sort_puzzle(puzzle_sorted, &indices); //avoid jumping in the puzzle array
     }
 
-    fn find_solution_non_recursively(&mut self) -> () {
+    fn find_solution_non_recursively(
+        &mut self,
+        puzzle_sorted: &mut [u8],
+        indices: &[u8],
+        row_nums: &mut [u16],
+        col_nums: &mut [u16],
+        square_nums: &mut [u16],
+    ) -> () {
+        let mut indices_current: [i8; CELL_COUNT] = [-1; CELL_COUNT];
         let mut i = 0;
         while i < CELL_COUNT {
-            let cur_value = self.puzzle_sorted[i]; //kind of stack
+            let cur_value = puzzle_sorted[i]; //kind of stack
             if cur_value == 0 { //Is not given?
 
                 //Is there a current guess possible?
-                let puzzle_index: usize = self.indices[i] as usize;
+                let puzzle_index: usize = indices[i] as usize;
                 let row_index: usize = SudokuPuzzleData::calculate_row_index(puzzle_index);
                 let col_index: usize = SudokuPuzzleData::calculate_col_index(puzzle_index);
                 let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
-                let possible_number_index = self.row_nums[row_index] | self.col_nums[col_index] | self.square_nums[square_index];
+                let possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
                 let next_numbers = BITSET_ARRAY[possible_number_index as usize];
-                let next_number_index: usize = (self.indices_current[i] + 1) as usize;
+                let next_number_index: usize = (indices_current[i] + 1) as usize;
 
                 if next_number_index < next_numbers.len() {
                     //next possible number to try found:
                     let next_number = next_numbers[next_number_index];
-                    self.puzzle_sorted[i] = next_number;
-                    self.save_value_for_cell(next_number, row_index, col_index, square_index);
-                    self.indices_current[i] = next_number_index as i8; //0 since success
+                    puzzle_sorted[i] = next_number;
+
+                    //save value for cell:
+                    let check_bit: u16 = 1 << (next_number - 1);
+                    row_nums[row_index] |= check_bit;
+                    col_nums[col_index] |= check_bit;
+                    square_nums[square_index] |= check_bit;
+
+                    indices_current[i] = next_number_index as i8; //0 since success
                     i += 1; //go to next cell
                 } else {
+
                     //backtrack:
-                    self.indices_current[i] = -1; //forget last index for position i
+                    indices_current[i] = -1; //forget last index for position i
                     i -= 1; //not given values are in the head of myIndices, there we can simply go one step back!
-                    let last_invalid_try = self.puzzle_sorted[i];
-                    let last_puzzle_index : usize = self.indices[i] as usize;
-                    self.puzzle_sorted[i] = 0; //find in the next step a new solution for i
-                    self.revert_value_for_cell(last_invalid_try, last_puzzle_index);
+                    let last_invalid_try = puzzle_sorted[i];
+                    let last_puzzle_index: usize = indices[i] as usize;
+                    puzzle_sorted[i] = 0; //find in the next step a new solution for i
+
+                    //revert last value:
+                    let last_row_index: usize = SudokuPuzzleData::calculate_row_index(last_puzzle_index);
+                    let last_col_index: usize = SudokuPuzzleData::calculate_col_index(last_puzzle_index);
+                    let last_square_index: usize = SudokuPuzzleData::calculate_square_index(last_row_index, last_col_index);
+                    let last_check_bit: u16 = 1 << (last_invalid_try - 1);
+                    row_nums[last_row_index] ^= last_check_bit;
+                    col_nums[last_col_index] ^= last_check_bit;
+                    square_nums[last_square_index] ^= last_check_bit;
                 }
             } else {
                 i += 1;
             }
         }
-        self.fill_positions();
+        self.fill_positions(puzzle_sorted, indices);
         self.my_is_solved = true;
     }
 
-    fn sort_puzzle(&mut self) -> () {
+    fn sort_puzzle(
+        &mut self,
+        puzzle_sorted: &mut [u8],
+        indices: &[u8],
+    ) -> () {
         for i in 0..CELL_COUNT {
-            self.puzzle_sorted[i] = self.puzzle[self.indices[i] as usize];
+            puzzle_sorted[i] = self.puzzle[indices[i] as usize];
         }
     }
 
-    fn fill_positions(&mut self) -> () {
+    fn fill_positions(
+        &mut self,
+        puzzle_sorted: &mut [u8],
+        indices: &[u8],
+    ) -> () {
         for i in 0..CELL_COUNT {
-            self.puzzle[self.indices[i] as usize] = self.puzzle_sorted[i];
+            self.puzzle[indices[i] as usize] = puzzle_sorted[i];
         }
     }
 
@@ -202,37 +248,27 @@ impl SudokuPuzzleData {
         row * PUZZLE_SIZE + col
     }
 
-    fn save_value_for_cell_and_check_is_solvable(&mut self, value: u8, index: usize) -> () {
+    fn save_value_for_cell_and_check_is_solvable(
+        &mut self,
+        value: u8,
+        index: usize,
+        row_nums: &mut [u16],
+        col_nums: &mut [u16],
+        square_nums: &mut [u16],
+    ) -> () {
         let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
         let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
         let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
         let check_bit: u16 = 1 << (value - 1);
-        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, &mut self.row_nums, row_index);
-        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, &mut self.col_nums, col_index);
-        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, &mut self.square_nums, square_index);
+        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, row_nums, row_index);
+        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, col_nums, col_index);
+        self.my_is_solvable &= SudokuPuzzleData::set_and_check_bit(check_bit, square_nums, square_index);
     }
 
     fn set_and_check_bit(check_bit: u16, array: &mut [u16], index: usize) -> bool {
         let old_value = array[index];
         array[index] |= check_bit;
         old_value != array[index]
-    }
-
-    fn save_value_for_cell(&mut self, value: u8, row_index: usize, col_index: usize, square_index: usize) -> () {
-        let check_bit: u16 = 1 << (value - 1);
-        self.row_nums[row_index] |= check_bit;
-        self.col_nums[col_index] |= check_bit;
-        self.square_nums[square_index] |= check_bit;
-    }
-
-    fn revert_value_for_cell(&mut self, value: u8, index: usize) -> () {
-        let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
-        let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
-        let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
-        let check_bit: u16 = 1 << (value - 1);
-        self.row_nums[row_index] ^= check_bit;
-        self.col_nums[col_index] ^= check_bit;
-        self.square_nums[square_index] ^= check_bit;
     }
 
     fn calculate_row_index(index: usize) -> usize {
@@ -247,17 +283,19 @@ impl SudokuPuzzleData {
         row_index / SQUARE_SIZE * SQUARE_SIZE + col_index / SQUARE_SIZE //attention: int arithmetic
     }
 
-    fn get_possible_numbers(&self, index: usize) -> &[u8] {
-        let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
-        let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
-        let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
-        let possible_number_index = self.row_nums[row_index] | self.col_nums[col_index] | self.square_nums[square_index];
-        BITSET_ARRAY[possible_number_index as usize]
-    }
-
-    fn get_possible_counts(&self, index: usize) -> usize {
+    fn get_possible_counts(
+        &self,
+        index: usize,
+        row_nums: &mut [u16],
+        col_nums: &mut [u16],
+        square_nums: &mut [u16],
+    ) -> usize {
         if self.puzzle[index] == 0 {
-            self.get_possible_numbers(index).len()
+            let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
+            let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
+            let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
+            let possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
+            BITSET_ARRAY[possible_number_index as usize].len()
         } else {
             0
         }
