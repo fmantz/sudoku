@@ -12,7 +12,8 @@ Notes:
 - use CUDA 8 since my Grafic card does not support higher versions (compute capability 2.1)
 - https://en.wikipedia.org/wiki/CUDA
 - use LTS Kernel 5.4 since Kernels > 5.8 are unsupported by cuda
-- also install opencl-nvidia-390xx (to check)
+- install opencl-nvidia-390xx with headers (first!) 
+- install cuda-8.0 mit yay
 
 ## Make
 - make    //to build cuda so
