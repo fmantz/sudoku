@@ -123,12 +123,8 @@ fn main() {
 }
 
 fn solve_current_sudoku(index: &mut usize, sudoku: &mut SudokuPuzzleData) -> () {
-    sudoku.init();
-    if sudoku.is_solved() {
-        println!("Sudoku {} is already solved!", index);
-    } else if sudoku.is_solvable() {
-        sudoku.solve();
-    } else {
+    let solved: bool = sudoku.solve();
+    if !solved {
         println!("Sudoku {} is unsolvable:\n {}", index, sudoku.to_pretty_string());
     }
 }
@@ -171,14 +167,11 @@ mod tests {
             Ok(puzzles) => puzzles
         };
         for (index, mut sudoku) in rs.enumerate() {
-            sudoku.init();
             let sudoku_number: usize = index + 1;
             let input: String = sudoku.to_string();
-            assert_eq!(sudoku.is_solvable(), true, "Sudoku {} is not well-defined:\n {}", sudoku_number, sudoku.to_pretty_string());
             sudoku.solve();
             let output = sudoku.to_string();
             assert_eq!(check_solution(&sudoku), true, "Sudoku {} is not solved:\n {}", sudoku_number, sudoku.to_pretty_string());
-            assert_eq!(sudoku.is_solved(), true, "Sudoku {} is solved but isSolved() return false", sudoku_number);
             assert_eq!(input.len(), output.len(), "sudoku strings have not same length");
             let output_char_vec: Vec<char> = output.chars().collect();
             for (i, in_char) in input.char_indices() {

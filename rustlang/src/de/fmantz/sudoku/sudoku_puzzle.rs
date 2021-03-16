@@ -23,14 +23,12 @@ pub trait SudokuPuzzle {
     fn new() -> Self;
     fn get(&self, row: usize, col: usize) -> u8;
     fn set(&mut self, row: usize, col: usize, value: u8) -> ();
-    fn init(&mut self) -> ();
-    fn is_solvable(&self) -> bool;
-    fn is_solved(&self) -> bool;
-    fn solve(&mut self) -> ();
+    fn solve(&mut self) -> bool;
     fn to_pretty_string(&self) -> String;
     fn to_string(&self) -> String;
 }
 
+#[repr(C)]
 pub struct SudokuPuzzleData {
     my_is_solvable: bool,
     my_is_solved: bool,
@@ -66,28 +64,18 @@ impl SudokuPuzzle for SudokuPuzzleData {
         self.puzzle[SudokuPuzzleData::get_single_array_index(row, col)] = value;
     }
 
-    fn init(&mut self) -> () {
-        self.find_all_possible_values_for_each_empty_cell();
-        self.prepare_puzzle_for_solving();
-    }
-
-    fn is_solvable(&self) -> bool {
-        return self.my_is_solvable;
-    }
-
-    fn is_solved(&self) -> bool {
-        return self.my_is_solved;
-    }
-
     /**
      * solves the sudoku by a simple non-recursive backtracking algorithm (brute force)
      * (own simple solution, its an algorithm which may be ported to CUDA or OpenCL)
      * to get a faster result use e.g. https://github.com/Emerentius/sudoku
      */
-    fn solve(&mut self) -> () {
-        if self.is_solvable() && !self.is_solved() {
+    fn solve(&mut self) -> bool {
+        self.find_all_possible_values_for_each_empty_cell();
+        self.prepare_puzzle_for_solving();
+        if self.my_is_solvable && !self.my_is_solved {
             self.find_solution_non_recursively();
         }
+        self.my_is_solved
     }
 
     fn to_pretty_string(&self) -> String {
