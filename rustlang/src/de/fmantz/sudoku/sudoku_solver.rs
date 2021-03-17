@@ -72,6 +72,9 @@ fn main() {
                         .into_iter()
                         .collect();
 
+                    //TODO test:
+                    solve_sudokus_with_cuda(&mut sudoku_processing_unit);
+
                     //solve in parallel:
                     sudoku_processing_unit
                         .par_iter_mut() //solve in parallel
@@ -99,11 +102,13 @@ fn main() {
     }
 }
 
-fn solve_sudokus_with_cuda(sudokus: &mut Vec<SudokuPuzzleData>, count: u32) -> Result<u32, Box<dyn std::error::Error>> {
+fn solve_sudokus_with_cuda(sudokus: &mut Vec<SudokuPuzzleData>) -> Result<i32, Box<dyn std::error::Error>> {
     unsafe {
         let lib = libloading::Library::new("../lib/libsudoku_puzzle_gpu.so")?;
-        let func: libloading::Symbol<unsafe extern fn(*mut SudokuPuzzleData, u32) -> u32> = lib.get(b"solve_on_cuda")?;
-        Ok(func(sudokus.as_mut_ptr(), count)) //TODO
+        let func: libloading::Symbol<unsafe extern fn(*mut SudokuPuzzleData, i32) -> i32> = lib.get(b"solve_on_cuda")?;
+        let count  = sudokus.len();
+        println!("Solve {} sudokus wiith CUDA!", count);
+        Ok(func(sudokus.as_mut_ptr(), count as i32)) //TODO
     }
 }
 

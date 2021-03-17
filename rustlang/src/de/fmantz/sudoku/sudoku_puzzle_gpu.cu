@@ -9,15 +9,22 @@ __global__ void cuda_hello(){
 struct SudokuPuzzleData {
     bool my_is_solvable;
     bool my_is_solved;
-    unsigned char puzzle[81];
+    char puzzle[81];
 };
 
 //simple dummy hello world:
 extern "C"  //prevent C++ name mangling!
-int solve_on_cuda(SudokuPuzzleData p[], unsigned int count){ //library method
+int solve_on_cuda(SudokuPuzzleData p[], int count){ //library method
 
-    for(int i = 0; i < 3; i++) {
-        printf("parameter %d \n", p[i].my_is_solvable);
+    for(int i = 0; i < count; i++) {
+        SudokuPuzzleData current = p[i];
+        for(int j = 0; j < 81; j++) {
+            if(j % 9 == 0){
+              printf("\n");
+            }
+            printf("%d", current.puzzle[j]);
+        }
+        printf("\n-----------");
     }
 
     printf("Hello World from CPU!\n");
