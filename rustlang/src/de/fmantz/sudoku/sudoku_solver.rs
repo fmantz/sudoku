@@ -107,7 +107,7 @@ fn solve_sudokus_with_cuda(sudokus: &mut Vec<SudokuPuzzleData>) -> Result<i32, B
         let lib = libloading::Library::new("../lib/libsudoku_puzzle_gpu.so")?;
         let func: libloading::Symbol<unsafe extern fn(*mut SudokuPuzzleData, i32) -> i32> = lib.get(b"solve_on_cuda")?;
         let count  = sudokus.len();
-        println!("Solve {} sudokus wiith CUDA!", count);
+        println!("Solve {} sudokus with CUDA!", count);
         Ok(func(sudokus.as_mut_ptr(), count as i32)) //TODO
     }
 }

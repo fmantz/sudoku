@@ -14,8 +14,19 @@ struct SudokuPuzzleData {
 
 //simple dummy hello world:
 extern "C"  //prevent C++ name mangling!
-int solve_on_cuda(SudokuPuzzleData p[], int count){ //library method
+int solve_on_cuda(SudokuPuzzleData* p, int count){ //library method
 
+    //try to change data and return changed data to rust! works :-)
+    //TODO: work with pointern in print sudoku struct is copied!
+    for(int i = 0; i < count; i++) {
+        SudokuPuzzleData *current = &p[i];
+        for(int j = 0; j < 9; j++) {
+            current->puzzle[j] = 9;
+            printf("%d\n", current->puzzle[j]);
+        }
+    }
+
+    //print sudoku:
     for(int i = 0; i < count; i++) {
         SudokuPuzzleData current = p[i];
         for(int j = 0; j < 81; j++) {
