@@ -45,7 +45,7 @@ impl SudokuIO {
 
     pub fn write_qqwing(
         filename: &str,
-        puzzles: Vec<(usize, SudokuPuzzleData)>
+        puzzles: Vec<SudokuPuzzleData>
     ) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
@@ -58,7 +58,7 @@ impl SudokuIO {
             Ok(file) => file
         };
         let mut writer = BufWriter::new(&write_file);
-        for (_index, puzzle) in puzzles {
+        for puzzle in puzzles {
             let write_rs = writeln!(&mut writer, "{}\n", puzzle.to_string());
             match write_rs {
                 Ok(()) => { /* do nothing */ },

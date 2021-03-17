@@ -34,29 +34,9 @@ mod sudoku_constants;
 mod sudoku_bit_set;
 
 extern crate libloading as lib;
-//use std::mem; needed?
-
-fn call_dynamic() -> Result<u32, Box<dyn std::error::Error>> {
-
-    let mut data : Vec<u8> = vec![1,2,3];
-    let test_parameter: *mut u8 = data.as_mut_ptr();
-
-    // Prevent the slice from being destroyed (Leak the memory).
-    //mem::forget(testParameter); //TODO needed?
-
-    unsafe {
-        let lib = libloading::Library::new("../lib/libsudoku_puzzle_gpu.so")?;
-        let func: libloading::Symbol<unsafe extern fn(*mut u8) -> u32> = lib.get(b"solve_on_cuda")?;
-        Ok(func(test_parameter))
-    }
-}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-
-    //TEST
-    println!(" test= {:?} ", call_dynamic());
-
     if args.len() < 2 {
         println!(">SudokuSolver inputFile [outputFile]");
         println!("-First argument must be path to sudoku puzzles!");
@@ -85,24 +65,21 @@ fn main() {
             Ok(puzzles) => {
 
                 let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
-                let mut counter : usize = 0;
                 for puzzle_buffer in grouped_iterator {
 
-                    //assign numbers to sudokus for better error messages:
-                    let mut indexed_sudokus: Vec<(usize, SudokuPuzzleData)> = puzzle_buffer
+                    //collect a bunch of sudokus:
+                    let mut sudoku_processing_unit: Vec<SudokuPuzzleData> = puzzle_buffer
                         .into_iter()
-                        .enumerate()
-                        .map(|(index, unsolved_sudoku)| {counter+=1; (index + counter, unsolved_sudoku)})
                         .collect();
 
                     //solve in parallel:
-                    indexed_sudokus
+                    sudoku_processing_unit
                         .par_iter_mut() //solve in parallel
-                        .for_each(|(index, unsolved_sudoku)| {
-                            solve_current_sudoku(index, unsolved_sudoku);
+                        .for_each(|unsolved_sudoku| {
+                            solve_current_sudoku(unsolved_sudoku);
                         });
 
-                    let write_rs : Result<(), String> = SudokuIO::write_qqwing(&output_file_name, indexed_sudokus);
+                    let write_rs : Result<(), String> = SudokuIO::write_qqwing(&output_file_name, sudoku_processing_unit);
                     match write_rs {
                         Ok(()) => { /* do nothing */ }
                         Err(error) => {
@@ -122,10 +99,18 @@ fn main() {
     }
 }
 
-fn solve_current_sudoku(index: &mut usize, sudoku: &mut SudokuPuzzleData) -> () {
+fn solve_sudokus_with_cuda(sudokus: &mut Vec<SudokuPuzzleData>, count: u32) -> Result<u32, Box<dyn std::error::Error>> {
+    unsafe {
+        let lib = libloading::Library::new("../lib/libsudoku_puzzle_gpu.so")?;
+        let func: libloading::Symbol<unsafe extern fn(*mut SudokuPuzzleData, u32) -> u32> = lib.get(b"solve_on_cuda")?;
+        Ok(func(sudokus.as_mut_ptr(), count)) //TODO
+    }
+}
+
+fn solve_current_sudoku(sudoku: &mut SudokuPuzzleData) -> () {
     let solved: bool = sudoku.solve();
     if !solved {
-        println!("Sudoku {} is unsolvable:\n {}", index, sudoku.to_pretty_string());
+        println!("Sudoku is unsolvable:\n {}", sudoku.to_pretty_string());
     }
 }
 
