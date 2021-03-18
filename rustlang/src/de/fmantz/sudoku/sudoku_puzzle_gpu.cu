@@ -2,33 +2,41 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-__global__ void cuda_hello(){
-    printf("Hello World from GPU! %d\n", threadIdx.x*gridDim.x);
-}
-
 struct SudokuPuzzleData {
     bool my_is_solvable;
     bool my_is_solved;
     char puzzle[81];
 };
 
-//simple dummy hello world:
-extern "C"  //prevent C++ name mangling!
-int solve_on_cuda(SudokuPuzzleData* p, int count){ //library method
-
+//solve one single sudoku one device:
+__device__ void solve_one_sudokus_one_device(SudokuPuzzleData *current){
     //try to change data and return changed data to rust! works :-)
     //TODO: work with pointern in print sudoku struct is copied!
-    for(int i = 0; i < count; i++) {
-        SudokuPuzzleData *current = &p[i];
-        for(int j = 0; j < 9; j++) {
-            current->puzzle[j] = 9;
-            printf("%d\n", current->puzzle[j]);
-        }
+    for(int i = 0; i < 9; i++) {
+        printf("1. Hello World from GPU! %d\n", threadIdx.x*gridDim.x);
+        current->puzzle[i] = 9;
+        printf("%d\n", current->puzzle[i]);
+        printf("2. Hello World from GPU! %d\n", threadIdx.x*gridDim.x);
     }
+}
 
-    //print sudoku:
+//solve sudokus in parallel:
+__global__ void solve_sudokus_in_parallel(SudokuPuzzleData *p, int count){
     for(int i = 0; i < count; i++) {
-        SudokuPuzzleData current = p[i];
+        solve_one_sudokus_one_device(&p[i]);
+    }
+}
+
+//library function to call from rust:  //TODO add another function to check compute compability and device found!
+extern "C"  //prevent C++ name mangling!
+int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
+
+   printf("Hello World from CPU!\n");
+
+   //print sudoku:
+   printf("input:\n");
+   for(int i = 0; i < count; i++) {
+        SudokuPuzzleData current = puzzle_data[i];
         for(int j = 0; j < 81; j++) {
             if(j % 9 == 0){
               printf("\n");
@@ -36,11 +44,36 @@ int solve_on_cuda(SudokuPuzzleData* p, int count){ //library method
             printf("%d", current.puzzle[j]);
         }
         printf("\n-----------");
-    }
+   }
 
-    printf("Hello World from CPU!\n");
-//    cuda_hello<<<500,1024>>>();
-    cuda_hello<<<1,10>>>();
-    cudaDeviceSynchronize();
-    return 0;
+   // Allocate GPU memory.
+   SudokuPuzzleData *device_puzzle_data = 0;
+   cudaMalloc((void **) & device_puzzle_data, count * sizeof(SudokuPuzzleData));
+   cudaMemcpy(device_puzzle_data, puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
+
+   //Run in parallel:
+   solve_sudokus_in_parallel<<<1,count>>>(device_puzzle_data, count);
+   cudaDeviceSynchronize(); //that output data is transfered back
+
+   //Free old data:
+   free(puzzle_data);
+   cudaMemcpy(puzzle_data, device_puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
+
+   // Free GPU memory:
+   cudaFree(device_puzzle_data);
+
+   //print sudoku:
+   printf("output:\n");
+   for(int i = 0; i < count; i++) {
+       SudokuPuzzleData current = puzzle_data[i];
+         for(int j = 0; j < 81; j++) {
+             if(j % 9 == 0){
+               printf("\n");
+             }
+             printf("%d", current.puzzle[j]);
+         }
+         printf("\n-----------");
+   }
+
+   return EXIT_SUCCESS;
 }
