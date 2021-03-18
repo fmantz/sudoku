@@ -59,7 +59,7 @@ impl SudokuPuzzle for SudokuPuzzleData {
      * to get a faster result use e.g. https://github.com/Emerentius/sudoku
      */
     fn solve(&mut self) -> bool {
-        //Early oout:
+        //Early out:
         if !self.my_is_solvable || self.my_is_solved {
             return self.my_is_solved;
         }
