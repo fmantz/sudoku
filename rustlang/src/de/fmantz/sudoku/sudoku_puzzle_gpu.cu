@@ -24,11 +24,11 @@
 #define PUZZLE_SIZE   9
 #define SQUARE_SIZE   3
 
-struct SudokuPuzzleData {
+typedef struct {
     bool my_is_solvable;
     bool my_is_solved;
     char puzzle[CELL_COUNT];
-};
+} SudokuPuzzleData;
 
 __constant__ char BITSET_NUMBERS_000[] = {4, 7, 8, 3, 5, 1, 9, 6, 2};
 __constant__ char BITSET_NUMBERS_001[] = {8, 6, 7, 5, 9, 4, 2, 3};
