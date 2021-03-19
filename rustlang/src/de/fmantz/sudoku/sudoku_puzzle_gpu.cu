@@ -1076,7 +1076,7 @@ __constant__ char* BITSET_ARRAY[] = {
      BITSET_NUMBERS_510
 };
 
-//finctions to calculate indices in puzzle:
+//functions to calculate indices in puzzle:
 __device__ int calculate_row_index(int index){
     return index / PUZZLE_SIZE;
 };
@@ -1085,13 +1085,31 @@ __device__ int calculate_col_index(int index){
     return index % PUZZLE_SIZE;
 };
 
-__device__ int calculate_col_index(int row_index, int col_index){
+__device__ int calculate_square_index(int row_index, int col_index){
     return row_index / SQUARE_SIZE * SQUARE_SIZE + col_index / SQUARE_SIZE; //attention: int arithmetic
 };
 
+//get count of possible numbers of cell
+__device__ int get_possible_counts(
+    SudokuPuzzleData* p,
+    int index,
+    char row_nums[],
+    char col_nums[],
+    char square_nums[]
+) {
+    if (p->puzzle[index] == 0) {
+        int row_index = calculate_row_index(index);
+        int col_index = calculate_col_index(index);
+        int square_index = calculate_square_index(row_index, col_index);
+        int possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
+        return BITSET_LENGTH[possible_number_index];
+    } else {
+        return 0;
+    }
+}
 
 //solve single sudoku on device:
-__device__ void solve_one_sudokus_on_device(SudokuPuzzleData *current){
+__device__ void solve_one_sudokus_on_device(SudokuPuzzleData* current){
     //try to change data and return changed data to rust! works :-)
     //TODO: work with pointern in print sudoku struct is copied!
     for(int i = 0; i < 9; i++) {
@@ -1103,7 +1121,7 @@ __device__ void solve_one_sudokus_on_device(SudokuPuzzleData *current){
 }
 
 //solve sudokus in parallel:
-__global__ void solve_sudokus_in_parallel(SudokuPuzzleData *p, int count){
+__global__ void solve_sudokus_in_parallel(SudokuPuzzleData* p, int count){
     for(int i = 0; i < count; i++) {
         solve_one_sudokus_on_device(&p[i]);
     }

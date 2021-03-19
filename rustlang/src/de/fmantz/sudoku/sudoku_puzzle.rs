@@ -289,9 +289,9 @@ impl SudokuPuzzleData {
     fn get_possible_counts(
         &self,
         index: usize,
-        row_nums: &mut [u16],
-        col_nums: &mut [u16],
-        square_nums: &mut [u16],
+        row_nums: &[u16],
+        col_nums: &[u16],
+        square_nums: &[u16]
     ) -> usize {
         if self.puzzle[index] == 0 {
             let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
