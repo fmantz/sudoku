@@ -14,7 +14,7 @@ object Test {
 					 .BitsetArray
 					 .map(_.length)
 
-		println(s"const BITSET_LENGTH: &[u8] = &[${a.mkString(", ")}];")
+		println(s"const char[] BITSET_ARRAY[] = &[${a.mkString(", ")}];")
 
 	}
 
