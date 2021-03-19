@@ -1072,8 +1072,8 @@ __constant__ char* BITSET_ARRAY[] = {
      BITSET_NUMBERS_510
 };
 
-//solve one single sudoku one device:
-__device__ void solve_one_sudokus_one_device(SudokuPuzzleData *current){
+//solve single sudoku on device:
+__device__ void solve_one_sudokus_on_device(SudokuPuzzleData *current){
     //try to change data and return changed data to rust! works :-)
     //TODO: work with pointern in print sudoku struct is copied!
     for(int i = 0; i < 9; i++) {
@@ -1087,7 +1087,7 @@ __device__ void solve_one_sudokus_one_device(SudokuPuzzleData *current){
 //solve sudokus in parallel:
 __global__ void solve_sudokus_in_parallel(SudokuPuzzleData *p, int count){
     for(int i = 0; i < count; i++) {
-        solve_one_sudokus_one_device(&p[i]);
+        solve_one_sudokus_on_device(&p[i]);
     }
 }
 
