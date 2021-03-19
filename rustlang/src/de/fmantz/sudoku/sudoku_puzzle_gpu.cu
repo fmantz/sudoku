@@ -1076,6 +1076,20 @@ __constant__ char* BITSET_ARRAY[] = {
      BITSET_NUMBERS_510
 };
 
+//finctions to calculate indices in puzzle:
+__device__ int calculate_row_index(int index){
+    return index / PUZZLE_SIZE;
+};
+
+__device__ int calculate_col_index(int index){
+    return index % PUZZLE_SIZE;
+};
+
+__device__ int calculate_col_index(int row_index, int col_index){
+    return row_index / SQUARE_SIZE * SQUARE_SIZE + col_index / SQUARE_SIZE; //attention: int arithmetic
+};
+
+
 //solve single sudoku on device:
 __device__ void solve_one_sudokus_on_device(SudokuPuzzleData *current){
     //try to change data and return changed data to rust! works :-)
