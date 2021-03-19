@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::sudoku_constants::{BITSET_ARRAY, CELL_COUNT, PUZZLE_SIZE};
+use crate::sudoku_constants::{BITSET_ARRAY, CELL_COUNT, PUZZLE_SIZE, BITSET_LENGTH};
 use crate::sudoku_constants::SQUARE_SIZE;
 
 pub trait SudokuPuzzle {
@@ -182,12 +182,13 @@ impl SudokuPuzzleData {
                 let col_index: usize = SudokuPuzzleData::calculate_col_index(puzzle_index);
                 let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
                 let possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
-                let next_numbers = BITSET_ARRAY[possible_number_index as usize];
-                let next_number_index: usize = (indices_current[i] + 1) as usize;
+                let next_number_index: u8 = (indices_current[i] + 1) as u8;
 
-                if next_number_index < next_numbers.len() {
+                if next_number_index < BITSET_LENGTH[possible_number_index as usize]  {
+
                     //next possible number to try found:
-                    let next_number = next_numbers[next_number_index];
+                    let next_numbers :&[u8] = BITSET_ARRAY[possible_number_index as usize];
+                    let next_number :u8 = next_numbers[next_number_index as usize];
                     puzzle_sorted[i] = next_number;
 
                     //save value for cell:
@@ -198,6 +199,7 @@ impl SudokuPuzzleData {
 
                     indices_current[i] = next_number_index as i8; //0 since success
                     i += 1; //go to next cell
+
                 } else {
 
                     //backtrack:
@@ -215,6 +217,7 @@ impl SudokuPuzzleData {
                     row_nums[last_row_index] ^= last_check_bit;
                     col_nums[last_col_index] ^= last_check_bit;
                     square_nums[last_square_index] ^= last_check_bit;
+
                 }
             } else {
                 i += 1;
@@ -295,7 +298,7 @@ impl SudokuPuzzleData {
             let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
             let square_index: usize = SudokuPuzzleData::calculate_square_index(row_index, col_index);
             let possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
-            BITSET_ARRAY[possible_number_index as usize].len()
+            BITSET_LENGTH[possible_number_index as usize] as usize
         } else {
             0
         }
