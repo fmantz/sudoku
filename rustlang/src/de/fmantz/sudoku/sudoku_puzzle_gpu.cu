@@ -20,10 +20,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define CELL_COUNT   81
+#define PUZZLE_SIZE   9
+#define SQUARE_SIZE   3
+
 struct SudokuPuzzleData {
     bool my_is_solvable;
     bool my_is_solved;
-    char puzzle[81];
+    char puzzle[CELL_COUNT];
 };
 
 __constant__ char BITSET_NUMBERS_000[] = {4, 7, 8, 3, 5, 1, 9, 6, 2};
@@ -1101,8 +1105,8 @@ int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
    printf("input:\n");
    for(int i = 0; i < count; i++) {
         SudokuPuzzleData current = puzzle_data[i];
-        for(int j = 0; j < 81; j++) {
-            if(j % 9 == 0){
+        for(int j = 0; j < CELL_COUNT; j++) {
+            if(j % PUZZLE_SIZE == 0){
               printf("\n");
             }
             printf("%d", current.puzzle[j]);
@@ -1129,8 +1133,8 @@ int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
    printf("output:\n");
    for(int i = 0; i < count; i++) {
        SudokuPuzzleData current = puzzle_data[i];
-         for(int j = 0; j < 81; j++) {
-             if(j % 9 == 0){
+         for(int j = 0; j < CELL_COUNT; j++) {
+             if(j % PUZZLE_SIZE == 0){
                printf("\n");
              }
              printf("%d", current.puzzle[j]);
