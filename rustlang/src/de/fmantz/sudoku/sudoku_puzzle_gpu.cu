@@ -1319,8 +1319,7 @@ int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
    //Run in parallel:
    solve_sudokus_in_parallel<<<1,count>>>(device_puzzle_data, count);
 
-   //Free old data:
-   free(puzzle_data);
+   //Overwrite old data:
    cudaMemcpy(puzzle_data, device_puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
 
    // Free GPU memory:
