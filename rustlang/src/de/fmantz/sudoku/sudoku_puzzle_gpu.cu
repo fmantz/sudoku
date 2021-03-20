@@ -1077,55 +1077,56 @@ __constant__ char* BITSET_ARRAY[] = {
 };
 
 //functions to calculate indices in puzzle:
-__device__ int calculate_row_index(int index){
+__device__ char calculate_row_index(char index){
     return index / PUZZLE_SIZE;
 };
 
-__device__ int calculate_col_index(int index){
+__device__ char calculate_col_index(char index){
     return index % PUZZLE_SIZE;
 };
 
-__device__ int calculate_square_index(int row_index, int col_index){
+__device__ char calculate_square_index(char row_index, char col_index){
     return row_index / SQUARE_SIZE * SQUARE_SIZE + col_index / SQUARE_SIZE; //attention: int arithmetic
 };
 
 //get count of possible numbers of cell
-__device__ int get_possible_counts(
+__device__ char get_possible_counts(
     SudokuPuzzleData* p,
-    int index,
+    char index,
     unsigned short* row_nums,
     unsigned short* col_nums,
     unsigned short* square_nums
 ) {
     if (p->puzzle[index] == 0) {
-        int row_index = calculate_row_index(index);
-        int col_index = calculate_col_index(index);
-        int square_index = calculate_square_index(row_index, col_index);
-        int possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
+        char row_index = calculate_row_index(index);
+        char col_index = calculate_col_index(index);
+        char square_index = calculate_square_index(row_index, col_index);
+        unsigned short possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
         return BITSET_LENGTH[possible_number_index];
     } else {
         return 0;
     }
 }
 
-__device__ bool set_and_check_bit(char check_bit, unsigned short* array, int index){
+__device__ bool set_and_check_bit(char check_bit, unsigned short* array, char index){
     int old_value = array[index];
     array[index] |= check_bit;
+    printf("set_and_check_bit %d\n", old_value != array[index]);
     return old_value != array[index];
 }
 
 __device__ void save_value_for_cell_and_check_is_solvable(
     SudokuPuzzleData* p,
     char value,
-    int index,
+    char index,
     unsigned short* row_nums,
     unsigned short* col_nums,
     unsigned short* square_nums
 ){
-    int row_index = calculate_row_index(index);
-    int col_index = calculate_col_index(index);
-    int square_index = calculate_square_index(row_index, col_index);
-    int check_bit = 1 << (value - 1);
+    char row_index = calculate_row_index(index);
+    char col_index = calculate_col_index(index);
+    char square_index = calculate_square_index(row_index, col_index);
+    unsigned short check_bit = 1 << (value - 1);
     p->my_is_solvable &= set_and_check_bit(check_bit, row_nums, row_index);
     p->my_is_solvable &= set_and_check_bit(check_bit, col_nums, col_index);
     p->my_is_solvable &= set_and_check_bit(check_bit, square_nums, square_index);
@@ -1151,7 +1152,7 @@ __device__ void fill_positions(
     }
 }
 
-__device__ int get_single_array_index(int row, int col){
+__device__ int get_single_array_index(char row, char col){
     return row * PUZZLE_SIZE + col;
 }
 
@@ -1178,6 +1179,9 @@ __device__ void prepare_puzzle_for_solving(
     unsigned short* square_nums
 ) {
     int number_off_sets[PUZZLE_SIZE + 2]; //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
+    for(int i = 0; i < PUZZLE_SIZE + 2; i++){ //c does not auto init with default:
+        number_off_sets[i] = 0;
+    }
     for(int i = 0; i < CELL_COUNT; i++){
         int count_of_index = get_possible_counts(p, i, row_nums, col_nums, square_nums);
         number_off_sets[count_of_index + 1]++;
@@ -1190,7 +1194,7 @@ __device__ void prepare_puzzle_for_solving(
         int count_of_index = get_possible_counts(p, i, row_nums, col_nums, square_nums);
         char off_set = number_off_sets[count_of_index];
         indices[off_set] = i;
-        number_off_sets[count_of_index] += 1;
+        number_off_sets[count_of_index]++;
     }
     sort_puzzle(p, puzzle_sorted, indices); //avoid jumping in the puzzle array
 }
@@ -1205,7 +1209,7 @@ __device__ void find_solution_non_recursively(
 ){
 
    //TEST:
-   printf("puzzle sorted:\n");
+   printf("puzzle sorted2:\n");
    for(int j = 0; j < CELL_COUNT; j++) {
        if(j % PUZZLE_SIZE == 0){
          printf("\n");
@@ -1214,17 +1218,30 @@ __device__ void find_solution_non_recursively(
    }
    printf("\n-----------");
 
-    char indices_current[CELL_COUNT];
+    int indices_current[CELL_COUNT];
     for(int i = 0; i < CELL_COUNT; i++){
         indices_current[i]=-1;
     }
+
+   //TEST:
+   printf("puzzle sorted3:\n");
+   for(int j = 0; j < CELL_COUNT; j++) {
+       if(j % PUZZLE_SIZE == 0){
+         printf("\n");
+       }
+       printf("%d", puzzle_sorted[j]);
+   }
+   printf("\n-----------");
+
+
+/*
     int i = 0;
     while(i < CELL_COUNT){
         char cur_value = puzzle_sorted[i]; //kind of stack
         if(cur_value == 0){ //Is not given?
 
             //Is there a current guess possible?
-            char puzzle_index = indices[i];
+            int puzzle_index = indices[i];
             int row_index = calculate_row_index(puzzle_index);
             int col_index = calculate_col_index(puzzle_index);
             int square_index = calculate_square_index(row_index, col_index);
@@ -1280,7 +1297,7 @@ __device__ void find_solution_non_recursively(
         printf("%d", p->puzzle[j]);
     }
     printf("\n-----------");
-
+*/
     p->my_is_solved = true;
 }
 
@@ -1299,6 +1316,13 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
     unsigned short col_nums[PUZZLE_SIZE];
     unsigned short square_nums[PUZZLE_SIZE];
 
+//TODO needed?
+    //c does not auto init with default:
+    for(int i = 0; i < CELL_COUNT; i++){
+        puzzle_sorted[i] = 0;
+        indices[i] = 0;
+    }
+
     //c does not auto init with default:
     for(int i = 0; i < PUZZLE_SIZE; i++){
         row_nums[i] = 0;
@@ -1306,14 +1330,28 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
         square_nums[i] = 0;
     }
 
-    find_all_possible_values_for_each_empty_cell(current, row_nums, col_nums, square_nums);
-    prepare_puzzle_for_solving(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
+  find_all_possible_values_for_each_empty_cell(current, row_nums, col_nums, square_nums);
+  prepare_puzzle_for_solving(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
 
-//TODO: remove line
-   printf("is solved=%d\n", current->my_is_solved);
+//TODO:
+
+   //TEST:
+   printf("puzzle sorted:\n");
+   for(int j = 0; j < CELL_COUNT; j++) {
+       if(j % PUZZLE_SIZE == 0){
+         printf("\n");
+       }
+       printf("%d", puzzle_sorted[j]);
+   }
+   printf("\n-----------\n");
+
+
+   printf("my_is_solvable=%d\n", current->my_is_solvable);
+   printf("is my_is_solved=%d\n", current->my_is_solved);
 
    if(current->my_is_solvable && !(current->my_is_solved)) {
-       find_solution_non_recursively(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
+      printf("try to solve:");
+      find_solution_non_recursively(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
    }
 
    return current->my_is_solved;
