@@ -1093,9 +1093,9 @@ __device__ int calculate_square_index(int row_index, int col_index){
 __device__ int get_possible_counts(
     SudokuPuzzleData* p,
     int index,
-    char row_nums[],
-    char col_nums[],
-    char square_nums[]
+    unsigned short row_nums[],
+    unsigned short col_nums[],
+    unsigned short square_nums[]
 ) {
     if (p->puzzle[index] == 0) {
         int row_index = calculate_row_index(index);
@@ -1106,6 +1106,29 @@ __device__ int get_possible_counts(
     } else {
         return 0;
     }
+}
+
+__device__ bool set_and_check_bit(char check_bit, unsigned short* array, int index){
+    int old_value = array[index];
+    array[index] |= check_bit;
+    return old_value != array[index];
+}
+
+__device__ void save_value_for_cell_and_check_is_solvable(
+    SudokuPuzzleData* p,
+    char value,
+    int index,
+    unsigned short row_nums[],
+    unsigned short col_nums[],
+    unsigned short square_nums[]
+){
+    int row_index = calculate_row_index(index);
+    int col_index = calculate_col_index(index);
+    int square_index = calculate_square_index(row_index, col_index);
+    int check_bit = 1 << (value - 1);
+    p->my_is_solvable &= set_and_check_bit(check_bit, row_nums, row_index);
+    p->my_is_solvable &= set_and_check_bit(check_bit, col_nums, col_index);
+    p->my_is_solvable &= set_and_check_bit(check_bit, square_nums, square_index);
 }
 
 //solve single sudoku on device:

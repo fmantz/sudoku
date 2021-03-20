@@ -257,7 +257,7 @@ impl SudokuPuzzleData {
         index: usize,
         row_nums: &mut [u16],
         col_nums: &mut [u16],
-        square_nums: &mut [u16],
+        square_nums: &mut [u16]
     ) -> () {
         let row_index: usize = SudokuPuzzleData::calculate_row_index(index);
         let col_index: usize = SudokuPuzzleData::calculate_col_index(index);
