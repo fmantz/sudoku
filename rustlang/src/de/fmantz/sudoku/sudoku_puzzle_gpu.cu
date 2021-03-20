@@ -1108,7 +1108,7 @@ __device__ char get_possible_counts(
     }
 }
 
-__device__ bool set_and_check_bit(char check_bit, unsigned short* array, char index){
+__device__ bool set_and_check_bit(unsigned short check_bit, unsigned short* array, char index){
     int old_value = array[index];
     array[index] |= check_bit;
     printf("set_and_check_bit %d\n", old_value != array[index]);
@@ -1315,13 +1315,6 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
     unsigned short row_nums[PUZZLE_SIZE];
     unsigned short col_nums[PUZZLE_SIZE];
     unsigned short square_nums[PUZZLE_SIZE];
-
-//TODO needed?
-    //c does not auto init with default:
-    for(int i = 0; i < CELL_COUNT; i++){
-        puzzle_sorted[i] = 0;
-        indices[i] = 0;
-    }
 
     //c does not auto init with default:
     for(int i = 0; i < PUZZLE_SIZE; i++){
