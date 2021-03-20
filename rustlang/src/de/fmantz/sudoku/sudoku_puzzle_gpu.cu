@@ -1093,9 +1093,9 @@ __device__ int calculate_square_index(int row_index, int col_index){
 __device__ int get_possible_counts(
     SudokuPuzzleData* p,
     int index,
-    unsigned short row_nums[],
-    unsigned short col_nums[],
-    unsigned short square_nums[]
+    unsigned short* row_nums,
+    unsigned short* col_nums,
+    unsigned short* square_nums
 ) {
     if (p->puzzle[index] == 0) {
         int row_index = calculate_row_index(index);
@@ -1118,9 +1118,9 @@ __device__ void save_value_for_cell_and_check_is_solvable(
     SudokuPuzzleData* p,
     char value,
     int index,
-    unsigned short row_nums[],
-    unsigned short col_nums[],
-    unsigned short square_nums[]
+    unsigned short* row_nums,
+    unsigned short* col_nums,
+    unsigned short* square_nums
 ){
     int row_index = calculate_row_index(index);
     int col_index = calculate_col_index(index);
@@ -1155,16 +1155,89 @@ __device__ int get_single_array_index(int row, int col){
     return row * PUZZLE_SIZE + col;
 }
 
-//solve single sudoku on device:
-__device__ void solve_one_sudokus_on_device(SudokuPuzzleData* current){
-    //try to change data and return changed data to rust! works :-)
-    //TODO: work with pointern in print sudoku struct is copied!
-    for(int i = 0; i < 9; i++) {
-        printf("1. Hello World from GPU! %d\n", threadIdx.x*gridDim.x);
-        current->puzzle[i] = 9;
-        printf("%d\n", current->puzzle[i]);
-        printf("2. Hello World from GPU! %d\n", threadIdx.x*gridDim.x);
+__device__  void find_all_possible_values_for_each_empty_cell(
+    SudokuPuzzleData* p,
+    unsigned short* row_nums,
+    unsigned short* col_nums,
+    unsigned short* square_nums
+){
+    for(int i = 0; i < CELL_COUNT; i++){
+        char cur_value = p->puzzle[i];
+        if(cur_value > 0){
+            save_value_for_cell_and_check_is_solvable(p, cur_value, i, row_nums, col_nums, square_nums);
+        }
     }
+}
+
+__device__ void prepare_puzzle_for_solving(
+    SudokuPuzzleData* p,
+    char* puzzle_sorted,
+    char* indices,
+    unsigned short* row_nums,
+    unsigned short* col_nums,
+    unsigned short* square_nums
+) {
+    int number_off_sets[PUZZLE_SIZE + 2]; //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
+    for(int i = 0; i < CELL_COUNT; i++){
+        int count_of_index = get_possible_counts(p, i, row_nums, col_nums, square_nums);
+        number_off_sets[count_of_index + 1]++;
+    }
+    p->my_is_solved = number_off_sets[1] == CELL_COUNT; //all cells have already a solution!
+    for(int i = 1; i < PUZZLE_SIZE + 2; i++){ //correct offsets
+        number_off_sets[i] += number_off_sets[i - 1];
+    }
+    for(int i = 0; i < CELL_COUNT; i++){
+        int count_of_index = get_possible_counts(p, i, row_nums, col_nums, square_nums);
+        char off_set = number_off_sets[count_of_index];
+        indices[off_set] = i;
+        number_off_sets[count_of_index] += 1;
+    }
+    sort_puzzle(p, puzzle_sorted, indices); //avoid jumping in the puzzle array
+}
+
+
+//solve single sudoku on device:
+__device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
+
+    //Early out:
+    if(!current->my_is_solvable || current->my_is_solved){
+        return current->my_is_solved;
+    }
+
+    //Temporary memory to compute solution:
+    char puzzle_sorted[CELL_COUNT];
+    char indices[CELL_COUNT];
+    unsigned short row_nums[PUZZLE_SIZE];
+    unsigned short col_nums[PUZZLE_SIZE];
+    unsigned short square_nums[PUZZLE_SIZE];
+
+    //c does not auto init with default:
+    for(int i = 0; i < PUZZLE_SIZE; i++){
+        row_nums[i] = 0;
+        col_nums[i] = 0;
+        square_nums[i] = 0;
+    }
+
+    find_all_possible_values_for_each_empty_cell(current, row_nums, col_nums, square_nums);
+    prepare_puzzle_for_solving(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
+
+//TEST:
+   printf("puzzle sorted:\n");
+   for(int j = 0; j < CELL_COUNT; j++) {
+       if(j % PUZZLE_SIZE == 0){
+         printf("\n");
+       }
+       printf("%d", puzzle_sorted[j]);
+   }
+   printf("\n-----------");
+
+
+//TODO: do later:
+//    if self.my_is_solvable && !self.my_is_solved {
+//        self.find_solution_non_recursively(&mut puzzle_sorted, &indices, &mut row_nums, &mut col_nums, &mut square_nums);
+//    }
+
+    return current->my_is_solved;
 }
 
 //solve sudokus in parallel:
@@ -1178,7 +1251,7 @@ __global__ void solve_sudokus_in_parallel(SudokuPuzzleData* p, int count){
 extern "C"  //prevent C++ name mangling!
 int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
 
-   printf("Hello World from CPU!\n");
+   printf("Try to run on GPU! ...\n");
 
    //print sudoku:
    printf("input:\n");
@@ -1221,5 +1294,6 @@ int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
          printf("\n-----------");
    }
 
+   printf("Run on GPU successfully!\n");
    return EXIT_SUCCESS;
 }
