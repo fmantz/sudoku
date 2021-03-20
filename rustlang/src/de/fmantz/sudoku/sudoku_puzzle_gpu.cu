@@ -1111,7 +1111,6 @@ __device__ char get_possible_counts(
 __device__ bool set_and_check_bit(unsigned short check_bit, unsigned short* array, char index){
     int old_value = array[index];
     array[index] |= check_bit;
-    printf("set_and_check_bit %d\n", old_value != array[index]);
     return old_value != array[index];
 }
 
@@ -1207,34 +1206,10 @@ __device__ void find_solution_non_recursively(
     unsigned short* col_nums,
     unsigned short* square_nums
 ){
-
-   //TEST:
-   printf("puzzle sorted2:\n");
-   for(int j = 0; j < CELL_COUNT; j++) {
-       if(j % PUZZLE_SIZE == 0){
-         printf("\n");
-       }
-       printf("%d", puzzle_sorted[j]);
-   }
-   printf("\n-----------");
-
     int indices_current[CELL_COUNT];
     for(int i = 0; i < CELL_COUNT; i++){
         indices_current[i]=-1;
     }
-
-   //TEST:
-   printf("puzzle sorted3:\n");
-   for(int j = 0; j < CELL_COUNT; j++) {
-       if(j % PUZZLE_SIZE == 0){
-         printf("\n");
-       }
-       printf("%d", puzzle_sorted[j]);
-   }
-   printf("\n-----------");
-
-
-
     int i = 0;
     while(i < CELL_COUNT){
         char cur_value = puzzle_sorted[i]; //kind of stack
@@ -1288,16 +1263,6 @@ __device__ void find_solution_non_recursively(
         }
     }
     fill_positions(p, puzzle_sorted, indices);
-
-    printf("puzzle solved:\n");
-    for(int j = 0; j < CELL_COUNT; j++) {
-        if(j % PUZZLE_SIZE == 0){
-          printf("\n");
-        }
-        printf("%d", p->puzzle[j]);
-    }
-    printf("\n-----------");
-
     p->my_is_solved = true;
 }
 
@@ -1323,42 +1288,10 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
         square_nums[i] = 0;
     }
 
-  find_all_possible_values_for_each_empty_cell(current, row_nums, col_nums, square_nums);
-  prepare_puzzle_for_solving(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
-
-//TODO please debug me:
-
-   //TEST:
-   printf("puzzle sorted:\n");
-   for(int j = 0; j < CELL_COUNT; j++) {
-       if(j % PUZZLE_SIZE == 0){
-         printf("\n");
-       }
-       printf("%d", puzzle_sorted[j]);
-   }
-   printf("\n-----------\n");
-
-   printf("indices:\n");
-   for(int j = 0; j < CELL_COUNT; j++) {
-       if(j % PUZZLE_SIZE == 0){
-         printf("\n");
-       }
-       printf(" %2d ", indices[j]);
-   }
-   printf("\n-----------\n");
-
-   printf("row_nums[j], col_nums[j], square_nums[j]:\n");
-   for(int j = 0; j < PUZZLE_SIZE; j++) {
-       printf(" %3d %3d %3d \n", row_nums[j], col_nums[j], square_nums[j]);
-   }
-   printf("\n-----------\n");
-
-
-   printf("my_is_solvable=%d\n", current->my_is_solvable);
-   printf("is my_is_solved=%d\n", current->my_is_solved);
+    find_all_possible_values_for_each_empty_cell(current, row_nums, col_nums, square_nums);
+    prepare_puzzle_for_solving(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
 
    if(current->my_is_solvable && !(current->my_is_solved)) {
-      printf("try to solve:");
       find_solution_non_recursively(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
    }
 
@@ -1378,19 +1311,6 @@ int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
 
    printf("Try to run on GPU! ...\n");
 
-//   //print sudoku:
-//   printf("input:\n");
-//   for(int i = 0; i < count; i++) {
-//        SudokuPuzzleData current = puzzle_data[i];
-//        for(int j = 0; j < CELL_COUNT; j++) {
-//            if(j % PUZZLE_SIZE == 0){
-//              printf("\n");
-//            }
-//            printf("%d", current.puzzle[j]);
-//        }
-//        printf("\n-----------");
-//   }
-
    // Allocate GPU memory.
    SudokuPuzzleData *device_puzzle_data = 0;
    cudaMalloc((void **) & device_puzzle_data, count * sizeof(SudokuPuzzleData));
@@ -1405,19 +1325,6 @@ int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
 
    // Free GPU memory:
    cudaFree(device_puzzle_data);
-
-//   //print sudoku:
-//   printf("output:\n");
-//   for(int i = 0; i < count; i++) {
-//       SudokuPuzzleData current = puzzle_data[i];
-//         for(int j = 0; j < CELL_COUNT; j++) {
-//             if(j % PUZZLE_SIZE == 0){
-//               printf("\n");
-//             }
-//             printf("%d", current.puzzle[j]);
-//         }
-//         printf("\n-----------");
-//   }
 
    printf("Run on GPU successfully!\n");
    return EXIT_SUCCESS;

@@ -119,31 +119,6 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 			numberOffsets(countOfIndex)+=1
 		}
 		sortPuzzle() //avoid jumping in the puzzle array
-
-		//TODO remove me:
-		for(j <- 0 until SudokuConstants.CellCount){
-			if(j % SudokuConstants.PuzzleSize == 0){
-				println()
-			}
-			print(puzzleSorted(j))
-		}
-		printf("\n-----------\n");
-
-		printf("indices:\n");
-		for(j <- 0 until SudokuConstants.CellCount) {
-			if(j % SudokuConstants.PuzzleSize == 0){
-				printf("\n");
-			}
-			printf(" %2d ", indices(j));
-		}
-		printf("\n-----------\n");
-
-		printf("row_nums[j], col_nums[j], square_nums[j]:\n");
-		for(j <- 0 until SudokuConstants.PuzzleSize) {
-			printf(" %3d %3d %3d \n", rowNums(j), colNums(j), squareNums(j));
-		}
-		printf("\n-----------\n");
-
 	}
 
 	def findSolutionNonRecursively(): Unit = {
