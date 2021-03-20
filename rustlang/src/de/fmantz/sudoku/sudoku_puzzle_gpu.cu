@@ -1131,6 +1131,30 @@ __device__ void save_value_for_cell_and_check_is_solvable(
     p->my_is_solvable &= set_and_check_bit(check_bit, square_nums, square_index);
 }
 
+__device__ void sort_puzzle(
+    SudokuPuzzleData* p,
+    char * puzzle_sorted,
+    char * indices
+){
+    for(int i = 0; i < CELL_COUNT; i++){
+        puzzle_sorted[i] = p->puzzle[indices[i]];
+    }
+}
+
+__device__ void fill_positions(
+    SudokuPuzzleData* p,
+    char * puzzle_sorted,
+    char * indices
+){
+    for(int i = 0; i < CELL_COUNT; i++){
+        p->puzzle[indices[i]] = puzzle_sorted[i];
+    }
+}
+
+__device__ int get_single_array_index(int row, int col){
+    return row * PUZZLE_SIZE + col;
+}
+
 //solve single sudoku on device:
 __device__ void solve_one_sudokus_on_device(SudokuPuzzleData* current){
     //try to change data and return changed data to rust! works :-)
