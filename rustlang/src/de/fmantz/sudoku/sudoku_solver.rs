@@ -64,7 +64,8 @@ fn main() {
         match puzzles {
             Ok(puzzles) => {
 
-                let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
+                //TEST
+                let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, 50000);
                 for puzzle_buffer in grouped_iterator {
 
                     //collect a bunch of sudokus:
