@@ -196,7 +196,7 @@ impl SudokuPuzzleData {
                     col_nums[col_index] |= check_bit;
                     square_nums[square_index] |= check_bit;
 
-                    indices_current[i] = next_number_index as i8; //0 since success
+                    indices_current[i] = next_number_index as i8; //success
                     i += 1; //go to next cell
                 } else {
 

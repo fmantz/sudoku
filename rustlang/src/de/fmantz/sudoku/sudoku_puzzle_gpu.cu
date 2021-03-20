@@ -1195,6 +1195,83 @@ __device__ void prepare_puzzle_for_solving(
     sort_puzzle(p, puzzle_sorted, indices); //avoid jumping in the puzzle array
 }
 
+__device__ void find_solution_non_recursively(
+    SudokuPuzzleData* p,
+    char* puzzle_sorted,
+    char* indices,
+    unsigned short* row_nums,
+    unsigned short* col_nums,
+    unsigned short* square_nums
+){
+    char indices_current[CELL_COUNT];
+    for(int i = 0; i < CELL_COUNT; i++){
+        indices_current[i]=-1;
+    }
+    int i = 0;
+    while(i < CELL_COUNT){
+        char cur_value = puzzle_sorted[i]; //kind of stack
+        if(cur_value == 0){ //Is not given?
+
+            //Is there a current guess possible?
+            int puzzle_index = indices[i];
+            int row_index = calculate_row_index(puzzle_index);
+            int col_index = calculate_col_index(puzzle_index);
+            int square_index = calculate_square_index(row_index, col_index);
+            int possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
+            int next_number_index = (indices_current[i] + 1);
+
+            if(next_number_index < BITSET_LENGTH[possible_number_index]){
+
+                //next possible number to try found:
+                char* next_numbers = BITSET_ARRAY[possible_number_index];
+                char next_number = next_numbers[next_number_index];
+                puzzle_sorted[i] = next_number;
+
+                //save value for cell:
+                unsigned short check_bit = 1 << (next_number - 1);
+                row_nums[row_index] |= check_bit;
+                col_nums[col_index] |= check_bit;
+                square_nums[square_index] |= check_bit;
+
+                indices_current[i] = next_number_index; //success
+                i += 1; //go to next cell
+
+            } else {
+
+                //backtrack:
+                indices_current[i] = -1; //forget last index for position i
+                i -= 1; //not given values are in the head of myIndices, there we can simply go one step back!
+                char last_invalid_try = puzzle_sorted[i];
+                char last_puzzle_index = indices[i];
+                puzzle_sorted[i] = 0; //find in the next step a new solution for i
+
+                //revert last value:
+                int last_row_index = calculate_row_index(last_puzzle_index);
+                int last_col_index = calculate_col_index(last_puzzle_index);
+                int last_square_index = calculate_square_index(last_row_index, last_col_index);
+                unsigned short last_check_bit = 1 << (last_invalid_try - 1);
+                row_nums[last_row_index] ^= last_check_bit;
+                col_nums[last_col_index] ^= last_check_bit;
+                square_nums[last_square_index] ^= last_check_bit;
+
+            }
+        } else {
+            i += 1;
+        }
+    }
+    fill_positions(p, puzzle_sorted, indices);
+
+//    printf("puzzle solved:\n");
+//    for(int j = 0; j < CELL_COUNT; j++) {
+//        if(j % PUZZLE_SIZE == 0){
+//          printf("\n");
+//        }
+//        printf("%d", p->puzzle[j]);
+//    }
+//    printf("\n-----------");
+
+    p->my_is_solved = true;
+}
 
 //solve single sudoku on device:
 __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
@@ -1222,22 +1299,20 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
     prepare_puzzle_for_solving(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
 
 //TEST:
-   printf("puzzle sorted:\n");
-   for(int j = 0; j < CELL_COUNT; j++) {
-       if(j % PUZZLE_SIZE == 0){
-         printf("\n");
-       }
-       printf("%d", puzzle_sorted[j]);
+//   printf("puzzle sorted:\n");
+//   for(int j = 0; j < CELL_COUNT; j++) {
+//       if(j % PUZZLE_SIZE == 0){
+//         printf("\n");
+//       }
+//       printf("%d", puzzle_sorted[j]);
+//   }
+//   printf("\n-----------");
+
+   if(current->my_is_solvable && !(current->my_is_solved)) {
+       find_solution_non_recursively(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
    }
-   printf("\n-----------");
 
-
-//TODO: do later:
-//    if self.my_is_solvable && !self.my_is_solved {
-//        self.find_solution_non_recursively(&mut puzzle_sorted, &indices, &mut row_nums, &mut col_nums, &mut square_nums);
-//    }
-
-    return current->my_is_solved;
+   return current->my_is_solved;
 }
 
 //solve sudokus in parallel:
