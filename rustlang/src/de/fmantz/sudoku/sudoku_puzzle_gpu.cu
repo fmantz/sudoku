@@ -1234,7 +1234,7 @@ __device__ void find_solution_non_recursively(
    printf("\n-----------");
 
 
-/*
+
     int i = 0;
     while(i < CELL_COUNT){
         char cur_value = puzzle_sorted[i]; //kind of stack
@@ -1297,7 +1297,7 @@ __device__ void find_solution_non_recursively(
         printf("%d", p->puzzle[j]);
     }
     printf("\n-----------");
-*/
+
     p->my_is_solved = true;
 }
 
