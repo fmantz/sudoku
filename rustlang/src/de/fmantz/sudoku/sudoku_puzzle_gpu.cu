@@ -1333,7 +1333,7 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
   find_all_possible_values_for_each_empty_cell(current, row_nums, col_nums, square_nums);
   prepare_puzzle_for_solving(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
 
-//TODO:
+//TODO please debug me:
 
    //TEST:
    printf("puzzle sorted:\n");
@@ -1342,6 +1342,21 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
          printf("\n");
        }
        printf("%d", puzzle_sorted[j]);
+   }
+   printf("\n-----------\n");
+
+   printf("indices:\n");
+   for(int j = 0; j < CELL_COUNT; j++) {
+       if(j % PUZZLE_SIZE == 0){
+         printf("\n");
+       }
+       printf(" %2d ", indices[j]);
+   }
+   printf("\n-----------\n");
+
+   printf("row_nums[j], col_nums[j], square_nums[j]:\n");
+   for(int j = 0; j < PUZZLE_SIZE; j++) {
+       printf(" %3d %3d %3d \n", row_nums[j], col_nums[j], square_nums[j]);
    }
    printf("\n-----------\n");
 
