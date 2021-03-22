@@ -107,6 +107,8 @@ fn solve_sudokus(input_file_name: &String, output_file_name: &String) -> (){
                     .collect();
 
                 //solve in parallel:
+                let count  = sudoku_processing_unit.len();
+                println!("Solve {} sudokus with RUST!", count);
                 sudoku_processing_unit
                     .par_iter_mut() //solve in parallel
                     .for_each(|unsolved_sudoku| {
@@ -141,7 +143,7 @@ fn is_cuda_available(cuda_lib: &lib::Library) -> bool {
     }
 }
 
-fn solve_sudokus_with_cuda(input_file_name: &String, output_file_name: &String, cuda_lib: &lib::Library) -> bool { //strangely cuda_lib must be moved here!
+fn solve_sudokus_with_cuda(input_file_name: &String, output_file_name: &String, cuda_lib: &lib::Library) -> bool {
     let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
     match puzzles {
         Ok(puzzles) => {
