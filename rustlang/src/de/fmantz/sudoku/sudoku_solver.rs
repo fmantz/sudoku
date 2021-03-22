@@ -25,7 +25,8 @@ use crate::sudoku_io::SudokuIO;
 use crate::sudoku_iterator::{SudokuIterator, SudokuGroupedIterator};
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
-use crate::sudoku_constants::PARALLELIZATION_COUNT;
+use crate::sudoku_constants::{PARALLELIZATION_COUNT, PARALLELIZATION_COUNT_CUDA};
+use lib::Library;
 
 mod sudoku_puzzle;
 mod sudoku_io;
@@ -35,7 +36,7 @@ mod sudoku_bit_set;
 
 extern crate libloading as lib;
 
-fn main() {
+fn main() -> (){
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         println!(">SudokuSolver inputFile [outputFile]");
@@ -60,56 +61,64 @@ fn main() {
             generated_file_name
         };
         println!("input: {}", Path::new(&input_file_name).to_str().unwrap());
-        let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
-        match puzzles {
-            Ok(puzzles) => {
-
-                //TEST
-                let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, 50000);
-                for puzzle_buffer in grouped_iterator {
-
-                    //collect a bunch of sudokus:
-                    let mut sudoku_processing_unit: Vec<SudokuPuzzleData> = puzzle_buffer
-                        .into_iter()
-                        .collect();
-
-                    //TODO test:
-                    solve_sudokus_with_cuda(&mut sudoku_processing_unit);
-
-                    //solve in parallel:
-                    sudoku_processing_unit
-                        .par_iter_mut() //solve in parallel
-                        .for_each(|unsolved_sudoku| {
-                            solve_current_sudoku(unsolved_sudoku);
-                        });
-
-                    let write_rs : Result<(), String> = SudokuIO::write_qqwing(&output_file_name, sudoku_processing_unit);
-                    match write_rs {
-                        Ok(()) => { /* do nothing */ }
-                        Err(error) => {
-                            panic!("Problem with saving solved puzzle: {:?}", error);
-                        }
-                    };
-
+        match load_cuda_lib() {
+            Some(cuda_lib) => {
+                if is_cuda_available(&cuda_lib) {
+                    let is_success : bool = solve_sudokus_with_cuda(&input_file_name, &output_file_name, &cuda_lib);
+                    if ! is_success {
+                        solve_sudokus(&input_file_name, &output_file_name);
+                    }
+                } else {
+                    solve_sudokus(&input_file_name, &output_file_name);
                 }
-                let duration = start.elapsed();
-                println!("output: {}", Path::new(&output_file_name).to_str().unwrap());
-                println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
             }
-            Err(error) => {
-                panic!("Problem opening the file: {:?}", error);
+            None => {
+                solve_sudokus(&input_file_name, &output_file_name);
             }
+        }
+        let duration = start.elapsed();
+        println!("output: {}", Path::new(&output_file_name).to_str().unwrap());
+        println!("All sudoku puzzles solved by simple backtracking algorithm in {:?}", duration);
+    }
+}
+
+fn load_cuda_lib() -> Option<Library> {
+    match libloading::Library::new("../lib/libsudoku_puzzle_gpu.so") {
+        Ok(found_libary) => {
+            Some(found_libary)
+        }
+        Err(error) => {
+            println!("Library not found: {:?}", error);
+            None
         }
     }
 }
 
-fn solve_sudokus_with_cuda(sudokus: &mut Vec<SudokuPuzzleData>) -> Result<i32, Box<dyn std::error::Error>> {
-    unsafe {
-        let lib = libloading::Library::new("../lib/libsudoku_puzzle_gpu.so")?;
-        let func: libloading::Symbol<unsafe extern fn(*mut SudokuPuzzleData, i32) -> i32> = lib.get(b"solve_on_cuda")?;
-        let count  = sudokus.len();
-        println!("Solve {} sudokus with CUDA!", count);
-        Ok(func(sudokus.as_mut_ptr(), count as i32)) //TODO
+fn solve_sudokus(input_file_name: &String, output_file_name: &String) -> (){
+    let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
+    match puzzles {
+        Ok(puzzles) => {
+            let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
+            for puzzle_buffer in grouped_iterator {
+
+                //collect a bunch of sudokus:
+                let mut sudoku_processing_unit: Vec<SudokuPuzzleData> = puzzle_buffer
+                    .into_iter()
+                    .collect();
+
+                //solve in parallel:
+                sudoku_processing_unit
+                    .par_iter_mut() //solve in parallel
+                    .for_each(|unsolved_sudoku| {
+                        solve_current_sudoku(unsolved_sudoku);
+                    });
+
+                save_sudokus(&output_file_name, sudoku_processing_unit);
+            }
+        }
+        Err(error) => {
+            panic!("Problem opening the file: {:?}", error);
+        }
     }
 }
 
@@ -118,6 +127,66 @@ fn solve_current_sudoku(sudoku: &mut SudokuPuzzleData) -> () {
     if !solved {
         println!("Sudoku is unsolvable:\n {}", sudoku.to_pretty_string());
     }
+}
+
+fn is_cuda_available(cuda_lib: &lib::Library) -> bool {
+    unsafe {
+        let func: Option<libloading::Symbol<unsafe extern fn() -> bool>> =  cuda_lib
+            .get(b"is_cuda_available")
+            .map(|f| Some(f))
+            .unwrap_or(None);
+
+        func.map(|is_cuda| is_cuda())
+            .unwrap_or(false)
+    }
+}
+
+fn solve_sudokus_with_cuda(input_file_name: &String, output_file_name: &String, cuda_lib: &lib::Library) -> bool { //strangely cuda_lib must be moved here!
+    let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
+    match puzzles {
+        Ok(puzzles) => {
+            let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT_CUDA);
+            for puzzle_buffer in grouped_iterator {
+
+                //collect a bunch of sudokus:
+                let mut sudoku_processing_unit: Vec<SudokuPuzzleData> = puzzle_buffer
+                    .into_iter()
+                    .collect();
+
+                unsafe {
+                    let func: libloading::Symbol<unsafe extern fn(*mut SudokuPuzzleData, i32) -> i32> = match cuda_lib.get(b"solve_on_cuda"){
+                        Ok(found_function) => {
+                            found_function
+                        }
+                        Err(error) => {
+                            println!("Function not found: {:?}", error);
+                            return false;
+                        }
+                    };
+                    let count  = sudoku_processing_unit.len();
+                    println!("Solve {} sudokus with CUDA!", count);
+                    if func(sudoku_processing_unit.as_mut_ptr(), count as i32) == 0 {
+                        save_sudokus(&output_file_name, sudoku_processing_unit);
+                    }
+                }
+            }
+        }
+        Err(error) => {
+            println!("Problem opening the file: {:?}", error);
+            return false;
+        }
+    }
+    true
+}
+
+fn save_sudokus(output_file_name: &str, sudoku_processing_unit: Vec<SudokuPuzzleData>) {
+    let write_rs: Result<(), String> = SudokuIO::write_qqwing(&output_file_name, sudoku_processing_unit);
+    match write_rs {
+        Ok(()) => { /* do nothing */ }
+        Err(error) => {
+            panic!("Problem with saving solved puzzle: {:?}", error);
+        }
+    };
 }
 
 #[cfg(test)]

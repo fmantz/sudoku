@@ -1306,7 +1306,7 @@ __global__ void solve_sudokus_in_parallel(SudokuPuzzleData* p, int count){
 }
 
 extern "C"  //prevent C++ name mangling!
-bool is_cuda_installed(){ //library method
+bool is_cuda_available(){ //library method
     int deviceCount = 0;
     cudaGetDeviceCount(&deviceCount);
     if(deviceCount == 0){
@@ -1319,15 +1319,15 @@ bool is_cuda_installed(){ //library method
         cudaGetDeviceProperties(&deviceProp, devNo);
         cudaDriverGetVersion(&driverVersion);
         cudaRuntimeGetVersion(&runtimeVersion);
-        printf("CUDA Device 0 (currently only first device is supported!)");
+        printf("CUDA Device 0 (currently only first device is supported!)\n");
         printf("CUDA Driver Version / Runtime Version          %d.%d / %d.%d\n", driverVersion/1000, (driverVersion%100)/10, runtimeVersion/1000, (runtimeVersion%100)/10);
         printf("CUDA Capability Major/Minor version number:    %d.%d\n", deviceProp.major, deviceProp.minor);
     }
-    return deviceCount != 0;
+    return deviceCount > 0;
 }
 
 extern "C"  //prevent C++ name mangling!
-void solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
+int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
 
    printf("Try to run on GPU! ...\n");
 
@@ -1346,5 +1346,5 @@ void solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
    cudaFree(device_puzzle_data);
 
    printf("Run on GPU successfully!\n");
-
+   return EXIT_SUCCESS;
 }
