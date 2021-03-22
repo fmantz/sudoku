@@ -156,7 +156,7 @@ fn solve_sudokus_with_cuda(input_file_name: &String, output_file_name: &String, 
                     .collect();
 
                 unsafe {
-                    let func: libloading::Symbol<unsafe extern fn(*mut SudokuPuzzleData, i32) -> i32> = match cuda_lib.get(b"solve_on_cuda"){
+                    let func: libloading::Symbol<unsafe extern fn(*mut SudokuPuzzleData, i32) -> bool> = match cuda_lib.get(b"solve_on_cuda"){
                         Ok(found_function) => {
                             found_function
                         }
@@ -167,7 +167,7 @@ fn solve_sudokus_with_cuda(input_file_name: &String, output_file_name: &String, 
                     };
                     let count  = sudoku_processing_unit.len();
                     println!("Solve {} sudokus with CUDA!", count);
-                    if func(sudoku_processing_unit.as_mut_ptr(), count as i32) == 0 {
+                    if func(sudoku_processing_unit.as_mut_ptr(), count as i32) {
                         save_sudokus(&output_file_name, sudoku_processing_unit);
                     }
                 }

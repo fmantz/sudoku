@@ -1327,7 +1327,7 @@ bool is_cuda_available(){ //library method
 }
 
 extern "C"  //prevent C++ name mangling!
-int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
+bool solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
 
    printf("Try to run on GPU! ...\n");
 
@@ -1337,7 +1337,7 @@ int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
    cudaMemcpy(device_puzzle_data, puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
 
    //Run in parallel:
-   solve_sudokus_in_parallel<<<1, count>>>(device_puzzle_data, count);
+   solve_sudokus_in_parallel<<<count, 1>>>(device_puzzle_data, count);
 
    //Overwrite old data:
    cudaMemcpy(puzzle_data, device_puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
@@ -1345,6 +1345,29 @@ int solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
    // Free GPU memory:
    cudaFree(device_puzzle_data);
 
-   printf("Run on GPU successfully!\n");
-   return EXIT_SUCCESS;
+   //print sudoku:
+   printf("output on host:\n");
+   for(int i = 0; i < count; i++) {
+       SudokuPuzzleData* current = &puzzle_data[i];
+         for(int j = 0; j < CELL_COUNT; j++) {
+             if(j % PUZZLE_SIZE == 0){
+               printf("\n");
+             }
+             printf("%d", current->puzzle[j]);
+         }
+         printf("\n-----------");
+   }
+
+   //one solved:
+   int solved_count=0;
+   for(int i = 0; i < count; i++) {
+       SudokuPuzzleData* current = &puzzle_data[i];
+       if(current->my_is_solved){
+          solved_count++;
+       }
+   }
+
+   bool success = solved_count > 0;
+   printf("Run on GPU success=%d\n", success);
+   return success;
 }
