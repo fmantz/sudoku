@@ -169,6 +169,8 @@ fn solve_sudokus_with_cuda(input_file_name: &String, output_file_name: &String, 
                     println!("Solve {} sudokus with CUDA!", count);
                     if func(sudoku_processing_unit.as_mut_ptr(), count as i32) {
                         save_sudokus(&output_file_name, sudoku_processing_unit);
+                    } else {
+                        return false;
                     }
                 }
             }
