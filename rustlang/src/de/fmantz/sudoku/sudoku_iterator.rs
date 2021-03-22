@@ -33,7 +33,7 @@ pub struct SudokuIterator {
 
 pub struct SudokuGroupedIterator {
     sudoku_iterator: SudokuIterator,
-    buffer_size: u16
+    buffer_size: u32
 }
 
 impl Iterator for SudokuIterator {
@@ -142,7 +142,7 @@ impl Iterator for SudokuGroupedIterator {
 }
 
 impl SudokuGroupedIterator {
-    pub fn grouped(sudoku_iterator: SudokuIterator, buffer_size: u16) -> Self {
+    pub fn grouped(sudoku_iterator: SudokuIterator, buffer_size: u32) -> Self {
         SudokuGroupedIterator {
             sudoku_iterator: sudoku_iterator,
             buffer_size: buffer_size
