@@ -1438,31 +1438,79 @@ int main(int argc, char **argv){
         exit(EXIT_SUCCESS);
     }
 
-    char * input_file = argv[1];
-    int count = atoi(argv[2]);
-    SudokuPuzzleData* puzzle_data = (SudokuPuzzleData*) malloc(count * sizeof(SudokuPuzzleData));
-    read_sudokus(input_file, count, puzzle_data);
+   char * input_file = argv[1];
+   int count = atoi(argv[2]);
+   SudokuPuzzleData* puzzle_data_read = (SudokuPuzzleData*) malloc(count * sizeof(SudokuPuzzleData));
+   SudokuPuzzleData* puzzle_data_result = (SudokuPuzzleData*) malloc(count * sizeof(SudokuPuzzleData));
+   read_sudokus(input_file, count, puzzle_data_read);
 
-   printf("Try to run on GPU! ...\n");
+   int sent_to_gpu = 0;
+   int batch_size = 4;
+   int loop_count = 0;
+   int loop_success_count = 0;
+   while(sent_to_gpu < count){
 
-   // Allocate GPU memory.
-   SudokuPuzzleData *device_puzzle_data = 0;
-   cudaMalloc((void **) & device_puzzle_data, count * sizeof(SudokuPuzzleData));
-   cudaMemcpy(device_puzzle_data, puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
+       //copy slice of array
+       int sudokus_still_to_be_send = count - sent_to_gpu;
+       int current_batch_size = (sudokus_still_to_be_send >= batch_size) ? batch_size : sudokus_still_to_be_send;
+       SudokuPuzzleData* puzzle_data = (SudokuPuzzleData*) malloc(current_batch_size * sizeof(SudokuPuzzleData));
+       for(int i = 0; i < current_batch_size; i++){
+          puzzle_data[i] = puzzle_data_read[i + sent_to_gpu];
+       }
 
-   //Run in parallel:
-   solve_sudokus_in_parallel<<<count, 1>>>(device_puzzle_data, count);
+       printf("Try to run on GPU! ...");
 
-   //Overwrite old data:
-   cudaMemcpy(puzzle_data, device_puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
+       // Allocate GPU memory.
+       SudokuPuzzleData *device_puzzle_data = 0;
+       cudaMalloc((void **) & device_puzzle_data, count * sizeof(SudokuPuzzleData));
+       cudaMemcpy(device_puzzle_data, puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
 
-   // Free GPU memory:
-   cudaFree(device_puzzle_data);
+       //Run in parallel:
+       solve_sudokus_in_parallel<<<count, 1>>>(device_puzzle_data, count);
+
+       //Overwrite old data:
+       cudaMemcpy(puzzle_data, device_puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
+
+       // Copy to result:
+       for(int i = 0; i < current_batch_size; i++){
+          puzzle_data_result[i + sent_to_gpu]=puzzle_data[i];
+       }
+
+       //check one solved:
+       bool loop_success = false;
+       for(int i = 0; i < count; i++) {
+           SudokuPuzzleData* current = &puzzle_data[i];
+           if(current->my_is_solved){
+              loop_success=true;
+              loop_success_count++;
+              break;
+           }
+       }
+
+       if(!loop_success){
+            cudaError_t error = cudaGetLastError();
+            const char * error_message = cudaGetErrorString(error);
+            printf("... FAILED!\n");
+            printf("Loop %d Error=%s\n", loop_count, error_message);
+       } else {
+            printf("... SUCCEED!\n");
+       }
+
+       // Free GPU memory:
+       cudaFree(device_puzzle_data);
+       free(puzzle_data);
+
+       sent_to_gpu+=current_batch_size;
+       loop_count++;
+   }
+
+   bool success = loop_count == loop_success_count;
+   printf("Run on GPU success=%d\n", success);
 
    //print sudoku:
    printf("output on host:\n");
    for(int i = 0; i < count; i++) {
-       SudokuPuzzleData* current = &puzzle_data[i];
+       SudokuPuzzleData* current = &puzzle_data_result[i];
          for(int j = 0; j < CELL_COUNT; j++) {
              if(j % PUZZLE_SIZE == 0){
                printf("\n");
@@ -1472,23 +1520,7 @@ int main(int argc, char **argv){
          printf("\n-----------");
    }
 
-   //one solved:
-   int solved_count=0;
-   for(int i = 0; i < count; i++) {
-       SudokuPuzzleData* current = &puzzle_data[i];
-       if(current->my_is_solved){
-          solved_count++;
-       }
-   }
-
-   bool success = solved_count > 0;
-   printf("Run on GPU success=%d\n", success);
-   if(!success){
-        cudaError_t error = cudaGetLastError();
-        const char * error_message = cudaGetErrorString(error);
-        printf("Error=%s\n", error_message);
-   }
-
-   free(puzzle_data);
+   free(puzzle_data_read);
+   free(puzzle_data_result);
    exit(EXIT_SUCCESS);
 }
