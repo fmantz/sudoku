@@ -34,4 +34,4 @@ build
 performance/sudoku*.txt
 
 #shared cuda-libs:
-rustlang/lib/*.so
+*.so
