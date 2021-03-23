@@ -1326,6 +1326,7 @@ bool is_cuda_available(){ //library method
     return deviceCount > 0;
 }
 
+/*
 extern "C"  //prevent C++ name mangling!
 bool solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
 
@@ -1370,4 +1371,124 @@ bool solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
    bool success = solved_count > 0;
    printf("Run on GPU success=%d\n", success);
    return success;
+}
+*/
+
+
+/* Function to remove white spaces on both sides of a string i.e trim */
+char * trim (char *s){
+    int i;
+    while (isspace (*s)) s++;   // skip left side white spaces
+    for (i = strlen (s) - 1; (isspace (s[i])); i--) ;   // skip right side white spaces
+    s[i + 1] = '\0';
+    return s;
+}
+
+void read_sudokus(char * input_file, int count, SudokuPuzzleData * result){
+
+    FILE * fp;
+    char * line = NULL;
+    int line_len = 0;
+    size_t len = 0;
+
+    fp = fopen(input_file, "r");
+    if (fp == NULL){
+        exit(EXIT_FAILURE);
+    }
+
+    int c = 0;
+    while ((getline(&line, &len, fp)) != -1) {
+        line = trim(line);
+        line_len = strlen(line);
+        if(line_len == 82){
+            SudokuPuzzleData* current = &result[c];
+            current->my_is_solvable = true;
+            current->my_is_solved = false;
+            for(int i = 0; i < 81; i++) {
+               char check_char = line[i];
+               if(check_char >= '0' && check_char <= '9'){
+                current->puzzle[i] = line[i] - '0';
+               } else {
+                current->puzzle[i] = 0;
+               }
+            }
+            c++; //count only sudokus;
+        }
+        if(c == count){
+            break;
+        }
+    }
+
+    fclose(fp);
+    if (line){
+        free(line);
+    }
+}
+
+//stops working for larger COUNTS!
+int main(int argc, char **argv){
+
+    if(!is_cuda_available()){
+        printf("SETUP CUDA FIRST!\n\n");
+    }
+
+    if(argc < 3){
+        printf("sudoku_cuda FILENAME COUNT\n\n");
+        printf("sudoku_cuda sample_sudokus.csv  10\n\n");
+        exit(EXIT_SUCCESS);
+    }
+
+    char * input_file = argv[1];
+    int count = atoi(argv[2]);
+    SudokuPuzzleData* puzzle_data = (SudokuPuzzleData*) malloc(count * sizeof(SudokuPuzzleData));
+    read_sudokus(input_file, count, puzzle_data);
+
+   printf("Try to run on GPU! ...\n");
+
+   // Allocate GPU memory.
+   SudokuPuzzleData *device_puzzle_data = 0;
+   cudaMalloc((void **) & device_puzzle_data, count * sizeof(SudokuPuzzleData));
+   cudaMemcpy(device_puzzle_data, puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
+
+   //Run in parallel:
+   solve_sudokus_in_parallel<<<count, 1>>>(device_puzzle_data, count);
+
+   //Overwrite old data:
+   cudaMemcpy(puzzle_data, device_puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
+
+   // Free GPU memory:
+   cudaFree(device_puzzle_data);
+
+   //print sudoku:
+   printf("output on host:\n");
+   for(int i = 0; i < count; i++) {
+       SudokuPuzzleData* current = &puzzle_data[i];
+         for(int j = 0; j < CELL_COUNT; j++) {
+             if(j % PUZZLE_SIZE == 0){
+               printf("\n");
+             }
+             printf("%d", current->puzzle[j]);
+         }
+         printf("\n-----------");
+   }
+
+   //one solved:
+   int solved_count=0;
+   for(int i = 0; i < count; i++) {
+       SudokuPuzzleData* current = &puzzle_data[i];
+       if(current->my_is_solved){
+          solved_count++;
+       }
+   }
+
+   bool success = solved_count > 0;
+   printf("Run on GPU success=%d\n", success);
+   if(!success){
+        cudaError_t error = cudaGetLastError();
+        const char * error_message = cudaGetErrorString(error);
+        printf("Error=%s\n", error_message);
+   }
+
+   free(puzzle_data);
+   exit(EXIT_SUCCESS);
 }
