@@ -200,7 +200,7 @@ mod tests {
     use std::path::PathBuf;
     use std::time::Instant;
 
-    use crate::sudoku_constants::{EMPTY_CHAR, QQWING_EMPTY_CHAR, PUZZLE_SIZE, SQUARE_SIZE};
+    use crate::sudoku_constants::{PUZZLE_SIZE, SQUARE_SIZE};
     use crate::sudoku_io::SudokuIO;
     use crate::sudoku_iterator::SudokuIterator;
     use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
@@ -250,7 +250,7 @@ mod tests {
     }
 
     pub fn is_blank(c: char) -> bool {
-        return c == EMPTY_CHAR || c == QQWING_EMPTY_CHAR;
+        '0' <= c || c > '9'
     }
 
     /**

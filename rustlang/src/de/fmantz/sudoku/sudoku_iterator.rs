@@ -20,10 +20,8 @@ use std::fs::File;
 use std::io::{self};
 use std::str::Chars;
 
-use crate::sudoku_constants::EMPTY_CHAR;
 use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
 use crate::sudoku_constants::PUZZLE_SIZE;
-use crate::sudoku_constants::QQWING_EMPTY_CHAR;
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
 
@@ -105,11 +103,11 @@ impl SudokuIterator {
             let ch = chars_of_line.next();
             if ch.is_some() {
                 let char_unwrapped = ch.unwrap();
-                let number: u8 = if char_unwrapped == QQWING_EMPTY_CHAR {
-                    0
-                } else {
-                    let char_as_u8: u8 = (char_unwrapped as i32 - EMPTY_CHAR as i32) as u8; //result is in [0 - 9]
+                let number: u8 = if '0' < char_unwrapped &&  char_unwrapped <= '9'  {
+                    let char_as_u8: u8 = (char_unwrapped as i32 - '0' as i32) as u8; //result is in [0 - 9]
                     char_as_u8
+                } else {
+                    0
                 };
                 puzzle.set(row, col, number);
             } else {
