@@ -36,7 +36,7 @@ mod sudoku_puzzle;
 
 extern crate libloading as lib;
 
-fn main() -> () {
+fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         println!(">SudokuSolver inputFile [outputFile]");
@@ -62,7 +62,7 @@ fn main() -> () {
                     .unwrap()
                     .to_string()
             } else {
-                format!(".{}sudoku_solution.txt", MAIN_SEPARATOR).to_string()
+                format!(".{}sudoku_solution.txt", MAIN_SEPARATOR)
             };
             generated_file_name
         };
@@ -71,16 +71,16 @@ fn main() -> () {
             Some(cuda_lib) => {
                 if is_cuda_available(&cuda_lib) {
                     let is_success: bool =
-                        solve_sudokus_with_cuda(&input_file_name, &output_file_name, &cuda_lib);
+                        solve_sudokus_with_cuda(input_file_name, &output_file_name, &cuda_lib);
                     if !is_success {
-                        solve_sudokus(&input_file_name, &output_file_name);
+                        solve_sudokus(input_file_name, &output_file_name);
                     }
                 } else {
-                    solve_sudokus(&input_file_name, &output_file_name);
+                    solve_sudokus(input_file_name, &output_file_name);
                 }
             }
             None => {
-                solve_sudokus(&input_file_name, &output_file_name);
+                solve_sudokus(input_file_name, &output_file_name);
             }
         }
         let duration = start.elapsed();
@@ -102,7 +102,7 @@ fn load_cuda_lib() -> Option<Library> {
     }
 }
 
-fn solve_sudokus(input_file_name: &String, output_file_name: &String) -> () {
+fn solve_sudokus(input_file_name: &String, output_file_name: &String) {
     let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
     match puzzles {
         Ok(puzzles) => {
@@ -121,7 +121,7 @@ fn solve_sudokus(input_file_name: &String, output_file_name: &String) -> () {
                         solve_current_sudoku(unsolved_sudoku);
                     });
 
-                save_sudokus(&output_file_name, sudoku_processing_unit);
+                save_sudokus(output_file_name, sudoku_processing_unit);
             }
         }
         Err(error) => {
@@ -130,7 +130,7 @@ fn solve_sudokus(input_file_name: &String, output_file_name: &String) -> () {
     }
 }
 
-fn solve_current_sudoku(sudoku: &mut SudokuPuzzleData) -> () {
+fn solve_current_sudoku(sudoku: &mut SudokuPuzzleData) {
     let solved: bool = sudoku.solve();
     if !solved {
         println!("Sudoku is unsolvable:\n {}", sudoku.to_pretty_string());
@@ -141,7 +141,7 @@ fn is_cuda_available(cuda_lib: &lib::Library) -> bool {
     unsafe {
         let func: Option<libloading::Symbol<unsafe extern "C" fn() -> bool>> = cuda_lib
             .get(b"is_cuda_available")
-            .map(|f| Some(f))
+            .map(Some)
             .unwrap_or(None);
 
         func.map(|is_cuda| is_cuda()).unwrap_or(false)
@@ -176,7 +176,7 @@ fn solve_sudokus_with_cuda(
                     let count = sudoku_processing_unit.len();
                     println!("Solve {} sudokus with CUDA!", count);
                     if func(sudoku_processing_unit.as_mut_ptr(), count as i32) {
-                        save_sudokus(&output_file_name, sudoku_processing_unit);
+                        save_sudokus(output_file_name, sudoku_processing_unit);
                     } else {
                         return false;
                     }
@@ -193,7 +193,7 @@ fn solve_sudokus_with_cuda(
 
 fn save_sudokus(output_file_name: &str, sudoku_processing_unit: Vec<SudokuPuzzleData>) {
     let write_rs: Result<(), String> =
-        SudokuIO::write_qqwing(&output_file_name, sudoku_processing_unit);
+        SudokuIO::write_qqwing(output_file_name, sudoku_processing_unit);
     match write_rs {
         Ok(()) => { /* do nothing */ }
         Err(error) => {
@@ -216,29 +216,29 @@ mod tests {
     use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
 
     #[test]
-    fn solve_should_solve_one_sudoku_by_simple_backtracking_algorithm() -> () {
+    fn solve_should_solve_one_sudoku_by_simple_backtracking_algorithm() {
         check_solve("one_sudoku.txt");
     }
 
     #[test]
-    fn solve_should_solve_50_sudokus_from_project_euler_by_simple_backtracking_algorithm() -> () {
+    fn solve_should_solve_50_sudokus_from_project_euler_by_simple_backtracking_algorithm() {
         check_solve("p096_sudoku.txt");
     }
 
     #[test]
-    fn solve_should_solve_10_sudokus_generated_with_qqwing_by_simple_backtracking_algorithm() -> ()
+    fn solve_should_solve_10_sudokus_generated_with_qqwing_by_simple_backtracking_algorithm()
     {
         check_solve("sudoku.txt");
     }
 
-    pub fn check_solve(filename: &str) -> () {
+    pub fn check_solve(filename: &str) {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(
             format!(
                 "test{}resources{}{}",
                 MAIN_SEPARATOR, MAIN_SEPARATOR, filename
             )
-            .to_string(),
+            ,
         );
         let filename_with_path: &str = dir.as_os_str().to_str().unwrap();
         let start: Instant = Instant::now();
@@ -296,7 +296,7 @@ mod tests {
         sudoku: &[[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
         row: usize,
         bits: &mut SudokuBitSet,
-    ) -> () {
+    ) {
         let selected_row: [u8; PUZZLE_SIZE] = sudoku[row];
         for col in 0..PUZZLE_SIZE {
             let value: u8 = selected_row[col];
@@ -310,7 +310,7 @@ mod tests {
     fn is_col_ok(sudoku: &[[u8; PUZZLE_SIZE]; PUZZLE_SIZE], row: usize) -> bool {
         let mut bits: SudokuBitSet = SudokuBitSet::new();
         check_col(sudoku, row, &mut bits);
-        return bits.is_found_numbers_unique() && bits.is_all_numbers_found();
+        bits.is_found_numbers_unique() && bits.is_all_numbers_found()
     }
 
     #[inline]
@@ -318,7 +318,7 @@ mod tests {
         sudoku: &[[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
         col: usize,
         bits: &mut SudokuBitSet,
-    ) -> () {
+    ) {
         for row in 0..PUZZLE_SIZE {
             let value: u8 = sudoku[row][col];
             bits.save_value(value);
@@ -336,7 +336,7 @@ mod tests {
     ) -> bool {
         let mut bits: SudokuBitSet = SudokuBitSet::new();
         check_square(sudoku, row_square_index, col_square_index, &mut bits);
-        return bits.is_found_numbers_unique() && bits.is_all_numbers_found();
+        bits.is_found_numbers_unique() && bits.is_all_numbers_found()
     }
 
     #[inline]
@@ -345,7 +345,7 @@ mod tests {
         row_square_index: usize,
         col_square_index: usize,
         bits: &mut SudokuBitSet,
-    ) -> () {
+    ) {
         let row_square_offset: usize = row_square_index * SQUARE_SIZE;
         let col_square_offset: usize = col_square_index * SQUARE_SIZE;
         for row in 0..SQUARE_SIZE {
@@ -373,7 +373,7 @@ mod tests {
                 }
             }
         }
-        return true;
+        true
     }
 
     fn make_sudoku_2d_array(sudoku_puzzle: &SudokuPuzzleData) -> [[u8; PUZZLE_SIZE]; PUZZLE_SIZE] {

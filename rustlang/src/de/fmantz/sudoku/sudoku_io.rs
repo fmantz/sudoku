@@ -39,7 +39,7 @@ impl SudokuIO {
             Ok(file) => io::BufReader::new(file).lines(),
         };
         let puzzles: SudokuIterator = SudokuIterator::new(file_data);
-        return Ok(puzzles);
+        Ok(puzzles)
     }
 
     pub fn write_qqwing(filename: &str, puzzles: Vec<SudokuPuzzleData>) -> Result<(), String> {
@@ -68,7 +68,7 @@ impl SudokuIO {
                 Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
             }
         }
-        return Ok(());
+        Ok(())
     }
 }
 
@@ -85,14 +85,14 @@ mod tests {
     use crate::sudoku_puzzle::SudokuPuzzleData;
 
     #[test]
-    fn read_should_correctly_parse_sudokus() -> () {
+    fn read_should_correctly_parse_sudokus() {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(
             format!(
                 "test{}resources{}{}",
                 MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt"
             )
-            .to_string(),
+            ,
         );
         let filename: &str = dir.as_os_str().to_str().unwrap();
         let expected_rs: Vec<String> = match read_file(filename) {
@@ -110,14 +110,14 @@ mod tests {
     }
 
     #[test]
-    fn read_should_read_correct_number_of_documents() -> () {
+    fn read_should_read_correct_number_of_documents() {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(
             format!(
                 "test{}resources{}{}",
                 MAIN_SEPARATOR, MAIN_SEPARATOR, "sudoku.txt"
             )
-            .to_string(),
+            ,
         );
         let filename: &str = dir.as_os_str().to_str().unwrap();
         let expected_length: usize = match read_file(filename) {
@@ -156,6 +156,6 @@ mod tests {
             let puzzle = buffer.join("\n");
             rs.push(puzzle)
         }
-        return Ok(rs);
+        Ok(rs)
     }
 }

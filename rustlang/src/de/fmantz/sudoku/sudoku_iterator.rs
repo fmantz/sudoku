@@ -40,9 +40,7 @@ impl Iterator for SudokuIterator {
     fn next(&mut self) -> Option<SudokuPuzzleData> {
         //Find first line with data:
         let first_line = self.re_init();
-        if first_line.is_none() {
-            return None;
-        }
+        first_line.as_ref()?;
 
         //Allocate memory for new puzzle:
         let mut puzzle: SudokuPuzzleData = SudokuPuzzleData::new();
@@ -54,22 +52,20 @@ impl Iterator for SudokuIterator {
         //Read other lines:
         for row in 1..PUZZLE_SIZE {
             let next_line = self.lines.next();
-            if next_line.is_none() {
-                return None;
-            }
+            next_line.as_ref()?;
             let next_line_data = next_line.unwrap();
             if next_line_data.is_err() {
                 return None;
             }
             SudokuIterator::read_line(&next_line_data.unwrap(), &mut puzzle, row);
         }
-        return Some(puzzle);
+        Some(puzzle)
     }
 }
 
 impl SudokuIterator {
     pub fn new(lines: io::Lines<io::BufReader<File>>) -> Self {
-        SudokuIterator { lines: lines }
+        SudokuIterator { lines }
     }
 
     fn re_init(&mut self) -> Option<String> {
@@ -92,10 +88,10 @@ impl SudokuIterator {
                 }
             };
         }
-        return rs;
+        rs
     }
 
-    fn read_line(line_data: &str, puzzle: &mut SudokuPuzzleData, row: usize) -> () {
+    fn read_line(line_data: &str, puzzle: &mut SudokuPuzzleData, row: usize) {
         //Read string into puzzle
         let mut chars_of_line: Chars = line_data.chars();
         for col in 0..PUZZLE_SIZE {
@@ -130,9 +126,9 @@ impl Iterator for SudokuGroupedIterator {
             }
         }
         if buffer.is_empty() {
-            return None;
+            None
         } else {
-            return Some(buffer);
+            Some(buffer)
         }
     }
 }
@@ -140,8 +136,8 @@ impl Iterator for SudokuGroupedIterator {
 impl SudokuGroupedIterator {
     pub fn grouped(sudoku_iterator: SudokuIterator, buffer_size: u32) -> Self {
         SudokuGroupedIterator {
-            sudoku_iterator: sudoku_iterator,
-            buffer_size: buffer_size,
+            sudoku_iterator,
+            buffer_size,
         }
     }
 }
