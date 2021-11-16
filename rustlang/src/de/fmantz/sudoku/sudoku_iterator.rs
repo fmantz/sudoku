@@ -96,8 +96,7 @@ impl SudokuIterator {
         let mut chars_of_line: Chars = line_data.chars();
         for col in 0..PUZZLE_SIZE {
             let ch = chars_of_line.next();
-            if ch.is_some() {
-                let char_unwrapped = ch.unwrap();
+            if let Some(char_unwrapped) = ch {
                 let number: u8 = if '0' < char_unwrapped && char_unwrapped <= '9' {
                     let char_as_u8: u8 = (char_unwrapped as i32 - '0' as i32) as u8; //result is in [0 - 9]
                     char_as_u8
@@ -118,11 +117,8 @@ impl Iterator for SudokuGroupedIterator {
     fn next(&mut self) -> Option<Vec<SudokuPuzzleData>> {
         let mut buffer: Vec<SudokuPuzzleData> = Vec::new();
         for _index in 0..self.buffer_size {
-            match self.sudoku_iterator.next() {
-                Some(sudoku) => {
-                    buffer.push(sudoku);
-                }
-                None => { /* do nothing */ }
+            if let Some(sudoku) = self.sudoku_iterator.next() {
+                buffer.push(sudoku);
             }
         }
         if buffer.is_empty() {

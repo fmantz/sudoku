@@ -107,12 +107,11 @@ impl SudokuPuzzle for SudokuPuzzleData {
             let until = from + PUZZLE_SIZE;
             let current_row = &self.puzzle[from..until];
             let mut formatted_row: String = String::with_capacity(PUZZLE_SIZE);
-            for col in 0..PUZZLE_SIZE {
-                let col_value: u8 = current_row[col];
-                let rs: String = if col_value == 0 {
+            for (col, col_value) in current_row.iter().enumerate().take(PUZZLE_SIZE) {
+                let rs: String = if *col_value == 0 {
                     format!(" {} ", empty)
                 } else {
-                    format!(" {} ", col_value)
+                    format!(" {} ", *col_value)
                 };
                 formatted_row.push_str(&rs);
                 if col + 1 < PUZZLE_SIZE && col % SQUARE_SIZE == 2 {

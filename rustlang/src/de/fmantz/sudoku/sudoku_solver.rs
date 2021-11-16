@@ -51,12 +51,11 @@ fn main() {
         } else {
             let path = Path::new(input_file_name);
             let parent = path.parent();
-            let generated_file_name: String = if parent.is_some() {
+            let generated_file_name: String = if let Some(unwrapped_parent) = parent {
                 let simple_file_name: String =
                     path.file_name().unwrap().to_str().unwrap().to_string();
                 let new_file_name: String = format!("SOLUTION_{}", simple_file_name);
-                parent
-                    .unwrap()
+                unwrapped_parent
                     .join(new_file_name)
                     .to_str()
                     .unwrap()
@@ -102,7 +101,7 @@ fn load_cuda_lib() -> Option<Library> {
     }
 }
 
-fn solve_sudokus(input_file_name: &String, output_file_name: &String) {
+fn solve_sudokus(input_file_name: &str, output_file_name: &str) {
     let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
     match puzzles {
         Ok(puzzles) => {
@@ -149,8 +148,8 @@ fn is_cuda_available(cuda_lib: &lib::Library) -> bool {
 }
 
 fn solve_sudokus_with_cuda(
-    input_file_name: &String,
-    output_file_name: &String,
+    input_file_name: &str,
+    output_file_name: &str,
     cuda_lib: &lib::Library,
 ) -> bool {
     let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
