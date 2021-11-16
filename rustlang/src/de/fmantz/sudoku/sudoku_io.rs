@@ -87,13 +87,10 @@ mod tests {
     #[test]
     fn read_should_correctly_parse_sudokus() {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        dir.push(
-            format!(
-                "test{}resources{}{}",
-                MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt"
-            )
-            ,
-        );
+        dir.push(format!(
+            "test{}resources{}{}",
+            MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt"
+        ));
         let filename: &str = dir.as_os_str().to_str().unwrap();
         let expected_rs: Vec<String> = match read_file(filename) {
             Err(why) => panic!("{}", why),
@@ -112,13 +109,10 @@ mod tests {
     #[test]
     fn read_should_read_correct_number_of_documents() {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        dir.push(
-            format!(
-                "test{}resources{}{}",
-                MAIN_SEPARATOR, MAIN_SEPARATOR, "sudoku.txt"
-            )
-            ,
-        );
+        dir.push(format!(
+            "test{}resources{}{}",
+            MAIN_SEPARATOR, MAIN_SEPARATOR, "sudoku.txt"
+        ));
         let filename: &str = dir.as_os_str().to_str().unwrap();
         let expected_length: usize = match read_file(filename) {
             Err(why) => panic!("{}", why),

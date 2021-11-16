@@ -138,10 +138,8 @@ fn solve_current_sudoku(sudoku: &mut SudokuPuzzleData) {
 
 fn is_cuda_available(cuda_lib: &lib::Library) -> bool {
     unsafe {
-        let func: Option<libloading::Symbol<unsafe extern "C" fn() -> bool>> = cuda_lib
-            .get(b"is_cuda_available")
-            .map(Some)
-            .unwrap_or(None);
+        let func: Option<libloading::Symbol<unsafe extern "C" fn() -> bool>> =
+            cuda_lib.get(b"is_cuda_available").map(Some).unwrap_or(None);
 
         func.map(|is_cuda| is_cuda()).unwrap_or(false)
     }
@@ -225,20 +223,16 @@ mod tests {
     }
 
     #[test]
-    fn solve_should_solve_10_sudokus_generated_with_qqwing_by_simple_backtracking_algorithm()
-    {
+    fn solve_should_solve_10_sudokus_generated_with_qqwing_by_simple_backtracking_algorithm() {
         check_solve("sudoku.txt");
     }
 
     pub fn check_solve(filename: &str) {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        dir.push(
-            format!(
-                "test{}resources{}{}",
-                MAIN_SEPARATOR, MAIN_SEPARATOR, filename
-            )
-            ,
-        );
+        dir.push(format!(
+            "test{}resources{}{}",
+            MAIN_SEPARATOR, MAIN_SEPARATOR, filename
+        ));
         let filename_with_path: &str = dir.as_os_str().to_str().unwrap();
         let start: Instant = Instant::now();
         let rs: SudokuIterator = match SudokuIO::read(filename_with_path) {
@@ -291,11 +285,7 @@ mod tests {
     }
 
     #[inline]
-    fn check_row(
-        sudoku: &[[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
-        row: usize,
-        bits: &mut SudokuBitSet,
-    ) {
+    fn check_row(sudoku: &[[u8; PUZZLE_SIZE]; PUZZLE_SIZE], row: usize, bits: &mut SudokuBitSet) {
         let selected_row: [u8; PUZZLE_SIZE] = sudoku[row];
         for col in 0..PUZZLE_SIZE {
             let value: u8 = selected_row[col];
@@ -313,11 +303,7 @@ mod tests {
     }
 
     #[inline]
-    fn check_col(
-        sudoku: &[[u8; PUZZLE_SIZE]; PUZZLE_SIZE],
-        col: usize,
-        bits: &mut SudokuBitSet,
-    ) {
+    fn check_col(sudoku: &[[u8; PUZZLE_SIZE]; PUZZLE_SIZE], col: usize, bits: &mut SudokuBitSet) {
         for row in 0..PUZZLE_SIZE {
             let value: u8 = sudoku[row][col];
             bits.save_value(value);
