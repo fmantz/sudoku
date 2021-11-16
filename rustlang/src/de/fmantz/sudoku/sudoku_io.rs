@@ -28,47 +28,44 @@ use crate::sudoku_puzzle::SudokuPuzzleData;
 pub struct SudokuIO {} //no data!
 
 impl SudokuIO {
-
     /**
-      * Read usual 9x9 Suduko from text file
-      */
+     * Read usual 9x9 Suduko from text file
+     */
     pub fn read(filename: &str) -> Result<SudokuIterator, String> {
         let path = Path::new(&filename);
         let display = path.display();
         let file_data = match File::open(&path) {
             Err(why) => return Err(format!("couldn't read {}: {}", display, why)),
-            Ok(file) => io::BufReader::new(file).lines()
+            Ok(file) => io::BufReader::new(file).lines(),
         };
         let puzzles: SudokuIterator = SudokuIterator::new(file_data);
         return Ok(puzzles);
     }
 
-    pub fn write_qqwing(
-        filename: &str,
-        puzzles: Vec<SudokuPuzzleData>
-    ) -> Result<(), String> {
+    pub fn write_qqwing(filename: &str, puzzles: Vec<SudokuPuzzleData>) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
         let write_file = match OpenOptions::new()
             .create(true)
             .write(true)
             .append(true)
-            .open(&path) {
+            .open(&path)
+        {
             Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
-            Ok(file) => file
+            Ok(file) => file,
         };
         let mut writer = BufWriter::new(&write_file);
         for puzzle in puzzles {
             let write_rs = writeln!(&mut writer, "{}\n", puzzle.to_string());
             match write_rs {
-                Ok(()) => { /* do nothing */ },
+                Ok(()) => { /* do nothing */ }
                 Err(error) => {
                     panic!("Problem with saving solved puzzle: {:?}", error);
                 }
             };
             match writer.flush() {
                 Ok(()) => (), /*do nothing */
-                Err(why) => return Err(format!("couldn't create {}: {}", display, why))
+                Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
             }
         }
         return Ok(());
@@ -79,8 +76,8 @@ impl SudokuIO {
 mod tests {
     use std::fs::File;
     use std::io::{self, BufRead};
-    use std::path::{MAIN_SEPARATOR, Path};
     use std::path::PathBuf;
+    use std::path::{Path, MAIN_SEPARATOR};
 
     use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
     use crate::sudoku_io::SudokuIO;
@@ -90,15 +87,21 @@ mod tests {
     #[test]
     fn read_should_correctly_parse_sudokus() -> () {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt").to_string());
+        dir.push(
+            format!(
+                "test{}resources{}{}",
+                MAIN_SEPARATOR, MAIN_SEPARATOR, "p096_sudoku.txt"
+            )
+            .to_string(),
+        );
         let filename: &str = dir.as_os_str().to_str().unwrap();
         let expected_rs: Vec<String> = match read_file(filename) {
             Err(why) => panic!("{}", why),
-            Ok(puzzles) => puzzles
+            Ok(puzzles) => puzzles,
         };
         let rs: Vec<SudokuPuzzleData> = match SudokuIO::read(filename) {
             Err(why) => panic!("{}", why),
-            Ok(puzzles) => puzzles.collect()
+            Ok(puzzles) => puzzles.collect(),
         };
         for (index, read) in rs.iter().enumerate() {
             assert_eq!(read.to_string(), expected_rs[index]);
@@ -109,15 +112,21 @@ mod tests {
     #[test]
     fn read_should_read_correct_number_of_documents() -> () {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        dir.push(format!("test{}resources{}{}", MAIN_SEPARATOR, MAIN_SEPARATOR, "sudoku.txt").to_string());
+        dir.push(
+            format!(
+                "test{}resources{}{}",
+                MAIN_SEPARATOR, MAIN_SEPARATOR, "sudoku.txt"
+            )
+            .to_string(),
+        );
         let filename: &str = dir.as_os_str().to_str().unwrap();
         let expected_length: usize = match read_file(filename) {
             Err(why) => panic!("{}", why),
-            Ok(puzzles) => puzzles.len()
+            Ok(puzzles) => puzzles.len(),
         };
         let read_length: usize = match SudokuIO::read(filename) {
             Err(why) => panic!("{}", why),
-            Ok(puzzles) => puzzles.count()
+            Ok(puzzles) => puzzles.count(),
         };
         assert_eq!(read_length, expected_length);
     }
@@ -129,7 +138,7 @@ mod tests {
         let display = path.display();
         let file_data = match File::open(&path) {
             Err(why) => return Err(format!("couldn't read {}: {}", display, why)),
-            Ok(file) => io::BufReader::new(file).lines()
+            Ok(file) => io::BufReader::new(file).lines(),
         };
         file_data.for_each(|maybe_line| {
             let line = maybe_line.unwrap();

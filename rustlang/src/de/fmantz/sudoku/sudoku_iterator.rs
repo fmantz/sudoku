@@ -26,19 +26,18 @@ use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
 
 pub struct SudokuIterator {
-    lines: io::Lines<io::BufReader<File>>
+    lines: io::Lines<io::BufReader<File>>,
 }
 
 pub struct SudokuGroupedIterator {
     sudoku_iterator: SudokuIterator,
-    buffer_size: u32
+    buffer_size: u32,
 }
 
 impl Iterator for SudokuIterator {
     type Item = SudokuPuzzleData;
 
     fn next(&mut self) -> Option<SudokuPuzzleData> {
-
         //Find first line with data:
         let first_line = self.re_init();
         if first_line.is_none() {
@@ -70,9 +69,7 @@ impl Iterator for SudokuIterator {
 
 impl SudokuIterator {
     pub fn new(lines: io::Lines<io::BufReader<File>>) -> Self {
-        SudokuIterator {
-            lines: lines
-        }
+        SudokuIterator { lines: lines }
     }
 
     fn re_init(&mut self) -> Option<String> {
@@ -84,7 +81,9 @@ impl SudokuIterator {
                     break;
                 }
                 Ok(cur_line_string) => {
-                    if cur_line_string.is_empty() || cur_line_string.starts_with(NEW_SUDOKU_SEPARATOR) {
+                    if cur_line_string.is_empty()
+                        || cur_line_string.starts_with(NEW_SUDOKU_SEPARATOR)
+                    {
                         maybe_cur_line = self.lines.next();
                     } else {
                         rs = Some(cur_line_string);
@@ -103,7 +102,7 @@ impl SudokuIterator {
             let ch = chars_of_line.next();
             if ch.is_some() {
                 let char_unwrapped = ch.unwrap();
-                let number: u8 = if '0' < char_unwrapped &&  char_unwrapped <= '9'  {
+                let number: u8 = if '0' < char_unwrapped && char_unwrapped <= '9' {
                     let char_as_u8: u8 = (char_unwrapped as i32 - '0' as i32) as u8; //result is in [0 - 9]
                     char_as_u8
                 } else {
@@ -117,16 +116,16 @@ impl SudokuIterator {
     }
 }
 
-
 impl Iterator for SudokuGroupedIterator {
-
     type Item = Vec<SudokuPuzzleData>;
 
     fn next(&mut self) -> Option<Vec<SudokuPuzzleData>> {
-        let mut buffer:Vec<SudokuPuzzleData> = Vec::new();
+        let mut buffer: Vec<SudokuPuzzleData> = Vec::new();
         for _index in 0..self.buffer_size {
             match self.sudoku_iterator.next() {
-                Some(sudoku) => { buffer.push(sudoku);},
+                Some(sudoku) => {
+                    buffer.push(sudoku);
+                }
                 None => { /* do nothing */ }
             }
         }
@@ -136,14 +135,13 @@ impl Iterator for SudokuGroupedIterator {
             return Some(buffer);
         }
     }
-
 }
 
 impl SudokuGroupedIterator {
     pub fn grouped(sudoku_iterator: SudokuIterator, buffer_size: u32) -> Self {
         SudokuGroupedIterator {
             sudoku_iterator: sudoku_iterator,
-            buffer_size: buffer_size
+            buffer_size: buffer_size,
         }
     }
 }

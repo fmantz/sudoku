@@ -45,7 +45,8 @@ pub mod tests {
         pub fn save_value(&mut self, value: u8) -> () {
             if value > 0 {
                 let check_bit: u16 = 1 << (value - 1); //set for each number a bit by index from left, number 1 has index zero
-                self.not_found_before = self.not_found_before && SudokuBitSet::first_match(self.bits, check_bit);
+                self.not_found_before =
+                    self.not_found_before && SudokuBitSet::first_match(self.bits, check_bit);
                 self.bits = self.bits | check_bit;
             }
         }
@@ -85,13 +86,12 @@ pub mod tests {
         }
     }
 
-
-//    #[test]
-//    fn to_string_should_work_correctly() -> () {
-//        let mut test_object: SudokuBitSet = SudokuBitSet::new();
-//        test_object.save_value(5);
-//        assert_eq!(test_object.to_string(), "BITS=0b000010000")
-//    }
+    //    #[test]
+    //    fn to_string_should_work_correctly() -> () {
+    //        let mut test_object: SudokuBitSet = SudokuBitSet::new();
+    //        test_object.save_value(5);
+    //        assert_eq!(test_object.to_string(), "BITS=0b000010000")
+    //    }
 
     #[test]
     fn is_found_numbers_unique_should_work_correctly() -> () {
@@ -109,7 +109,8 @@ pub mod tests {
 
         assert_eq!(test_object.is_all_numbers_found(), false);
 
-        for i in 1..9 { //1 until 9
+        for i in 1..9 {
+            //1 until 9
             test_object.save_value(i);
             assert_eq!(test_object.is_all_numbers_found(), false);
         }
