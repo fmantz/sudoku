@@ -27,7 +27,6 @@ pub const SQUARE_SIZE: usize = 3;
 
 //binary: Size times "1"
 pub const PARALLELIZATION_COUNT: u32 = 65536;
-pub const PARALLELIZATION_COUNT_CUDA: u32 = 1048576;
 
 const BITSET_NUMBERS_000: &[u8] = &[4, 7, 8, 3, 5, 1, 9, 6, 2];
 const BITSET_NUMBERS_001: &[u8] = &[8, 6, 7, 5, 9, 4, 2, 3];

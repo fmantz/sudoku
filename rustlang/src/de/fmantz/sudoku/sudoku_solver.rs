@@ -21,20 +21,17 @@ use std::env;
 use std::path::{Path, MAIN_SEPARATOR};
 use std::time::Instant;
 
-use crate::sudoku_constants::{PARALLELIZATION_COUNT, PARALLELIZATION_COUNT_CUDA};
+use crate::sudoku_constants::PARALLELIZATION_COUNT;
 use crate::sudoku_io::SudokuIO;
 use crate::sudoku_iterator::{SudokuGroupedIterator, SudokuIterator};
 use crate::sudoku_puzzle::SudokuPuzzle;
 use crate::sudoku_puzzle::SudokuPuzzleData;
-use lib::Library;
 
 mod sudoku_bit_set;
 mod sudoku_constants;
 mod sudoku_io;
 mod sudoku_iterator;
 mod sudoku_puzzle;
-
-extern crate libloading as lib;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -66,38 +63,13 @@ fn main() {
             generated_file_name
         };
         println!("input: {}", Path::new(&input_file_name).to_str().unwrap());
-        match load_cuda_lib() {
-            Some(cuda_lib) => {
-                if is_cuda_available(&cuda_lib) {
-                    let is_success: bool =
-                        solve_sudokus_with_cuda(input_file_name, &output_file_name, &cuda_lib);
-                    if !is_success {
-                        solve_sudokus(input_file_name, &output_file_name);
-                    }
-                } else {
-                    solve_sudokus(input_file_name, &output_file_name);
-                }
-            }
-            None => {
-                solve_sudokus(input_file_name, &output_file_name);
-            }
-        }
+        solve_sudokus(input_file_name, &output_file_name);
         let duration = start.elapsed();
         println!("output: {}", Path::new(&output_file_name).to_str().unwrap());
         println!(
             "All sudoku puzzles solved by simple backtracking algorithm in {:?}",
             duration
         );
-    }
-}
-
-fn load_cuda_lib() -> Option<Library> {
-    match libloading::Library::new("../lib/libsudoku_puzzle_gpu.so") {
-        Ok(found_libary) => Some(found_libary),
-        Err(error) => {
-            println!("Library not found: {:?}", error);
-            None
-        }
     }
 }
 
@@ -134,58 +106,6 @@ fn solve_current_sudoku(sudoku: &mut SudokuPuzzleData) {
     if !solved {
         println!("Sudoku is unsolvable:\n {}", sudoku.to_pretty_string());
     }
-}
-
-fn is_cuda_available(cuda_lib: &lib::Library) -> bool {
-    unsafe {
-        let func: Option<libloading::Symbol<unsafe extern "C" fn() -> bool>> =
-            cuda_lib.get(b"is_cuda_available").map(Some).unwrap_or(None);
-
-        func.map(|is_cuda| is_cuda()).unwrap_or(false)
-    }
-}
-
-fn solve_sudokus_with_cuda(
-    input_file_name: &str,
-    output_file_name: &str,
-    cuda_lib: &lib::Library,
-) -> bool {
-    let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
-    match puzzles {
-        Ok(puzzles) => {
-            let grouped_iterator =
-                SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT_CUDA);
-            for puzzle_buffer in grouped_iterator {
-                //collect a bunch of sudokus:
-                let mut sudoku_processing_unit: Vec<SudokuPuzzleData> =
-                    puzzle_buffer.into_iter().collect();
-
-                unsafe {
-                    let func: libloading::Symbol<
-                        unsafe extern "C" fn(*mut SudokuPuzzleData, i32) -> bool,
-                    > = match cuda_lib.get(b"solve_on_cuda") {
-                        Ok(found_function) => found_function,
-                        Err(error) => {
-                            println!("Function not found: {:?}", error);
-                            return false;
-                        }
-                    };
-                    let count = sudoku_processing_unit.len();
-                    println!("Solve {} sudokus with CUDA!", count);
-                    if func(sudoku_processing_unit.as_mut_ptr(), count as i32) {
-                        save_sudokus(output_file_name, sudoku_processing_unit);
-                    } else {
-                        return false;
-                    }
-                }
-            }
-        }
-        Err(error) => {
-            println!("Problem opening the file: {:?}", error);
-            return false;
-        }
-    }
-    true
 }
 
 fn save_sudokus(output_file_name: &str, sudoku_processing_unit: Vec<SudokuPuzzleData>) {

@@ -1447,9 +1447,9 @@ int main(int argc, char **argv){
    SudokuPuzzleData* puzzle_data_result = (SudokuPuzzleData*) malloc(count * sizeof(SudokuPuzzleData));
    read_sudokus(input_file, count, puzzle_data_read);
 
-   int polling_time_in_ms = 10;
+   int polling_time_in_ms = 16;
    int sent_to_gpu = 0;
-   int batch_size = 4;
+   int batch_size = 32;
    int loop_count = 0;
    int loop_success_count = 0;
 
@@ -1509,7 +1509,7 @@ int main(int argc, char **argv){
 
        sent_to_gpu+=current_batch_size;
        loop_count++;
-       usleep(polling_time_in_ms * 1000);
+       usleep(polling_time_in_ms * 1);
    }
 
    //print sudoku:
