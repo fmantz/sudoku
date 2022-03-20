@@ -1393,10 +1393,6 @@ void read_sudokus(char * input_file, int count, SudokuPuzzleData * result){
     }
 
     fclose(fp);
-    if (line){
-        free(line);
-    }
-
 }
 
 //note only works for up to 100 sudokus
@@ -1421,7 +1417,7 @@ int main(int argc, char **argv){
 
    int polling_time_in_ms = 16;
    int sent_to_gpu = 0;
-   int batch_size = 32;
+   int batch_size = 1020 * 1024;
    int loop_count = 0;
    int loop_success_count = 0;
 
