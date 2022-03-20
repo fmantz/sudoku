@@ -1,13 +1,13 @@
-#Simple MakeFile for CUDA sudoku_gpu_lib
+# simple MakeFile for CUDA sudoku_cuda //sudoku_gpu_lib
 CUDA_ROOT_DIR ?= "/opt/cuda"
 HOST_COMPILER := $(CUDA_ROOT_DIR)/bin/gcc
-#LIB_FLAGS := -shared --compiler-options '-fPIC' //TODO COMMENT IN FOR LIB
+#LIB_FLAGS := -shared --compiler-options '-fPIC' //Comment in to use CUDA in a shared lib
 LIB_FLAGS :=
 NVCC := $(CUDA_ROOT_DIR)/bin/nvcc -ccbin $(HOST_COMPILER) $(LIB_FLAGS)
 MKDIR_P = mkdir -p
 INPUT_DIR := "./"
 OUTPUT_DIR := "./"
-#OUTPUT_NAME := "libsudoku_puzzle_gpu.so" //TODO COMMENT IN FOR LIB
+#OUTPUT_NAME := "libsudoku_puzzle_gpu.so" //Comment in to use CUDA in a shared lib
 OUTPUT_NAME := "sudoku_cuda"
 
 #Note: taps are required instead of spaces AND name must start with lib:

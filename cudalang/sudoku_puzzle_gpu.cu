@@ -1329,55 +1329,6 @@ bool is_cuda_available(){ //library method
     return deviceCount > 0;
 }
 
-/*
-extern "C"  //prevent C++ name mangling!
-bool solve_on_cuda(SudokuPuzzleData* puzzle_data, int count){ //library method
-
-   printf("Try to run on GPU! ...\n");
-
-   // Allocate GPU memory.
-   SudokuPuzzleData *device_puzzle_data = 0;
-   cudaMalloc((void **) & device_puzzle_data, count * sizeof(SudokuPuzzleData));
-   cudaMemcpy(device_puzzle_data, puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
-
-   //Run in parallel:
-   solve_sudokus_in_parallel<<<count, 1>>>(device_puzzle_data, count);
-
-   //Overwrite old data:
-   cudaMemcpy(puzzle_data, device_puzzle_data, count * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
-
-   // Free GPU memory:
-   cudaFree(device_puzzle_data);
-
-   //print sudoku:
-   printf("output on host:\n");
-   for(int i = 0; i < count; i++) {
-       SudokuPuzzleData* current = &puzzle_data[i];
-         for(int j = 0; j < CELL_COUNT; j++) {
-             if(j % PUZZLE_SIZE == 0){
-               printf("\n");
-             }
-             printf("%d", current->puzzle[j]);
-         }
-         printf("\n-----------");
-   }
-
-   //one solved:
-   int solved_count=0;
-   for(int i = 0; i < count; i++) {
-       SudokuPuzzleData* current = &puzzle_data[i];
-       if(current->my_is_solved){
-          solved_count++;
-       }
-   }
-
-   bool success = solved_count > 0;
-   printf("Run on GPU success=%d\n", success);
-   return success;
-}
-*/
-
-
 /* Function to remove white spaces on both sides of a string i.e trim */
 char * trim (char *s){
     int i;
@@ -1426,10 +1377,12 @@ void read_sudokus(char * input_file, int count, SudokuPuzzleData * result){
     if (line){
         free(line);
     }
+
 }
 
-//stops working for larger COUNTS!
+//note only works for up to 100 sudokus
 int main(int argc, char **argv){
+
     clock_t begin = clock();
     if(!is_cuda_available()){
         printf("SETUP CUDA FIRST!\n\n");
@@ -1510,6 +1463,7 @@ int main(int argc, char **argv){
        sent_to_gpu+=current_batch_size;
        loop_count++;
        usleep(polling_time_in_ms * 1);
+
    }
 
    //print sudoku:
@@ -1540,4 +1494,5 @@ int main(int argc, char **argv){
        printf("Loop %d Error=%s\n", loop_count, error_message);
    }
    exit(EXIT_SUCCESS);
+
 }
