@@ -21,11 +21,12 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define CELL_COUNT   81
 #define PUZZLE_SIZE   9
 #define SQUARE_SIZE   3
-
+#define NEW_SUDOKU_SEPARATOR "Grid"
 
 typedef struct {
     bool my_is_solvable;
@@ -1338,6 +1339,11 @@ char * trim (char *s){
     return s;
 }
 
+bool startsWith(const char *a, const char *b){
+   if(strncmp(a, b, strlen(b)) == 0) return 1;
+   return 0;
+}
+
 void read_sudokus(char * input_file, int count, SudokuPuzzleData * result){
 
     FILE * fp;
@@ -1351,25 +1357,38 @@ void read_sudokus(char * input_file, int count, SudokuPuzzleData * result){
     }
 
     int c = 0;
+    int lineCount = 0;
     while ((getline(&line, &len, fp)) != -1) {
+
         line = trim(line);
         line_len = strlen(line);
-        if(line_len == 82){
+
+        if(line_len == 0 || startsWith(line, NEW_SUDOKU_SEPARATOR)){
+            continue;
+        } else if (line_len != 9) {
+            printf("input file in unsupported format!");
+            exit(EXIT_FAILURE);
+        } else {
             SudokuPuzzleData* current = &result[c];
-            current->my_is_solvable = true;
-            current->my_is_solved = false;
-            for(int i = 0; i < 81; i++) {
+            int curOffset = lineCount * PUZZLE_SIZE;
+            for(int i = 0; i < PUZZLE_SIZE; i++) {
                char check_char = line[i];
                if(check_char >= '0' && check_char <= '9'){
-                current->puzzle[i] = line[i] - '0';
+                current->puzzle[i + curOffset] = line[i] - '0';
                } else {
-                current->puzzle[i] = 0;
+                current->puzzle[i + curOffset] = 0;
                }
             }
-            c++; //count only sudokus;
-        }
-        if(c == count){
-            break;
+            lineCount++;
+            if(lineCount == 9){
+                current->my_is_solvable = true;
+                current->my_is_solved = false;
+                c++;  //count only sudokus;
+                lineCount = 0;
+            }
+            if(c == count){
+                break;
+            }
         }
     }
 
