@@ -15,12 +15,12 @@ However, if you look for a really fast Sudoku solver try:
 My approach was:
 
 * I developed a Scala version first. I did not use any third party libraries. I didn't think about JVM specific performance bottlenecks like 'array 2ds are slow'.
-* Afterwards I developed a version in Rust. Since this is my first Rust program the code may look a bit awkward to Rust developers, I apologize. My only source to learn Rust was Google. I tried to copy the Scala code as much as possible. There is for every method / test in the Scala code a corresponding method / test in the Rust code.   
+* Afterwards I developed a version in Rust. Since this is my first Rust program the code may look a bit awkward to Rust developers, I apologize. I tried to copy the Scala code as much as possible. There is for every method / test in the Scala code a corresponding method / test in the Rust code.   
 * I measured the performance (wall time, peak memory) with a unix tool **/usr/bin/time** (note, it is **NOT** the shell 'time' command).
 
 ## Build:
 
-To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions:
+To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
 git checkout tags/version-0.8.0 -b v0.8.0
@@ -67,20 +67,20 @@ OS: Manjaro Linux x86_64
 Host: Precision T3600 01 
 Kernel: 5.8.18-1-MANJARO 
 CPU: Intel Xeon E5-4650L 0 (16) @ 3.100GHz 
-GPU: NVIDIA Quadro 600 
+GPU: NVIDIA Quadro P620 
 Memory: 7164MiB / 32068MiB 
 ```
 Used programming language versions:
 
 * Scala 2.11.12 (on OpenJDK 11)
-* Rust Edition 2018
+* Rust Edition 2021
 
 ## Run manually
 
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.6 bash
+docker container run -it --name sudoku sudoku:0.8 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -93,7 +93,7 @@ The **/root** directory (also current directory) will contain all command line p
 
 ## Update: Version 0.2
 
-Since my sudoku program was a bit slow, I thought about speeding it up a bit. Therefore I developed a 'turbo' for my algorithm which does two things:
+Since my sudoku program was a bit slow, I thought about speeding it up a bit. Therefore, I developed a 'turbo' for my algorithm which does two things:
 
 * Speedup the check if the conditions are satisfied by using precomputed bitsets.
 * Starting to search a solution in the rows and columns having the most entries first. 
@@ -110,7 +110,9 @@ Even I have still new ideas, this will probably be my last version of my Sudoku 
 Again, my main motivation was to learn a bit Rust (I am still a bloody beginner) and compare Scala with Rust. Again, I put my results in an own folder.
 However, this time I added two sub directories. 
 
-The first folder [./performance/version_0.3-result/cpu-1](./performance/version_0.3-result/cpu-1) contains the results with my usual resources restrictions on Docker (see extract from docker-compose.yml below). The other folder contains the results without those restrictions [./performance/version_0.3-result/cpu-all](./performance/version_0.3-result/cpu-all). We see, the performance still not match the one of QQWing but I got better. I would need to switch the algorithms to really compete, anyway this was not my motivation.  
+The first folder [./performance/version_0.3-result/cpu-1](./performance/version_0.3-result/cpu-1) contains the results with my usual resources restrictions on Docker (see extract from docker-compose.yml below). 
+The other folder contains the results without those restrictions [./performance/version_0.3-result/cpu-all](./performance/version_0.3-result/cpu-all). 
+We see, the performance still not match the one of QQWing but I got better. I would need to switch the algorithms to really compete, anyway this was not my motivation.  
 
 ```bash
         resources: 
@@ -125,7 +127,7 @@ The next picture shows the time spend to solve 100000 Sudokus.
 
 ![Time to solve 100000 Sudokus](./performance/compare_v1-v3/time.png)
 
-Also the memory consumption was better in the Rust versions than in the Scala versions, but Scala NATIVE was not much worse. 
+Also the memory consumption was better in the Rust versions than in the Scala versions but Scala NATIVE was not much worse. 
 The next picture shows the memory used to solve 100000 Sudokus (in kb).
 
 ![Peak memory usage in kb to solve 100000 Sudokus](./performance/compare_v1-v3/mem.png)
@@ -145,31 +147,50 @@ Again you can find all results here [./performance/version_0.4-result](./perform
 
 ## Update: Version 0.5 (last version using a recursive approach)
 
-I added a new small update. In Version 4.0 I added all possible combinations of numbers ("the powerset"), each as sorted array. In Version 0.5, I shuffled those arrays so that not always the same numbers are tried into empty slots first. Therefore there should be less collisions. This improved the performance of the Scala version a bit. However, the performance of the Rust version did not change. 
+I added a new small update. In Version 4.0 I added all possible combinations of numbers ("the powerset"), each as sorted array. 
+In Version 0.5, I shuffled those arrays so that not always the same numbers are tried into empty slots first. Therefore, there should be less collisions. 
+This improved the performance of the Scala version a bit. However, the performance of the Rust version did not change. 
 
 As usual, you can find the results here [./performance/version_0.5-result](./performance/version_0.5-result).
 
 ## Update: Version 0.6 (using an iterative approach)
 
-This time, I wanted to learn something new. I decided to implement backtracking without recursion. 
-In particular I did following changes:
+This time, I wanted to learn again something new. I decided to implement backtracking without recursion. 
+In particular I did the following changes:
 
 * I developed the solving approach from scratch non-recursively.
 * I choose a one dimensional array to store the puzzle (since this was easier to implement here).
 * I sorted the cells for solving differently: I sorted them by number of possiblities available (ascending).
 
-The result was a algorithm that was twice as slow as Version 0.5 (in the Rust Version) and around 30% slower (in the Scala Version). This surprised me a bit but may depend on the sorting and extra steps I implemented. The memory consumption did not change so much. 
+The result was a algorithm that was twice as slow as Version 0.5 (in the Rust Version) and around 30% slower (in the Scala Version). 
+This surprised me a bit but may depend on the sorting and extra steps I implemented. The memory consumption did not change so much. 
 
 As usual, you can find the results here [./performance/version_0.6-result](./performance/version_0.6-result).
 
-This version was also considered as pre-step for what I want to learn next: **CUDA**. On GPU, threads have relatively small stacks, so it is best practice to avoid them (according to what I found on the web). Nevertheless, I may have used the stack here. The stack for each Sudoku should be bound to 81 elements. This should be small enough, I guess.
+This version was also considered as pre-step for what I want to learn next: **CUDA**. On GPU, threads have relatively small stacks, so it is best practice to avoid them (according to what I found on the web). 
+Nevertheless, I may have used the stack here. The stack for each Sudoku should be bound to 81 elements. This should be small enough, I guess.
 
 ## Update: Version 0.7 (getting closer to CUDA)
 
-I implemented this version only to get another step closer to port the algorithm to CUDA. GPUs work differently to CPUs. In contrast to CPUs which are optimized for parallel tasks and a low latency, GPUs are optimized for processing data in parallel and a high throughput. Therefore branching is bad on a GPU. For this reason I eliminated branching in the algorithm as far as possible. There are only two 'if then else' conditions left. In particular I did following changes:
+I implemented this version only to get another step closer to port the algorithm to CUDA. GPUs work differently to CPUs. 
+In contrast to CPUs which are optimized for parallel tasks and a low latency, GPUs are optimized for processing data in parallel and a high throughput. 
+Therefore, branching is bad on a GPU. For this reason I eliminated branching in the algorithm as far as possible. There are only a few 'if then else' conditions left. In particular I did following changes:
 
 * I removed the fastIndexOf method against another index array.
 * I chose smaller datatypes for indices in the Rust version (and added some casts). 
 
 The algorithm became marginal faster in Scala as well as in Rust (I always look at 100000 Sudokus). 
 As usual, you can find the results here [./performance/version_0.7-result](./performance/version_0.7-result).
+
+## Update: Version 0.8 (cleanups and CUDA)
+
+In this version, I cleaned the rust code up. I also updated the Rust Edition to 2021. Moreover, I developed a very disappointing CUDA version.
+In addition, I used a higher number of parallel tasks. The result is that the RUST program is again as fast as Version 0.5. 
+However, the Scala version is still a bit slower than the Scala program Version 0.5.
+
+As usual, you can find the results here [./performance/version_0.8-result](./performance/version_0.8-result).
+
+The algorithm could also be fully implemented with CUDA. However, the CUDA program is very slow. 
+I guess few data branches ('ifs') is not enough for a fast CUDA program, also parallel data access is needed. 
+Solving 100 CUDAs needed around 17 seconds compared to the 0.4 seconds in the Rust program and 1.3 seconds in the Scala program.
+If there is by chance a CUDA developer, let me know if my assumption is true (hyperion AT gmx POINT at).
