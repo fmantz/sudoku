@@ -1,4 +1,4 @@
-FROM hseeberger/scala-sbt:8u265_1.4.2_2.11.12
+FROM hseeberger/scala-sbt:8u222_1.3.5_2.13.1
 
 #Copy QQWING from Website:
 ADD https://qqwing.com/qqwing-1.3.4.jar ./

@@ -70,7 +70,7 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
   }
 
   def isBlank(c: Char): Boolean = {
-    c == SudokuConstants.EmptyChar || c == SudokuConstants.QQWingEmptyChar
+    '0' <= c || c > '9'
   }
 
   /**

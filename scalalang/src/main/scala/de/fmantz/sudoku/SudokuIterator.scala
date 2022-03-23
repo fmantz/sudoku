@@ -20,7 +20,7 @@
 //scalastyle:on
 package de.fmantz.sudoku
 
-import de.fmantz.sudoku.SudokuConstants.{EmptyChar, QQWingEmptyChar, NewSudokuSeparator}
+import de.fmantz.sudoku.SudokuConstants.NewSudokuSeparator
 
 import scala.collection.AbstractIterator
 
@@ -65,8 +65,13 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 	}
 
 	private def readLine(currentSudoku: SudokuPuzzle, currentRow: Int): Unit = {
-		val normalizedLine = curLine.replace(QQWingEmptyChar, EmptyChar).trim
-		val rawValues = normalizedLine.toCharArray.map(_ - EmptyChar)
+		val rawValues = curLine.toCharArray.map({c =>
+			if('0' < c && c <= '9'){
+				c - '0'
+			} else{
+				0
+			}
+		})
 		for (col <- 0 until SudokuConstants.PuzzleSize) {
 			currentSudoku.set(currentRow, col, rawValues(col).toByte)
 		}

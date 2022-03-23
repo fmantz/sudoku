@@ -32,3 +32,9 @@ build
 
 #sudokus:
 performance/sudoku*.txt
+
+#shared cuda-libs:
+*.so
+
+# cuda prog:
+sudoku_cuda

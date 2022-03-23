@@ -16,15 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+#[allow(dead_code)]
+pub const CHECK_BITS: u16 = !0 >> (16 - PUZZLE_SIZE);
+
 pub const NEW_SUDOKU_SEPARATOR: &str = "Grid";
-pub const EMPTY_CHAR: char = '0';
-pub const QQWING_EMPTY_CHAR: char = '.';
 pub const CELL_COUNT: usize = 81;
 pub const PUZZLE_SIZE: usize = 9;
 pub const SQUARE_SIZE: usize = 3;
-pub const CHECK_BITS: u16 = !0 >> (16 - PUZZLE_SIZE);
+
 //binary: Size times "1"
-pub const PARALLELIZATION_COUNT: u16 = 1024;
+pub const PARALLELIZATION_COUNT: u32 = 65536;
 
 const BITSET_NUMBERS_000: &[u8] = &[4, 7, 8, 3, 5, 1, 9, 6, 2];
 const BITSET_NUMBERS_001: &[u8] = &[8, 6, 7, 5, 9, 4, 2, 3];
@@ -537,7 +539,25 @@ const BITSET_NUMBERS_507: &[u8] = &[3];
 const BITSET_NUMBERS_508: &[u8] = &[2, 1];
 const BITSET_NUMBERS_509: &[u8] = &[2];
 const BITSET_NUMBERS_510: &[u8] = &[1];
-const BITSET_NUMBERS_511: &[u8] = &[];
+
+pub const BITSET_LENGTH: &[u8] = &[
+    9, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 5, 8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4,
+    8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3,
+    8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3,
+    7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2,
+    8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3,
+    7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2,
+    7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2,
+    6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1,
+    8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3,
+    7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2,
+    7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2,
+    6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1,
+    7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2,
+    6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1,
+    6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1,
+    5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0,
+];
 
 pub const BITSET_ARRAY: &[&[u8]] = &[
     BITSET_NUMBERS_000,
@@ -1051,5 +1071,4 @@ pub const BITSET_ARRAY: &[&[u8]] = &[
     BITSET_NUMBERS_508,
     BITSET_NUMBERS_509,
     BITSET_NUMBERS_510,
-    BITSET_NUMBERS_511
 ];
