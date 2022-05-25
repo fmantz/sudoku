@@ -1554,7 +1554,7 @@ int main(int argc, char **argv){
              }
              printf("%d", current->puzzle[j]);
          }
-         printf("\n-----------");
+         printf("\n");
    }
 
    free(puzzle_data_read);
