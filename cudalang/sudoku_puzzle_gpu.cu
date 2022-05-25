@@ -34,6 +34,8 @@ typedef struct {
     char puzzle[CELL_COUNT];
 } SudokuPuzzleData;
 
+// all possible precomputed numbers for a field.
+// numbers are assigned according to bitvectors.
 __constant__ char BITSET_NUMBERS_000[] = {4, 7, 8, 3, 5, 1, 9, 6, 2};
 __constant__ char BITSET_NUMBERS_001[] = {8, 6, 7, 5, 9, 4, 2, 3};
 __constant__ char BITSET_NUMBERS_002[] = {3, 4, 5, 1, 9, 6, 7, 8};
@@ -546,6 +548,8 @@ __constant__ char BITSET_NUMBERS_508[] = {2, 1};
 __constant__ char BITSET_NUMBERS_509[] = {2};
 __constant__ char BITSET_NUMBERS_510[] = {1};
 
+// all precomputed array length oft he arrays above.
+// for e.g. BITSET_NUMBERS_000.length == BITSET_LENGTH[0].
 __constant__ char BITSET_LENGTH[] = {
     9, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 5, 8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5,
     4, 8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4,
@@ -566,6 +570,8 @@ __constant__ char BITSET_LENGTH[] = {
     4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0
 };
 
+// all arrays of possible next values stored in an array of arrays so that
+// each array can be found by its computed index.
 __constant__ char* BITSET_ARRAY[] = {
      BITSET_NUMBERS_000,
      BITSET_NUMBERS_001,
@@ -1080,7 +1086,8 @@ __constant__ char* BITSET_ARRAY[] = {
      BITSET_NUMBERS_510
 };
 
-//functions to calculate indices in puzzle:
+// functions to calculate indices in puzzle:
+
 __device__ char calculate_row_index(char index){
     return index / PUZZLE_SIZE;
 };
@@ -1090,10 +1097,10 @@ __device__ char calculate_col_index(char index){
 };
 
 __device__ char calculate_square_index(char row_index, char col_index){
-    return row_index / SQUARE_SIZE * SQUARE_SIZE + col_index / SQUARE_SIZE; //attention: int arithmetic
+    return row_index / SQUARE_SIZE * SQUARE_SIZE + col_index / SQUARE_SIZE; // attention: int arithmetic
 };
 
-//get count of possible numbers of cell
+// get count of possible numbers of cell.
 __device__ char get_possible_counts(
     SudokuPuzzleData* p,
     char index,
@@ -1102,9 +1109,14 @@ __device__ char get_possible_counts(
     unsigned short* square_nums
 ) {
     if (p->puzzle[index] == 0) {
+        // a puzzle is stored in an linear array, therefore calculated their
+        // virtual 2D indices:
         char row_index = calculate_row_index(index);
         char col_index = calculate_col_index(index);
         char square_index = calculate_square_index(row_index, col_index);
+        // row_nums, col_nums, square_nums, contains bitsets were each bit represent a number that is not
+        // possible since it is already contaied in a row, col, or square.
+        // calculate the possiblities by combining these bit vectors:
         unsigned short possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
         return BITSET_LENGTH[possible_number_index];
     } else {
@@ -1112,12 +1124,15 @@ __device__ char get_possible_counts(
     }
 }
 
+// store a number in a bitset. return true if the number was not already contained.
 __device__ bool set_and_check_bit(unsigned short check_bit, unsigned short* array, char index){
     int old_value = array[index];
     array[index] |= check_bit;
     return old_value != array[index];
 }
 
+// store a value in row_nums, col_nums, square_nums.
+// if not all bit set can store the value mark the puzzle as unsolvable.
 __device__ void save_value_for_cell_and_check_is_solvable(
     SudokuPuzzleData* p,
     char value,
@@ -1135,30 +1150,7 @@ __device__ void save_value_for_cell_and_check_is_solvable(
     p->my_is_solvable &= set_and_check_bit(check_bit, square_nums, square_index);
 }
 
-__device__ void sort_puzzle(
-    SudokuPuzzleData* p,
-    char * puzzle_sorted,
-    char * indices
-){
-    for(int i = 0; i < CELL_COUNT; i++){
-        puzzle_sorted[i] = p->puzzle[indices[i]];
-    }
-}
-
-__device__ void fill_positions(
-    SudokuPuzzleData* p,
-    char * puzzle_sorted,
-    char * indices
-){
-    for(int i = 0; i < CELL_COUNT; i++){
-        p->puzzle[indices[i]] = puzzle_sorted[i];
-    }
-}
-
-__device__ int get_single_array_index(char row, char col){
-    return row * PUZZLE_SIZE + col;
-}
-
+// save for each cell all possible values.
 __device__  void find_all_possible_values_for_each_empty_cell(
     SudokuPuzzleData* p,
     unsigned short* row_nums,
@@ -1173,6 +1165,34 @@ __device__  void find_all_possible_values_for_each_empty_cell(
     }
 }
 
+// rearange the puzzle layout so that each index in the puzzle array represents an virtual index stored in an indices array.
+__device__ void sort_puzzle(
+    SudokuPuzzleData* p,
+    char * puzzle_sorted,
+    char * indices
+){
+    for(int i = 0; i < CELL_COUNT; i++){
+        puzzle_sorted[i] = p->puzzle[indices[i]];
+    }
+}
+
+// revert method 'sort_puzzle' so that the layout of the puzzle represents its real 1D layout
+__device__ void fill_positions(
+    SudokuPuzzleData* p,
+    char * puzzle_sorted,
+    char * indices
+){
+    for(int i = 0; i < CELL_COUNT; i++){
+        p->puzzle[indices[i]] = puzzle_sorted[i];
+    }
+}
+
+// calculate 1D array index from 2D array index
+__device__ int get_single_array_index(char row, char col){
+    return row * PUZZLE_SIZE + col;
+}
+
+// rearange puzzle to avoid jumping in the puzzle array
 __device__ void prepare_puzzle_for_solving(
     SudokuPuzzleData* p,
     char* puzzle_sorted,
@@ -1181,27 +1201,45 @@ __device__ void prepare_puzzle_for_solving(
     unsigned short* col_nums,
     unsigned short* square_nums
 ) {
-    int number_off_sets[PUZZLE_SIZE + 2]; //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
-    for(int i = 0; i < PUZZLE_SIZE + 2; i++){ //c does not auto init with default:
+    // init
+    int number_off_sets[PUZZLE_SIZE + 2];     // numbers 0 - 9 + 1 for offset = puzzleSize + 2 (9 + 2 = 11)
+    for(int i = 0; i < PUZZLE_SIZE + 2; i++){ // c does not auto init with default number zero
         number_off_sets[i] = 0;
     }
+
+    // count number of possible solutions for each cell.
+    // number_off_sets[1] == 81 means each of all 81 cells have 0 possible numbers
     for(int i = 0; i < CELL_COUNT; i++){
         int count_of_index = get_possible_counts(p, i, row_nums, col_nums, square_nums);
-        number_off_sets[count_of_index + 1]++;
+        number_off_sets[count_of_index + 1]++; // note the offset of one
     }
-    p->my_is_solved = number_off_sets[1] == CELL_COUNT; //all cells have already a solution!
-    for(int i = 1; i < PUZZLE_SIZE + 2; i++){ //correct offsets
+
+    // test if sudoku is already solved.
+    p->my_is_solved = number_off_sets[1] == CELL_COUNT; // all cells have already a solution!
+
+    // correct offsets.
+    for(int i = 1; i < PUZZLE_SIZE + 2; i++){
+        // there are 'number_off_sets[0]' fields that are already solved,
+        // 'number_off_sets[1]' with zero or one possibilities left
+        // 'number_off_sets[2]' with zero, one or two possibilities left
         number_off_sets[i] += number_off_sets[i - 1];
     }
+
+    // create an 'indices' array so that the the puzzle layout can be easily changed
+    // afterwards to an layout where the sudoku fields with the least possible numbers are tested first (in a linear iteration)
     for(int i = 0; i < CELL_COUNT; i++){
         int count_of_index = get_possible_counts(p, i, row_nums, col_nums, square_nums);
         char off_set = number_off_sets[count_of_index];
         indices[off_set] = i;
         number_off_sets[count_of_index]++;
     }
-    sort_puzzle(p, puzzle_sorted, indices); //avoid jumping in the puzzle array
+
+     // rearange puzzle values.
+    sort_puzzle(p, puzzle_sorted, indices);
 }
 
+// find a solution for a sudoku by traversing and backtracking the sudoku array.
+// note that the sodoku has a special layout.
 __device__ void find_solution_non_recursively(
     SudokuPuzzleData* p,
     char* puzzle_sorted,
@@ -1216,43 +1254,59 @@ __device__ void find_solution_non_recursively(
     }
     int i = 0;
     while(i < CELL_COUNT){
-        char cur_value = puzzle_sorted[i]; //kind of stack
-        if(cur_value == 0){ //Is not given?
 
-            //Is there a current guess possible?
+        char cur_value = puzzle_sorted[i];
+
+        // value of puzzle_sorted[i] is not set
+        if(cur_value == 0){
+
+            // is there a current guess possible?
             int puzzle_index = indices[i];
             int row_index = calculate_row_index(puzzle_index);
             int col_index = calculate_col_index(puzzle_index);
             int square_index = calculate_square_index(row_index, col_index);
+
+            // calculate the array index of BITSET_ARRAY containing all possible numbers for the current field.
             unsigned short possible_number_index = row_nums[row_index] | col_nums[col_index] | square_nums[square_index];
+
+            // store the next index to try of all possible numbers of the current field.
             char next_number_index = (indices_current[i] + 1);
 
+            // try possible numbers until all possible numbers have been tried.
             if(next_number_index < BITSET_LENGTH[possible_number_index]){
 
-                //next possible number to try found:
+                // next possible number to try found.
                 char* next_numbers = BITSET_ARRAY[possible_number_index];
                 char next_number = next_numbers[next_number_index];
                 puzzle_sorted[i] = next_number;
 
-                //save value for cell:
+                // save value for cell.
                 unsigned short check_bit = 1 << (next_number - 1);
                 row_nums[row_index] |= check_bit;
                 col_nums[col_index] |= check_bit;
                 square_nums[square_index] |= check_bit;
 
-                indices_current[i] = next_number_index; //success
-                i += 1; //go to next cell
+                // success.
+                indices_current[i] = next_number_index;
 
+                //go to next cell.
+                i += 1;
+
+            // backtrack (another field was set to an incorrect number).
             } else {
 
-                //backtrack:
-                indices_current[i] = -1; //forget last index for position i
-                i -= 1; //not given values are in the head of myIndices, there we can simply go one step back!
+                // back track position of possible numbers.
+                indices_current[i] = -1;
+
+                // not given values are in the head of array 'puzzle_sorted', therefore we can simply go one step back!
+                i -= 1;
                 char last_invalid_try = puzzle_sorted[i];
                 char last_puzzle_index = indices[i];
-                puzzle_sorted[i] = 0; //find in the next step a new solution for i
 
-                //revert last value:
+                // find in the next step a new solution for i.
+                puzzle_sorted[i] = 0;
+
+                // revert last value.
                 int last_row_index = calculate_row_index(last_puzzle_index);
                 int last_col_index = calculate_col_index(last_puzzle_index);
                 int last_square_index = calculate_square_index(last_row_index, last_col_index);
@@ -1266,35 +1320,41 @@ __device__ void find_solution_non_recursively(
             i += 1;
         }
     }
+    // rearange sudoku to original layout.
     fill_positions(p, puzzle_sorted, indices);
+
     p->my_is_solved = true;
 }
 
-//solve single sudoku on device:
+// solve single sudoku on device.
 __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
 
-    //Early out:
+    // early out.
     if(!current->my_is_solvable || current->my_is_solved){
         return current->my_is_solved;
     }
 
-    //Temporary memory to compute solution:
+    // temporary memory to compute solution.
     char puzzle_sorted[CELL_COUNT];
     char indices[CELL_COUNT];
     unsigned short row_nums[PUZZLE_SIZE];
     unsigned short col_nums[PUZZLE_SIZE];
     unsigned short square_nums[PUZZLE_SIZE];
 
-    //c does not auto init with default:
+    // c does not auto init with default.
     for(int i = 0; i < PUZZLE_SIZE; i++){
         row_nums[i] = 0;
         col_nums[i] = 0;
         square_nums[i] = 0;
     }
 
+    // calculate some cell statistics.
     find_all_possible_values_for_each_empty_cell(current, row_nums, col_nums, square_nums);
+
+    // rearange puzzle for solving.
     prepare_puzzle_for_solving(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
 
+   // solve puzzle.
    if(current->my_is_solvable && !(current->my_is_solved)) {
       find_solution_non_recursively(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
    }
@@ -1302,15 +1362,16 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
    return current->my_is_solved;
 }
 
-//solve sudokus in parallel:
+// solve sudokus in parallel.
 __global__ void solve_sudokus_in_parallel(SudokuPuzzleData* p, int count){
     for(int i = 0; i < count; i++) {
         solve_one_sudokus_on_device(&p[i]);
     }
 }
 
-extern "C"  //prevent C++ name mangling!
-bool is_cuda_available(){ //library method
+// check if cuda is available and print some information
+// extern "C"  //prevent C++ name mangling!
+bool is_cuda_available(){
     int deviceCount = 0;
     cudaGetDeviceCount(&deviceCount);
     if(deviceCount == 0){
@@ -1330,20 +1391,24 @@ bool is_cuda_available(){ //library method
     return deviceCount > 0;
 }
 
-/* Function to remove white spaces on both sides of a string i.e trim */
+// function to remove white spaces on both sides of a string i.e trim.
 char * trim (char *s){
     int i;
-    while (isspace (*s)) s++;   // skip left side white spaces
-    for (i = strlen (s) - 1; (isspace (s[i])); i--) ;   // skip right side white spaces
+    // skip left side white spaces.
+    while (isspace (*s)) s++;
+     // skip right side white spaces.
+    for (i = strlen (s) - 1; (isspace (s[i])); i--) ;
     s[i + 1] = '\0';
     return s;
 }
 
+// check string 'a' contain prefix 'b'.
 bool startsWith(const char *a, const char *b){
    if(strncmp(a, b, strlen(b)) == 0) return 1;
    return 0;
 }
 
+// read sudoku from file into an array.
 void read_sudokus(char * input_file, int count, SudokuPuzzleData * result){
 
     FILE * fp;
@@ -1395,7 +1460,7 @@ void read_sudokus(char * input_file, int count, SudokuPuzzleData * result){
     fclose(fp);
 }
 
-//note only works for up to 100 sudokus
+// note only works well for up to 100 sudokus (its very slow)
 int main(int argc, char **argv){
 
     clock_t begin = clock();
@@ -1415,7 +1480,6 @@ int main(int argc, char **argv){
    SudokuPuzzleData* puzzle_data_result = (SudokuPuzzleData*) malloc(count * sizeof(SudokuPuzzleData));
    read_sudokus(input_file, count, puzzle_data_read);
 
-   int polling_time_in_ms = 16;
    int sent_to_gpu = 0;
    int batch_size = 1020 * 1024;
    int loop_count = 0;
@@ -1424,7 +1488,7 @@ int main(int argc, char **argv){
    printf("Start with CUDA...");
    while(sent_to_gpu < count){
 
-       //copy slice of array
+       // copy slice of array.
        int sudokus_still_to_be_send = count - sent_to_gpu;
        int current_batch_size = (sudokus_still_to_be_send > batch_size) ? batch_size : sudokus_still_to_be_send;
        SudokuPuzzleData * puzzle_data = (SudokuPuzzleData*) malloc(current_batch_size * sizeof(SudokuPuzzleData));
@@ -1433,25 +1497,25 @@ int main(int argc, char **argv){
           memcpy(&puzzle_data[i], &puzzle_data_read[i + sent_to_gpu], sizeof(SudokuPuzzleData));
        }
 
-       printf("Try to run on GPU (batchsize %i)! ...", current_batch_size);
+       printf("\n.. try to run on GPU (batchsize %i)! ...\n", current_batch_size);
 
-       // Allocate GPU memory.
+       // allocate GPU memory.
        SudokuPuzzleData * device_puzzle_data = 0;
        cudaMalloc((void **) & device_puzzle_data, current_batch_size * sizeof(SudokuPuzzleData));
        cudaMemcpy(device_puzzle_data, puzzle_data, current_batch_size * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
 
-       //Run in parallel:
+       // run in parallel.
        solve_sudokus_in_parallel<<<current_batch_size, 1>>>(device_puzzle_data, current_batch_size);
 
-       //Overwrite old data:
+       // overwrite old data.
        cudaMemcpy(puzzle_data, device_puzzle_data, current_batch_size * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
 
-       // Deep copy to result:
+       // deep copy to result.
        for(int i = 0; i < current_batch_size; i++){
           memcpy(&puzzle_data_result[i + sent_to_gpu], &puzzle_data[i], sizeof(SudokuPuzzleData));
        }
 
-       //check one solved:
+       // check all solved.
        bool loop_success = false;
        for(int i = 0; i < current_batch_size; i++) {
            SudokuPuzzleData* current = &puzzle_data_result[i + sent_to_gpu];
@@ -1471,17 +1535,16 @@ int main(int argc, char **argv){
            printf("Loop %d Error=%s\n", loop_count, error_message);
        }
 
-       // Free GPU memory:
+       // free GPU memory.
        cudaFree(device_puzzle_data);
        free(puzzle_data);
 
        sent_to_gpu+=current_batch_size;
        loop_count++;
-       usleep(polling_time_in_ms * 1);
 
    }
 
-   //print sudoku:
+   // print sudoku.
    printf("output on host:\n");
    for(int i = 0; i < count; i++) {
        SudokuPuzzleData* current = &puzzle_data_result[i];
