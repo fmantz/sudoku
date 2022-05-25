@@ -1470,7 +1470,7 @@ int main(int argc, char **argv){
 
     if(argc < 3){
         printf("sudoku_cuda FILENAME COUNT\n\n");
-        printf("sudoku_cuda sample_sudokus.csv  10\n\n");
+        printf("./sudoku_cuda p096_sudoku.txt 10\n\n");
         exit(EXIT_SUCCESS);
     }
 
