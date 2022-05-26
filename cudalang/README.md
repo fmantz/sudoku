@@ -1,6 +1,6 @@
 # README
 
-Try the CUDA sudoku solver. Unfortunately, I assume because a lack of data parallelism it is incredibly slow. 
+Try the CUDA sudoku solver. Unfortunately, I assume because of a lack of data parallelism, it is incredibly slow. 
 
 * install CUDA
 * Run by:
