@@ -1327,12 +1327,7 @@ __device__ void find_solution_non_recursively(
 }
 
 // solve single sudoku on device.
-__device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
-
-    // early out.
-    if(!current->my_is_solvable || current->my_is_solved){
-        return current->my_is_solved;
-    }
+__global__ void solve_one_sudokus(SudokuPuzzleData* current){
 
     // temporary memory to compute solution.
     char puzzle_sorted[CELL_COUNT];
@@ -1359,13 +1354,15 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
       find_solution_non_recursively(current, puzzle_sorted, indices, row_nums, col_nums, square_nums);
    }
 
-   return current->my_is_solved;
 }
 
 // solve sudokus in parallel.
 __global__ void solve_sudokus_in_parallel(SudokuPuzzleData* p, int count){
     for(int i = 0; i < count; i++) {
-        solve_one_sudokus_on_device(&p[i]);
+        SudokuPuzzleData* current = &p[i];
+        if(current->my_is_solvable || !current->my_is_solved){
+            solve_one_sudokus<<<1, 1>>>(current);
+        }
     }
 }
 
@@ -1481,7 +1478,7 @@ int main(int argc, char **argv){
    read_sudokus(input_file, count, puzzle_data_read);
 
    int sent_to_gpu = 0;
-   int batch_size = 1020 * 1024;
+   int batch_size = 8;
    int loop_count = 0;
    int loop_success_count = 0;
 
