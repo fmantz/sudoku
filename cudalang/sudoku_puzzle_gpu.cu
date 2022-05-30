@@ -1327,9 +1327,7 @@ __device__ void find_solution_non_recursively(
 }
 
 // solve single sudoku on device.
-__device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current, int i){
-
-     //printf("TEST %d\n", i);
+__device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
 
     // early out.
     if(!current->my_is_solvable || current->my_is_solved){
@@ -1368,7 +1366,7 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current, int i){
 __global__ void solve_sudokus_in_parallel(SudokuPuzzleData* p, int count){
     int i = threadIdx.x;
     if(i < count) {
-        solve_one_sudokus_on_device(&p[i], i);
+        solve_one_sudokus_on_device(&p[i]);
     }
 }
 
@@ -1484,7 +1482,7 @@ int main(int argc, char **argv){
    read_sudokus(input_file, count, puzzle_data_read);
 
    int sent_to_gpu = 0;
-   int batch_size = 256;
+   int batch_size = count;
    int loop_count = 0;
    int loop_success_count = 0;
 
@@ -1508,8 +1506,7 @@ int main(int argc, char **argv){
        cudaMemcpy(device_puzzle_data, puzzle_data, current_batch_size * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
 
        // run in parallel.
-       dim3 grid_size(1); dim3 block_size(current_batch_size);
-       solve_sudokus_in_parallel<<<grid_size, block_size>>>(device_puzzle_data, current_batch_size);
+       solve_sudokus_in_parallel<<<1, 256>>>(device_puzzle_data, current_batch_size);
 
        // overwrite old data.
        cudaMemcpy(puzzle_data, device_puzzle_data, current_batch_size * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
