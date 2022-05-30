@@ -1367,7 +1367,9 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current, int i){
 // solve sudokus in parallel.
 __global__ void solve_sudokus_in_parallel(SudokuPuzzleData* p, int count){
     int i = threadIdx.x;
-    solve_one_sudokus_on_device(&p[i], i);
+    if(i < count) {
+        solve_one_sudokus_on_device(&p[i], i);
+    }
 }
 
 // check if cuda is available and print some information
@@ -1482,7 +1484,7 @@ int main(int argc, char **argv){
    read_sudokus(input_file, count, puzzle_data_read);
 
    int sent_to_gpu = 0;
-   int batch_size = 1020 * 1024;
+   int batch_size = 256;
    int loop_count = 0;
    int loop_success_count = 0;
 
