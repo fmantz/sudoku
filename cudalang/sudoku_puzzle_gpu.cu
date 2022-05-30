@@ -1482,7 +1482,7 @@ int main(int argc, char **argv){
    read_sudokus(input_file, count, puzzle_data_read);
 
    int sent_to_gpu = 0;
-   int batch_size = count;
+   int batch_size = 256;
    int loop_count = 0;
    int loop_success_count = 0;
 
