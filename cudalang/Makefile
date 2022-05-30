@@ -3,7 +3,7 @@ CUDA_ROOT_DIR ?= "/opt/cuda"
 HOST_COMPILER := $(CUDA_ROOT_DIR)/bin/gcc
 #LIB_FLAGS := -shared --compiler-options '-fPIC' //Comment in to use CUDA in a shared lib
 LIB_FLAGS :=
-NVCC := $(CUDA_ROOT_DIR)/bin/nvcc -ccbin $(HOST_COMPILER) $(LIB_FLAGS) -arch=compute_61 -rdc=true
+NVCC := $(CUDA_ROOT_DIR)/bin/nvcc -ccbin $(HOST_COMPILER) $(LIB_FLAGS)
 MKDIR_P = mkdir -p
 INPUT_DIR := "./"
 OUTPUT_DIR := "./"
