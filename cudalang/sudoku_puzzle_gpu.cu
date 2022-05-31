@@ -1364,7 +1364,7 @@ __device__ bool solve_one_sudokus_on_device(SudokuPuzzleData* current){
 
 // solve sudokus in parallel.
 __global__ void solve_sudokus_in_parallel(SudokuPuzzleData* p, int count){
-    int i = threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x ;
     if(i < count) {
         solve_one_sudokus_on_device(&p[i]);
     }
@@ -1482,7 +1482,7 @@ int main(int argc, char **argv){
    read_sudokus(input_file, count, puzzle_data_read);
 
    int sent_to_gpu = 0;
-   int batch_size = 256;
+   int batch_size = count;
    int loop_count = 0;
    int loop_success_count = 0;
 
@@ -1506,7 +1506,7 @@ int main(int argc, char **argv){
        cudaMemcpy(device_puzzle_data, puzzle_data, current_batch_size * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
 
        // run in parallel.
-       solve_sudokus_in_parallel<<<1, 256>>>(device_puzzle_data, current_batch_size);
+       solve_sudokus_in_parallel<<<64, 64>>>(device_puzzle_data, current_batch_size);
 
        // overwrite old data.
        cudaMemcpy(puzzle_data, device_puzzle_data, current_batch_size * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
