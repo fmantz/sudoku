@@ -20,7 +20,7 @@
 name = "sudoku"
 version = "0.8.0"
 authors = ["Florian Mantz"]
-edition = "2018"
+edition = "2021"
 
 [[bin]]
 name= "sudoku"
