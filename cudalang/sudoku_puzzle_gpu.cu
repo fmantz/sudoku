@@ -23,10 +23,11 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#define CELL_COUNT   81
-#define PUZZLE_SIZE   9
-#define SQUARE_SIZE   3
+#define CELL_COUNT    81
+#define PUZZLE_SIZE    9
+#define SQUARE_SIZE    3
 #define NEW_SUDOKU_SEPARATOR "Grid"
+#define MAX_BATCH_SIZE 4096
 
 typedef struct {
     bool my_is_solvable;
@@ -1482,7 +1483,7 @@ int main(int argc, char **argv){
    read_sudokus(input_file, count, puzzle_data_read);
 
    int sent_to_gpu = 0;
-   int batch_size = count;
+   int batch_size = (count < MAX_BATCH_SIZE) ? count : MAX_BATCH_SIZE;
    int loop_count = 0;
    int loop_success_count = 0;
 
@@ -1492,7 +1493,8 @@ int main(int argc, char **argv){
        // copy slice of array.
        int sudokus_still_to_be_send = count - sent_to_gpu;
        int current_batch_size = (sudokus_still_to_be_send > batch_size) ? batch_size : sudokus_still_to_be_send;
-       SudokuPuzzleData * puzzle_data = (SudokuPuzzleData*) malloc(current_batch_size * sizeof(SudokuPuzzleData));
+       int required_memory =  current_batch_size * sizeof(SudokuPuzzleData);
+       SudokuPuzzleData * puzzle_data = (SudokuPuzzleData*) malloc(required_memory);
 
        for(int i = 0; i < current_batch_size; i++){
           memcpy(&puzzle_data[i], &puzzle_data_read[i + sent_to_gpu], sizeof(SudokuPuzzleData));
@@ -1502,14 +1504,14 @@ int main(int argc, char **argv){
 
        // allocate GPU memory.
        SudokuPuzzleData * device_puzzle_data = 0;
-       cudaMalloc((void **) & device_puzzle_data, current_batch_size * sizeof(SudokuPuzzleData));
-       cudaMemcpy(device_puzzle_data, puzzle_data, current_batch_size * sizeof(SudokuPuzzleData), cudaMemcpyHostToDevice);
+       cudaMalloc((void **) & device_puzzle_data,  required_memory);
+       cudaMemcpy(device_puzzle_data, puzzle_data, required_memory, cudaMemcpyHostToDevice);
 
        // run in parallel.
        solve_sudokus_in_parallel<<<64, 64>>>(device_puzzle_data, current_batch_size);
 
        // overwrite old data.
-       cudaMemcpy(puzzle_data, device_puzzle_data, current_batch_size * sizeof(SudokuPuzzleData), cudaMemcpyDeviceToHost); //copy data back
+       cudaMemcpy(puzzle_data, device_puzzle_data, required_memory, cudaMemcpyDeviceToHost); //copy data back
 
        // deep copy to result.
        for(int i = 0; i < current_batch_size; i++){
