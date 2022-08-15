@@ -1462,6 +1462,34 @@ void read_sudokus(char * input_file, int count, SudokuPuzzleData * result){
     fclose(fp);
 }
 
+void print_sudokus(int count, SudokuPuzzleData* puzzle_data_result){
+   printf("output on host:\n");
+   for(int i = 0; i < count; i++) {
+       SudokuPuzzleData* current = &puzzle_data_result[i];
+         for(int j = 0; j < CELL_COUNT; j++) {
+             if(j % PUZZLE_SIZE == 0){
+               printf("\n");
+             }
+             printf("%d", current->puzzle[j]);
+         }
+         printf("\n");
+   }
+}
+
+#define checkCuda(val) check((val), #val, __FILE__, __LINE__)
+template <typename T>
+void check(T err, const char* const func, const char* const file,
+           const int line)
+{
+    if (err != cudaSuccess)
+    {
+        std::cerr << "CUDA Runtime Error at: " << file << ":" << line
+                  << std::endl;
+        std::cerr << cudaGetErrorString(err) << " " << func << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+}
+
 // note only works well for up to 100 sudokus (its very slow)
 int main(int argc, char **argv){
 
@@ -1504,14 +1532,14 @@ int main(int argc, char **argv){
 
        // allocate GPU memory.
        SudokuPuzzleData * device_puzzle_data = 0;
-       cudaMalloc((void **) & device_puzzle_data,  required_memory);
-       cudaMemcpy(device_puzzle_data, puzzle_data, required_memory, cudaMemcpyHostToDevice);
+       checkCuda(cudaMalloc((void **) & device_puzzle_data,  required_memory));
+       checkCuda(cudaMemcpy(device_puzzle_data, puzzle_data, required_memory, cudaMemcpyHostToDevice));
 
        // run in parallel.
        solve_sudokus_in_parallel<<<64, 64>>>(device_puzzle_data, current_batch_size);
 
        // overwrite old data.
-       cudaMemcpy(puzzle_data, device_puzzle_data, required_memory, cudaMemcpyDeviceToHost); //copy data back
+       checkCuda(cudaMemcpy(puzzle_data, device_puzzle_data, required_memory, cudaMemcpyDeviceToHost)); //copy data back
 
        // deep copy to result.
        for(int i = 0; i < current_batch_size; i++){
@@ -1548,17 +1576,7 @@ int main(int argc, char **argv){
    }
 
    // print sudoku.
-   printf("output on host:\n");
-   for(int i = 0; i < count; i++) {
-       SudokuPuzzleData* current = &puzzle_data_result[i];
-         for(int j = 0; j < CELL_COUNT; j++) {
-             if(j % PUZZLE_SIZE == 0){
-               printf("\n");
-             }
-             printf("%d", current->puzzle[j]);
-         }
-         printf("\n");
-   }
+   print_sudokus(count, puzzle_data_result);
 
    free(puzzle_data_read);
    free(puzzle_data_result);
