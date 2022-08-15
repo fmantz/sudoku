@@ -1541,15 +1541,13 @@ int main(int argc, char **argv){
        }
 
        // check all solved.
-       bool loop_success = false;
        for(int i = 0; i < current_batch_size; i++) {
            SudokuPuzzleData* current = &puzzle_data_result[i + sent_to_gpu];
            if(current->my_is_solved){
-              loop_success=true;
               loop_success_count++;
-              break;
            }
        }
+       bool loop_success = loop_success_count == current_batch_size;
 
        if(loop_success){
            printf("... SUCCEED!\n");
