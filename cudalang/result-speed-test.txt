@@ -28,3 +28,13 @@ All sudoku puzzles solved by simple backtracking algorithm in  0.157538849s
 Solve 1 sudokus with RUST!
 output: SOLUTION_sudoku-pTest-1.txt
 All sudoku puzzles solved by simple backtracking algorithm in  0.151921058s
+
+
+|Sudokus |      CUDA    |        RUST   |
+--------:|-------------:|--------------:|
+|       1|   0.432938s  |   0.151921058s|
+|      10|   0.811146s  |   0.157538849s|
+|     100|   2.202813s  |   0.185084571s|
+|    1000|  14.222719s  |   0.470379894s|
+|   10000| 153.452142s  |   2.769783619s|
+|  100000| 948.916880s  |  25.024930099s|
