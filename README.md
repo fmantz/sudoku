@@ -191,6 +191,17 @@ However, the Scala version is still a bit slower than the Scala program Version 
 As usual, you can find the results here [./performance/version_0.8-result](./performance/version_0.8-result).
 
 The algorithm could also be fully implemented with CUDA. However, the CUDA program is very slow. 
-I guess few data branches ('ifs') is not enough for a fast CUDA program, also parallel data access is needed. 
-Solving 100 CUDAs needed around 17 seconds compared to the 0.4 seconds in the Rust program and 1.3 seconds in the Scala program.
-If there is by chance a CUDA developer, let me know if my assumption is true (hyperion AT gmx POINT at).
+I guess few data branches ('ifs') is not enough for a fast CUDA program, also parallel data access is needed (SMID, single-instruction-multiple). 
+Comparing the CUDA version with the RUST version manually, (without my docker test), I get following performance differences:
+
+|Sudokus |      CUDA    |        RUST   |
+--------:|-------------:|--------------:|
+|       1|   0.432938s  |   0.151921058s|
+|      10|   0.811146s  |   0.157538849s|
+|     100|   2.202813s  |   0.185084571s|
+|    1000|  14.222719s  |   0.470379894s|
+|   10000| 153.452142s  |   2.769783619s|
+|  100000| 948.916880s  |  25.024930099s|
+
+I assume unless I do not have a much better GPU than the CPU, I am better of with solving such problems on the CPU.
+Anyway, I learnt something, lets move on, maybe to "golang"? 
