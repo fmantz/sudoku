@@ -4,3 +4,27 @@
     100 sudokus CUDA spend   2.202813 seconds!
      10 sudokus CUDA spend   0.811146 seconds!
       1 sudokus CUDA spend   0.432938 seconds!
+
+Solve 100.000 sudokus with RUST!
+output: SOLUTION_sudoku-pTest-100000.txt
+All sudoku puzzles solved by simple backtracking algorithm in 25.024930099s
+
+Solve 10.000 sudokus with RUST!
+output: SOLUTION_sudoku-pTest-10000.txt
+All sudoku puzzles solved by simple backtracking algorithm in  2.769783619s
+
+Solve 1.000 sudokus with RUST!
+output: SOLUTION_sudoku-pTest-1000.txt
+All sudoku puzzles solved by simple backtracking algorithm in  0.470379894s
+
+Solve 100 sudokus with RUST!
+output: SOLUTION_sudoku-pTest-100.txt
+All sudoku puzzles solved by simple backtracking algorithm in  0.185084571s
+
+Solve 10 sudokus with RUST!
+output: SOLUTION_sudoku-pTest-10.txt
+All sudoku puzzles solved by simple backtracking algorithm in  0.157538849s
+
+Solve 1 sudokus with RUST!
+output: SOLUTION_sudoku-pTest-1.txt
+All sudoku puzzles solved by simple backtracking algorithm in  0.151921058s
