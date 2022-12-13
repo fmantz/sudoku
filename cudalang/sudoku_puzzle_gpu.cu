@@ -28,7 +28,7 @@
 #define SQUARE_SIZE    3
 #define NEW_SUDOKU_SEPARATOR "Grid"
 #define MAX_BATCH_SIZE   128 * 1024
-#define MAX_CUDA_THREADS 512
+#define MAX_CUDA_THREADS 256
 
 typedef struct {
     bool my_is_solvable;
