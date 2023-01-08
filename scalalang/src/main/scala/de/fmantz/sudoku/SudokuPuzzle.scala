@@ -47,7 +47,7 @@ class SudokuPuzzle {
 		puzzle(getSingleArrayIndex(row, col)) = value
 	}
 
-	private def getSingleArrayIndex(row: Int, col: Int) = {
+	private def getSingleArrayIndex(row: Int, col: Int): Int = {
 		row * PuzzleSize + col
 	}
 

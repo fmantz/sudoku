@@ -43,6 +43,11 @@ impl SudokuPuzzle {
         self.puzzle[SudokuPuzzle::get_single_array_index(row, col)] = value;
     }
 
+    fn get_single_array_index(row: usize, col: usize) -> usize {
+        row * PUZZLE_SIZE + col
+    }
+
+    
     /**
      * solves the sudoku by a simple non-recursive backtracking algorithm (brute force)
      * (own simple solution, its an algorithm which may be ported to CUDA or OpenCL)
@@ -255,10 +260,6 @@ impl SudokuPuzzle {
         for i in 0..CELL_COUNT {
             self.puzzle[indices[i] as usize] = puzzle_sorted[i];
         }
-    }
-
-    fn get_single_array_index(row: usize, col: usize) -> usize {
-        row * PUZZLE_SIZE + col
     }
 
     fn save_value_for_cell_and_check_is_solvable(
