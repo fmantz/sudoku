@@ -23,7 +23,6 @@ use std::path::Path;
 
 use crate::sudoku_iterator::SudokuIterator;
 use crate::sudoku_puzzle::SudokuPuzzle;
-use crate::sudoku_puzzle::SudokuPuzzleData;
 
 pub struct SudokuIO {} //no data!
 
@@ -42,7 +41,7 @@ impl SudokuIO {
         Ok(puzzles)
     }
 
-    pub fn write_qqwing(filename: &str, puzzles: Vec<SudokuPuzzleData>) -> Result<(), String> {
+    pub fn write_qqwing(filename: &str, puzzles: Vec<SudokuPuzzle>) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
         let write_file = match OpenOptions::new()
@@ -82,7 +81,6 @@ mod tests {
     use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
     use crate::sudoku_io::SudokuIO;
     use crate::sudoku_puzzle::SudokuPuzzle;
-    use crate::sudoku_puzzle::SudokuPuzzleData;
 
     #[test]
     fn read_should_correctly_parse_sudokus() {
@@ -96,7 +94,7 @@ mod tests {
             Err(why) => panic!("{}", why),
             Ok(puzzles) => puzzles,
         };
-        let rs: Vec<SudokuPuzzleData> = match SudokuIO::read(filename) {
+        let rs: Vec<SudokuPuzzle> = match SudokuIO::read(filename) {
             Err(why) => panic!("{}", why),
             Ok(puzzles) => puzzles.collect(),
         };

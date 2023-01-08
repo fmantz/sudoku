@@ -47,7 +47,7 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 	}
 
 	override def next(): SudokuPuzzle = {
-		val currentSudoku = new SudokuPuzzleImpl()
+		val currentSudoku = new SudokuPuzzle()
 		var currentRow = 0
 		while (currentRow < SudokuConstants.PuzzleSize) {
 			readLine(currentSudoku, currentRow)

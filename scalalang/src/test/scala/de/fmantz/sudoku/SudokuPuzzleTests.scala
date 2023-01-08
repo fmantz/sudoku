@@ -52,7 +52,7 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
         require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n ${sudoku.toPrettyString}")
         sudoku.solve()
         val output = sudoku.toString
-        require(checkSolution(sudoku.asInstanceOf[SudokuPuzzleImpl]), s"Sudoku $sudokuNumber is not solved:\n ${sudoku.toPrettyString}")
+        require(checkSolution(sudoku), s"Sudoku $sudokuNumber is not solved:\n ${sudoku.toPrettyString}")
         require(sudoku.isSolved, s"Sudoku $sudokuNumber is solved but isSolved() return false")
         require(input.length == output.length, "sudoku strings have not same length")
         for (i <- input.indices) {
@@ -148,14 +148,14 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     bits
   }
 
-  private def checkSolution(sudokuPuzzle: SudokuPuzzleImpl): Boolean = {
+  private def checkSolution(sudokuPuzzle: SudokuPuzzle): Boolean = {
     val sudoku = makeSudoku2DArray(sudokuPuzzle)
     (0 until PuzzleSize).forall(row => isRowOK(sudoku, row)) &&
       (0 until PuzzleSize).forall(col => isColOK(sudoku, col)) &&
         (0 until PuzzleSize).forall(i => isSquareOK(sudoku, i / SquareSize, i % SquareSize))
   }
 
-  private def makeSudoku2DArray(sudokuPuzzle: SudokuPuzzleImpl): Array[Array[Byte]] = {
+  private def makeSudoku2DArray(sudokuPuzzle: SudokuPuzzle): Array[Array[Byte]] = {
     val sudoku = Array.ofDim[Byte](PuzzleSize, PuzzleSize)
     for (row <- 0 until PuzzleSize) {
       for (col <- 0 until PuzzleSize) {

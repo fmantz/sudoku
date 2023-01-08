@@ -62,7 +62,7 @@ func generateOutputPath(inputFileName string) (outputFileName string) {
 }
 
 func solveSudokus(inputFileName string, outputFileName string) {
-	println(TEST)
+	println(BITSET_ARRAY)
 	println(CHECK_BITS)
 	fmt.Println(strconv.FormatInt(CHECK_BITS, 2))
 }

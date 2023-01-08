@@ -22,25 +22,7 @@ package de.fmantz.sudoku
 
 import scala.collection.mutable.ListBuffer
 
-trait SudokuPuzzle {
-
-	def get(row: Int, col: Int): Byte
-
-	def set(row: Int, col: Int, value: Byte): Unit
-
-	def init(): Unit
-
-	def isSolvable: Boolean
-
-	def isSolved: Boolean
-
-	def solve(): Unit
-
-	def toPrettyString: String
-
-}
-
-class SudokuPuzzleImpl extends SudokuPuzzle {
+class SudokuPuzzle {
 
 	import SudokuConstants._
 
@@ -57,11 +39,11 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	private val colNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 	private val squareNums: Array[Int] = Array.ofDim[Int](SudokuConstants.PuzzleSize)
 
-	override def get(row: Int, col: Int): Byte = {
+	def get(row: Int, col: Int): Byte = {
 		puzzle(getSingleArrayIndex(row, col))
 	}
 
-	override def set(row: Int, col: Int, value: Byte): Unit = {
+	def set(row: Int, col: Int, value: Byte): Unit = {
 		puzzle(getSingleArrayIndex(row, col)) = value
 	}
 
@@ -69,15 +51,15 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		row * PuzzleSize + col
 	}
 
-	override def isSolved: Boolean = {
+	def isSolved: Boolean = {
 		myIsSolved
 	}
 
-	override def isSolvable: Boolean = {
+	def isSolvable: Boolean = {
 		myIsSolvable
 	}
 
-	override def init(): Unit = {
+	def init(): Unit = {
 		findAllPossibleValuesForEachEmptyCell()
 		preparePuzzleForSolving()
 	}
@@ -87,7 +69,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 	 * (own simple solution, its an algorithm which may be ported to CUDA or OpenCL)
 	 * to get a faster result use e.g. https://github.com/Emerentius/sudoku
 	 */
-	override def solve(): Unit = {
+	def solve(): Unit = {
 		if(isSolvable && !isSolved) {
 			findSolutionNonRecursively()
 		}
@@ -121,7 +103,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		sortPuzzle() //avoid jumping in the puzzle array
 	}
 
-	def findSolutionNonRecursively(): Unit = {
+	private def findSolutionNonRecursively(): Unit = {
 		var i = 0
 		while (i < CellCount) {
 			val curValue = puzzleSorted(i) //kind of stack
@@ -234,7 +216,7 @@ class SudokuPuzzleImpl extends SudokuPuzzle {
 		}
 	}
 
-	override def toPrettyString: String = {
+	def toPrettyString: String = {
 		val dottedLine = "-" * (PuzzleSize * 3 + SquareSize - 1)
 		val empty = "*"
 		val buffer = new ListBuffer[String]

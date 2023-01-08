@@ -25,7 +25,6 @@ use crate::sudoku_constants::PARALLELIZATION_COUNT;
 use crate::sudoku_io::SudokuIO;
 use crate::sudoku_iterator::{SudokuGroupedIterator, SudokuIterator};
 use crate::sudoku_puzzle::SudokuPuzzle;
-use crate::sudoku_puzzle::SudokuPuzzleData;
 
 mod sudoku_bit_set;
 mod sudoku_constants;
@@ -80,7 +79,7 @@ fn solve_sudokus(input_file_name: &str, output_file_name: &str) {
             let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
             for puzzle_buffer in grouped_iterator {
                 //collect a bunch of sudokus:
-                let mut sudoku_processing_unit: Vec<SudokuPuzzleData> =
+                let mut sudoku_processing_unit: Vec<SudokuPuzzle> =
                     puzzle_buffer.into_iter().collect();
 
                 //solve in parallel:
@@ -101,14 +100,14 @@ fn solve_sudokus(input_file_name: &str, output_file_name: &str) {
     }
 }
 
-fn solve_current_sudoku(sudoku: &mut SudokuPuzzleData) {
+fn solve_current_sudoku(sudoku: &mut SudokuPuzzle) {
     let solved: bool = sudoku.solve();
     if !solved {
         println!("Sudoku is unsolvable:\n {}", sudoku.to_pretty_string());
     }
 }
 
-fn save_sudokus(output_file_name: &str, sudoku_processing_unit: Vec<SudokuPuzzleData>) {
+fn save_sudokus(output_file_name: &str, sudoku_processing_unit: Vec<SudokuPuzzle>) {
     let write_rs: Result<(), String> =
         SudokuIO::write_qqwing(output_file_name, sudoku_processing_unit);
     match write_rs {
@@ -130,7 +129,7 @@ mod tests {
     use crate::sudoku_constants::{PUZZLE_SIZE, SQUARE_SIZE};
     use crate::sudoku_io::SudokuIO;
     use crate::sudoku_iterator::SudokuIterator;
-    use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
+    use crate::sudoku_puzzle::SudokuPuzzle;
 
     #[test]
     fn solve_should_solve_one_sudoku_by_simple_backtracking_algorithm() {
@@ -261,7 +260,7 @@ mod tests {
         }
     }
 
-    fn check_solution(sudoku_puzzle: &SudokuPuzzleData) -> bool {
+    fn check_solution(sudoku_puzzle: &SudokuPuzzle) -> bool {
         let sudoku = make_sudoku_2d_array(sudoku_puzzle);
         for row in 0..PUZZLE_SIZE {
             if !is_row_ok(&sudoku, row) {
@@ -281,7 +280,7 @@ mod tests {
         true
     }
 
-    fn make_sudoku_2d_array(sudoku_puzzle: &SudokuPuzzleData) -> [[u8; PUZZLE_SIZE]; PUZZLE_SIZE] {
+    fn make_sudoku_2d_array(sudoku_puzzle: &SudokuPuzzle) -> [[u8; PUZZLE_SIZE]; PUZZLE_SIZE] {
         let mut sudoku: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE] = [[0; PUZZLE_SIZE]; PUZZLE_SIZE];
         for row in 0..PUZZLE_SIZE {
             for col in 0..PUZZLE_SIZE {
