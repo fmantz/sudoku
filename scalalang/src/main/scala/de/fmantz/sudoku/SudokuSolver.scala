@@ -40,12 +40,11 @@ object SudokuSolver {
 			println("input: " + inputFile.getAbsolutePath)
 			val (source, puzzles) = read(inputFileName)
 			try {
-				var index = 0
 				puzzles
 					.grouped(SudokuConstants.ParallelizationCount)
 					.foreach({ g =>
-						val puzzlesSolved = g.zipWithIndex.par.map({ case (sudoku, index) =>
-							solveCurrentSudoku(index, sudoku) //solve in parallel!
+						val puzzlesSolved = g.par.map({case sudoku =>
+							solveCurrentSudoku(sudoku); sudoku //solve in parallel!
 						}).toIterator
 						writeQQWing(outputFileName, puzzlesSolved)
 					})
@@ -57,16 +56,11 @@ object SudokuSolver {
 		}
 	}
 
-	private def solveCurrentSudoku(index: Int, sudoku: SudokuPuzzle): SudokuPuzzle = {
-		sudoku.init()
-		if (sudoku.isSolved) {
-			println(s"Sudoku $index is already solved!")
-		} else if (sudoku.isSolvable) {
-			sudoku.solve()
-		} else {
+	private def solveCurrentSudoku(sudoku: SudokuPuzzle): Unit = {
+		val solved = sudoku.solve()
+		if (!solved) {
 			println(s"Sudoku index is unsolvable:\n" + sudoku.toPrettyString)
 		}
-		sudoku
 	}
 
 }

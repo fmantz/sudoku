@@ -1,5 +1,9 @@
 package main
 
+import (
+	"strings"
+)
+
 type SudokuPuzzle struct {
 	myIsSolvable bool
 	myIsSolved   bool
@@ -26,4 +30,8 @@ func getSingleArrayIndex(row, col int) int {
 
 func (p *SudokuPuzzle) Solve() bool {
 	return false //TODO
+}
+
+func (p *SudokuPuzzle) ToPrettyString() string {
+	var dottedLine = strings.Repeat("-", 4)
 }

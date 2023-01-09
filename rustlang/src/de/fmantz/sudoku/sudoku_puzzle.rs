@@ -47,19 +47,18 @@ impl SudokuPuzzle {
         row * PUZZLE_SIZE + col
     }
 
-    
     /**
      * solves the sudoku by a simple non-recursive backtracking algorithm (brute force)
      * (own simple solution, its an algorithm which may be ported to CUDA or OpenCL)
      * to get a faster result use e.g. https://github.com/Emerentius/sudoku
      */
     pub fn solve(&mut self) -> bool {
-        //Early out:
+        // Early out:
         if !self.my_is_solvable || self.my_is_solved {
             return self.my_is_solved;
         }
 
-        //Temporary memory to compute solution:
+        // Temporary memory to compute solution:
         let mut puzzle_sorted: [u8; CELL_COUNT] = [0; CELL_COUNT];
         let mut indices: [u8; CELL_COUNT] = [0; CELL_COUNT];
         let mut row_nums: [u16; PUZZLE_SIZE] = [0; PUZZLE_SIZE];

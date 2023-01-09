@@ -46,14 +46,11 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     try {
       puzzles
         .zipWithIndex.foreach({ case (sudoku, index) =>
-        sudoku.init()
         val sudokuNumber = index + 1
         val input = sudoku.toString
-        require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n ${sudoku.toPrettyString}")
         sudoku.solve()
         val output = sudoku.toString
         require(checkSolution(sudoku), s"Sudoku $sudokuNumber is not solved:\n ${sudoku.toPrettyString}")
-        require(sudoku.isSolved, s"Sudoku $sudokuNumber is solved but isSolved() return false")
         require(input.length == output.length, "sudoku strings have not same length")
         for (i <- input.indices) {
           val inChar = input.charAt(i)
