@@ -91,50 +91,6 @@ impl SudokuPuzzle {
         self.my_is_solved
     }
 
-    pub fn to_pretty_string(&self) -> String {
-        let dotted_line: String = (0..(PUZZLE_SIZE * 3 + SQUARE_SIZE - 1))
-            .map(|_| "-")
-            .collect::<String>();
-        let empty = "*";
-        let mut buffer: Vec<String> = Vec::new();
-        for row in 0..PUZZLE_SIZE {
-            let from = row * PUZZLE_SIZE;
-            let until = from + PUZZLE_SIZE;
-            let current_row = &self.puzzle[from..until];
-            let mut formatted_row: String = String::with_capacity(3 * PUZZLE_SIZE + 2);
-            for (col, col_value) in current_row.iter().enumerate().take(PUZZLE_SIZE) {
-                let rs: String = if *col_value == 0 {
-                    format!(" {} ", empty)
-                } else {
-                    format!(" {} ", *col_value)
-                };
-                formatted_row.push_str(&rs);
-                if col + 1 < PUZZLE_SIZE && col % SQUARE_SIZE == 2 {
-                    formatted_row.push('|');
-                }
-            }
-            buffer.push(formatted_row);
-            if row < (PUZZLE_SIZE - 1) && (row + 1) % SQUARE_SIZE == 0 {
-                buffer.push(dotted_line.clone());
-            }
-        }
-        buffer.join("\n")
-    }
-
-    pub fn to_string(&self) -> String {
-        let mut buffer: Vec<String> = Vec::new();
-        for row in 0..PUZZLE_SIZE {
-            let from = row * PUZZLE_SIZE;
-            let until = from + PUZZLE_SIZE;
-            let current_row = self.puzzle[from..until]
-                .iter()
-                .map(|i| i.to_string())
-                .collect::<String>();
-            buffer.push(current_row);
-        }
-        buffer.join("\n")
-    }
-
     fn find_all_possible_values_for_each_empty_cell(
         &mut self,
         row_nums: &mut [u16; PUZZLE_SIZE],
@@ -314,5 +270,49 @@ impl SudokuPuzzle {
         } else {
             0
         }
+    }
+
+    pub fn to_pretty_string(&self) -> String {
+        let dotted_line: String = (0..(PUZZLE_SIZE * 3 + SQUARE_SIZE - 1))
+            .map(|_| "-")
+            .collect::<String>();
+        let empty = "*";
+        let mut buffer: Vec<String> = Vec::new();
+        for row in 0..PUZZLE_SIZE {
+            let from = row * PUZZLE_SIZE;
+            let until = from + PUZZLE_SIZE;
+            let current_row = &self.puzzle[from..until];
+            let mut formatted_row: String = String::with_capacity(3 * PUZZLE_SIZE + 2);
+            for (col, col_value) in current_row.iter().enumerate().take(PUZZLE_SIZE) {
+                let rs: String = if *col_value == 0 {
+                    format!(" {} ", empty)
+                } else {
+                    format!(" {} ", *col_value)
+                };
+                formatted_row.push_str(&rs);
+                if col + 1 < PUZZLE_SIZE && col % SQUARE_SIZE == 2 {
+                    formatted_row.push('|');
+                }
+            }
+            buffer.push(formatted_row);
+            if row < (PUZZLE_SIZE - 1) && (row + 1) % SQUARE_SIZE == 0 {
+                buffer.push(dotted_line.clone());
+            }
+        }
+        buffer.join("\n")
+    }
+
+    pub fn to_string(&self) -> String {
+        let mut buffer: Vec<String> = Vec::new();
+        for row in 0..PUZZLE_SIZE {
+            let from = row * PUZZLE_SIZE;
+            let until = from + PUZZLE_SIZE;
+            let current_row = self.puzzle[from..until]
+                .iter()
+                .map(|i| i.to_string())
+                .collect::<String>();
+            buffer.push(current_row);
+        }
+        buffer.join("\n")
     }
 }

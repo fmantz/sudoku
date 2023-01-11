@@ -35,6 +35,15 @@ func (p *SudokuPuzzle) Solve() bool {
 	return false //TODO
 }
 
+func (p *SudokuPuzzle) findAllPossibleValuesForEachEmptyCell(row, col int, value uint8) {
+	for i := 0; i < CELL_COUNT; i++ {
+		curValue := p.puzzle[i]
+		if curValue > 0 {
+			// TODO
+		}
+	}
+}
+
 func (p *SudokuPuzzle) ToPrettyString() string {
 	var dottedLine = strings.Repeat("-", 4)
 	const empty = "*"
