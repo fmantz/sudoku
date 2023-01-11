@@ -101,7 +101,7 @@ impl SudokuPuzzle {
             let from = row * PUZZLE_SIZE;
             let until = from + PUZZLE_SIZE;
             let current_row = &self.puzzle[from..until];
-            let mut formatted_row: String = String::with_capacity(PUZZLE_SIZE);
+            let mut formatted_row: String = String::with_capacity(3 * PUZZLE_SIZE + 2);
             for (col, col_value) in current_row.iter().enumerate().take(PUZZLE_SIZE) {
                 let rs: String = if *col_value == 0 {
                     format!(" {} ", empty)
