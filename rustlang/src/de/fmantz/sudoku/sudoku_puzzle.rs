@@ -119,14 +119,14 @@ impl SudokuPuzzle {
         col_nums: &mut [u16],
         square_nums: &mut [u16],
     ) {
-        let mut number_off_sets: [u8; PUZZLE_SIZE + 2] = [0; PUZZLE_SIZE + 2]; //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
+        let mut number_off_sets: [u8; PUZZLE_SIZE + 2] = [0; PUZZLE_SIZE + 2]; // counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
         for i in 0..CELL_COUNT {
             let count_of_index = self.get_possible_counts(i, row_nums, col_nums, square_nums);
             number_off_sets[count_of_index + 1] += 1;
         }
-        self.my_is_solved = number_off_sets[1] as usize == CELL_COUNT; //all cells have already a solution!
-        for i in 1..number_off_sets.len() {
-            //correct offsets
+        self.my_is_solved = number_off_sets[1] as usize == CELL_COUNT; // all cells have already a solution!
+        for i in 1..PUZZLE_SIZE + 2 {
+            // correct offsets
             number_off_sets[i] += number_off_sets[i - 1];
         }
         for i in 0..CELL_COUNT {
@@ -135,7 +135,7 @@ impl SudokuPuzzle {
             indices[off_set] = i as u8;
             number_off_sets[count_of_index] += 1;
         }
-        self.sort_puzzle(puzzle_sorted, indices); //avoid jumping in the puzzle array
+        self.sort_puzzle(puzzle_sorted, indices); // avoid jumping in the puzzle array
     }
 
     fn find_solution_non_recursively(
@@ -151,9 +151,9 @@ impl SudokuPuzzle {
         while i < CELL_COUNT {
             let cur_value = puzzle_sorted[i]; //kind of stack
             if cur_value == 0 {
-                //Is not given?
+                // Is not given?
 
-                //Is there a current guess possible?
+                // Is there a current guess possible?
                 let puzzle_index: usize = indices[i] as usize;
                 let row_index: usize = SudokuPuzzle::calculate_row_index(puzzle_index);
                 let col_index: usize = SudokuPuzzle::calculate_col_index(puzzle_index);
@@ -164,28 +164,28 @@ impl SudokuPuzzle {
                 let next_number_index: u8 = (indices_current[i] + 1) as u8;
 
                 if next_number_index < BITSET_LENGTH[possible_number_index as usize] {
-                    //next possible number to try found:
+                    // next possible number to try found:
                     let next_numbers: &[u8] = BITSET_ARRAY[possible_number_index as usize];
                     let next_number: u8 = next_numbers[next_number_index as usize];
                     puzzle_sorted[i] = next_number;
 
-                    //save value for cell:
+                    // save value for cell:
                     let check_bit: u16 = 1 << (next_number - 1);
                     row_nums[row_index] |= check_bit;
                     col_nums[col_index] |= check_bit;
                     square_nums[square_index] |= check_bit;
 
-                    indices_current[i] = next_number_index as i8; //success
-                    i += 1; //go to next cell
+                    indices_current[i] = next_number_index as i8; // success
+                    i += 1; // go to next cell
                 } else {
-                    //backtrack:
-                    indices_current[i] = -1; //forget last index for position i
-                    i -= 1; //not given values are in the head of myIndices, there we can simply go one step back!
+                    // backtrack:
+                    indices_current[i] = -1; // forget last index for position i
+                    i -= 1; // not given values are in the head of myIndices, there we can simply go one step back!
                     let last_invalid_try = puzzle_sorted[i];
                     let last_puzzle_index: usize = indices[i] as usize;
-                    puzzle_sorted[i] = 0; //find in the next step a new solution for i
+                    puzzle_sorted[i] = 0; // find in the next step a new solution for i
 
-                    //revert last value:
+                    // revert last value:
                     let last_row_index: usize =
                         SudokuPuzzle::calculate_row_index(last_puzzle_index);
                     let last_col_index: usize =

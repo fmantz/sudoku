@@ -44,6 +44,82 @@ func (p *SudokuPuzzle) findAllPossibleValuesForEachEmptyCell(rowNums, colNums, s
 	}
 }
 
+func (p *SudokuPuzzle) preparePuzzleForSolving(puzzleSorted, indices []uint8, rowNums, colNums, squareNums []uint16) {
+	var numberOffSets [PUZZLE_SIZE + 2]uint8 // counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
+	for i := 0; i < CELL_COUNT; i++ {
+		countOfIndex := p.getPossibleCounts(i, rowNums, colNums, squareNums)
+		numberOffSets[countOfIndex+1]++
+	}
+	p.myIsSolved = numberOffSets[1] == CELL_COUNT // all cells have already a solution!
+	for i := 1; i < (PUZZLE_SIZE + 2); i++ {
+		// correct offsets
+		numberOffSets[i] += numberOffSets[i-1]
+	}
+	for i := 0; i < CELL_COUNT; i++ {
+		countOfIndex := p.getPossibleCounts(i, rowNums, colNums, squareNums)
+		offSet := numberOffSets[countOfIndex]
+		indices[offSet] = uint8(i)
+		numberOffSets[countOfIndex]++
+	}
+	p.sortPuzzle(puzzleSorted, indices) // avoid jumping in the puzzle array
+}
+
+func (p *SudokuPuzzle) findSolutionNonRecursively(puzzleSorted, indices []uint8, rowNums, colNums, squareNums []uint16) {
+	var indicesCurrent [CELL_COUNT]int8
+	for i := 0; i < CELL_COUNT; i++ {
+		indicesCurrent[i] = -1
+	}
+	i := 0
+	for i < CELL_COUNT {
+		curValue := puzzleSorted[i]
+		if curValue == 0 {
+			// Is not given?
+
+			// Is there a current guess possible?
+			puzzleIndex := indices[i]
+			rowIndex := calculateRowIndex(int(puzzleIndex))
+			colIndex := calculateColIndex(int(puzzleIndex))
+			squareIndex := calculateSquareIndex(rowIndex, colIndex)
+			possibleNumberIndex := rowNums[rowIndex] | colNums[colIndex] | squareNums[squareIndex]
+			nextNumberIndex := uint8(indicesCurrent[i] + 1)
+
+			if nextNumberIndex < BITSET_LENGTH[possibleNumberIndex] {
+				// next possible number to try found:
+				nextNumbers := BITSET_ARRAY[possibleNumberIndex]
+				nextNumber := nextNumbers[nextNumberIndex]
+				puzzleSorted[i] = nextNumber
+
+				// save value for cell:
+				checkBit := uint16(1) << (nextNumber - 1)
+				rowNums[rowIndex] |= checkBit
+				colNums[colIndex] |= checkBit
+				squareNums[squareIndex] |= checkBit
+
+				indicesCurrent[i] = int8(nextNumberIndex) // success
+				i++                                       // go to next cell
+			} else {
+				// backtrack:
+				indicesCurrent[i] = -1 // forget last index for position i
+				i--                    // not given values are in the head of myIndices, there we can simply go one step back!
+				lastInvalidTry := puzzleSorted[i]
+				lastPuzzleIndex := int(indices[i])
+				puzzleSorted[i] = 0 // find in the next step a new solution for i
+
+				// revert last value:
+				lastRowIndex := calculateRowIndex(lastPuzzleIndex)
+				lastColIndex := calculateColIndex(lastPuzzleIndex)
+				lastSquareIndex := calculateSquareIndex(rowIndex, colIndex)
+				lastCheckBit := uint16(1) << (lastInvalidTry - 1)
+				rowNums[lastRowIndex] ^= lastCheckBit
+				colNums[lastColIndex] ^= lastCheckBit
+				squareNums[lastSquareIndex] ^= lastCheckBit
+			}
+		} else {
+			i++
+		}
+	}
+}
+
 func (p *SudokuPuzzle) sortPuzzle(puzzleSorted, indices []uint8) {
 	for i := 0; i < CELL_COUNT; i++ {
 		puzzleSorted[i] = p.puzzle[indices[i]]
