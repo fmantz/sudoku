@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package main
+package algo
 
 import (
 	"bytes"
@@ -121,9 +121,9 @@ func (p *SudokuPuzzle) findSolutionNonRecursively(puzzleSorted, indices []uint8,
 			possibleNumberIndex := rowNums[rowIndex] | colNums[colIndex] | squareNums[squareIndex]
 			nextNumberIndex := uint8(indicesCurrent[i] + 1)
 
-			if nextNumberIndex < BITSET_LENGTH[possibleNumberIndex] {
+			if nextNumberIndex < pBITSET_LENGTH[possibleNumberIndex] {
 				// next possible number to try found:
-				nextNumbers := BITSET_ARRAY[possibleNumberIndex]
+				nextNumbers := pBITSET_ARRAY[possibleNumberIndex]
 				nextNumber := nextNumbers[nextNumberIndex]
 				puzzleSorted[i] = nextNumber
 
@@ -204,14 +204,14 @@ func (p *SudokuPuzzle) getPossibleCounts(index int, rowNums, colNums, squareNums
 		colIndex := calculateColIndex(index)
 		squareIndex := calculateSquareIndex(rowIndex, colIndex)
 		possibleNumberIndex := rowNums[rowIndex] | colNums[colIndex] | squareNums[squareIndex]
-		return BITSET_LENGTH[possibleNumberIndex]
+		return pBITSET_LENGTH[possibleNumberIndex]
 	} else {
 		return 0
 	}
 }
 
 func (p *SudokuPuzzle) ToPrettyString() string {
-	var dottedLine = strings.Repeat("-", 4)
+	var dottedLine = strings.Repeat("-", PUZZLE_SIZE*3+SQUARE_SIZE-1)
 	const empty = "*"
 	var buffer bytes.Buffer
 	for row := 0; row < PUZZLE_SIZE; row++ {
@@ -222,9 +222,9 @@ func (p *SudokuPuzzle) ToPrettyString() string {
 		for col, colValue := range currentRow {
 			var rs string
 			if colValue == 0 {
-				rs = fmt.Sprintf(" % ", empty)
+				rs = fmt.Sprintf(" %s ", empty)
 			} else {
-				rs = fmt.Sprintf(" % ", colValue)
+				rs = fmt.Sprintf(" %s ", colValue)
 			}
 			formattedRow.WriteString(rs)
 			if col+1 < PUZZLE_SIZE && col%SQUARE_SIZE == 2 {

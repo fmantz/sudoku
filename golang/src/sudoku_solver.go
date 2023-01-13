@@ -22,8 +22,9 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"strconv"
 	"time"
+
+	"github.com/fmantz/sudoku/tree/develop/golang/algo"
 )
 
 func main() {
@@ -62,7 +63,10 @@ func generateOutputPath(inputFileName string) (outputFileName string) {
 }
 
 func solveSudokus(inputFileName string, outputFileName string) {
-	println(BITSET_ARRAY)
-	println(CHECK_BITS)
-	fmt.Println(strconv.FormatInt(CHECK_BITS, 2))
+	test := algo.NewSudokuPuzzle()
+	println("TEST with moduldes")
+	println(test.ToPrettyString())
+	// println(BITSET_ARRAY)
+	// println(CHECK_BITS)
+	// fmt.Println(strconv.FormatInt(CHECK_BITS, 2))
 }
