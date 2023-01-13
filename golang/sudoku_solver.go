@@ -1,7 +1,7 @@
 /*
  * sudoku - Sudoku solver for comparison Golang with Scala and Rust
  *        - The motivation is explained in the README.md file in the top level folder.
- * Copyright (C) 2020 Florian Mantz
+ * Copyright (C) 2023 Florian Mantz
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

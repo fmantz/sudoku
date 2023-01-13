@@ -1,3 +1,21 @@
+/*
+ * sudoku - Sudoku solver for comparison Golang with Scala and Rust
+ *        - The motivation is explained in the README.md file in the top level folder.
+ * Copyright (C) 2023 Florian Mantz
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 package main
 
 import (
@@ -31,8 +49,28 @@ func getSingleArrayIndex(row, col int) int {
 	return row*PUZZLE_SIZE + col
 }
 
+/**
+ * solves the sudoku by a simple non-recursive backtracking algorithm (brute force)
+ * (own simple solution, its an algorithm which may be ported to CUDA or OpenCL)
+ * to get a faster result use e.g. https://github.com/Emerentius/sudoku
+ */
 func (p *SudokuPuzzle) Solve() bool {
-	return false //TODO
+	// Early out:
+	if !p.myIsSolvable || p.myIsSolved {
+		return p.myIsSolved
+	}
+
+	// Temporary memory to compute solution:
+	var puzzleSorted, indices [CELL_COUNT]uint8
+	var rowNums, colNums, squareNums [PUZZLE_SIZE]uint16
+	p.findAllPossibleValuesForEachEmptyCell(rowNums[:], colNums[:], squareNums[:])
+	p.preparePuzzleForSolving(puzzleSorted[:], indices[:], rowNums[:], colNums[:], squareNums[:])
+
+	if p.myIsSolvable && !p.myIsSolved {
+		p.findSolutionNonRecursively(puzzleSorted[:], indices[:], rowNums[:], colNums[:], squareNums[:])
+	}
+
+	return p.myIsSolved
 }
 
 func (p *SudokuPuzzle) findAllPossibleValuesForEachEmptyCell(rowNums, colNums, squareNums []uint16) {
