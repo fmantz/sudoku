@@ -17,3 +17,74 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package io
+
+import (
+	"strings"
+
+	"github.com/fmantz/sudoku/golang/algo"
+)
+
+const (
+	pNEW_SUDOKU_SEPARATOR = "Grid"
+)
+
+type SudokuIterator struct {
+	curPostion int
+	len        int
+	lines      []string
+}
+
+func NewSudokuIterator(lines []string) *SudokuIterator {
+	return &SudokuIterator{0, len(lines), lines}
+}
+
+func (iter *SudokuIterator) reInit() {
+	curLine := ""
+	for iter.HasNext() && (len(curLine) == 0 || strings.HasPrefix(curLine, pNEW_SUDOKU_SEPARATOR)) {
+		curLine = iter.lines[iter.curPostion]
+		iter.curPostion++
+	}
+}
+
+func (iter *SudokuIterator) HasNext() bool {
+	return iter.curPostion < iter.len
+}
+
+func (iter *SudokuIterator) Next() *algo.SudokuPuzzle {
+	currentSudoku := algo.NewSudokuPuzzle()
+	currentRow := 0
+	for currentRow < algo.PUZZLE_SIZE {
+		curLine := iter.lines[iter.curPostion]
+		readLine(currentSudoku, currentRow, curLine)
+		currentRow++
+		if currentRow == algo.PUZZLE_SIZE {
+			iter.reInit()
+		} else {
+			if !iter.HasNext() {
+				panic("incomplete puzzle found!")
+			}
+		}
+	}
+	return currentSudoku
+}
+
+func readLine(p *algo.SudokuPuzzle, currentRow int, curLine string) {
+	curLineAsSlice := []rune(curLine)
+	for col := 0; col < min(algo.PUZZLE_SIZE, len(curLineAsSlice)); col++ {
+		c := curLineAsSlice[col]
+		var num uint8
+		if '0' < c && c <= '9' {
+			num = uint8(c - '0')
+		} else {
+			num = 0
+		}
+		p.Set(currentRow, col, num)
+	}
+}
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}

@@ -55,7 +55,7 @@ impl SudokuIO {
         };
         let mut writer = BufWriter::new(&write_file);
         for puzzle in puzzles {
-            let write_rs = writeln!(&mut writer, "{}\n", puzzle.to_string());
+            let write_rs = writeln!(&mut writer, "{}\n", puzzle);
             match write_rs {
                 Ok(()) => { /* do nothing */ }
                 Err(error) => {

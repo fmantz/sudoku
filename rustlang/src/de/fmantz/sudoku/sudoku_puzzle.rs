@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+use std::fmt::{Display, Formatter};
 use crate::sudoku_constants::SQUARE_SIZE;
 use crate::sudoku_constants::{BITSET_ARRAY, BITSET_LENGTH, CELL_COUNT, PUZZLE_SIZE};
 
@@ -302,7 +303,10 @@ impl SudokuPuzzle {
         buffer.join("\n")
     }
 
-    pub fn to_string(&self) -> String {
+}
+
+impl Display for SudokuPuzzle {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut buffer: Vec<String> = Vec::new();
         for row in 0..PUZZLE_SIZE {
             let from = row * PUZZLE_SIZE;
@@ -313,6 +317,7 @@ impl SudokuPuzzle {
                 .collect::<String>();
             buffer.push(current_row);
         }
-        buffer.join("\n")
+        let rs : String = buffer.join("\n");
+        write!(f, "{}", rs)
     }
 }

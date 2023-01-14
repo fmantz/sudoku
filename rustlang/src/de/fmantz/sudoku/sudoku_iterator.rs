@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+use std::cmp::min;
 use std::fs::File;
 use std::io::{self};
 
@@ -92,7 +93,7 @@ impl SudokuIterator {
     fn read_line(line_data: &str, puzzle: &mut SudokuPuzzle, row: usize) {
         //Read string into puzzle
         let mut chars_of_line = line_data.chars();
-        for col in 0..PUZZLE_SIZE {
+        for col in 0..min(PUZZLE_SIZE, line_data.len()) {
             let ch = chars_of_line.next();
             if let Some(char_unwrapped) = ch {
                 let number: u8 = if '0' < char_unwrapped && char_unwrapped <= '9' {
