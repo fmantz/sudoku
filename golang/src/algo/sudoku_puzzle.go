@@ -212,7 +212,7 @@ func (p *SudokuPuzzle) getPossibleCounts(index int, rowNums, colNums, squareNums
 
 func (p *SudokuPuzzle) ToPrettyString() string {
 	var dottedLine = strings.Repeat("-", PUZZLE_SIZE*3+SQUARE_SIZE-1)
-	const empty = "*"
+	const empty = "_"
 	var buffer bytes.Buffer
 	for row := 0; row < PUZZLE_SIZE; row++ {
 		from := row * PUZZLE_SIZE

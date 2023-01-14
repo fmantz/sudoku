@@ -276,7 +276,7 @@ impl SudokuPuzzle {
         let dotted_line: String = (0..(PUZZLE_SIZE * 3 + SQUARE_SIZE - 1))
             .map(|_| "-")
             .collect::<String>();
-        let empty = "*";
+        let empty = "_";
         let mut buffer: Vec<String> = Vec::new();
         for row in 0..PUZZLE_SIZE {
             let from = row * PUZZLE_SIZE;

@@ -260,7 +260,7 @@ class SudokuPuzzle {
 
 	def toPrettyString: String = {
 		val dottedLine = "-" * (PuzzleSize * 3 + SquareSize - 1)
-		val empty = "*"
+		val empty = "_"
 		val buffer = new ListBuffer[String]
 		for (row <- 0 until PuzzleSize) {
 			val from = row * PuzzleSize
