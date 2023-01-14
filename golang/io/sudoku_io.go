@@ -20,13 +20,19 @@ package io
 
 import (
 	"bufio"
+	"fmt"
 	"os"
+
+	"github.com/fmantz/sudoku/golang/algo"
 )
 
+/**
+ * Read usual 9x9 Suduko from text file
+ */
 func Read(path string) (*SudokuIterator, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("couldn't read %s: %s", path, err.Error())
 	}
 	defer file.Close()
 
@@ -38,16 +44,28 @@ func Read(path string) (*SudokuIterator, error) {
 	return NewSudokuIterator(lines), scanner.Err()
 }
 
-func Write(path string) {
+func Write(path string, puzzles []algo.SudokuPuzzle) error {
 	// open output file
 	fo, err := os.Create(path)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("couldn't create %s: %s", path, err.Error())
 	}
+
 	// close fo on exit and check for its returned error
 	defer func() {
 		if err := fo.Close(); err != nil {
-			panic(err)
+			panic(fmt.Errorf("couldn't create %s: %s", path, err.Error()))
 		}
 	}()
+
+	wr := bufio.NewWriter(fo)
+	for i := 0; i < len(puzzles); i++ {
+		_, writeErr := wr.WriteString(fmt.Sprintln(puzzles[i].String()))
+		if writeErr != nil {
+			return fmt.Errorf("problem with saving solved puzzle: %s", writeErr.Error())
+		}
+	}
+	wr.Flush()
+
+	return nil
 }

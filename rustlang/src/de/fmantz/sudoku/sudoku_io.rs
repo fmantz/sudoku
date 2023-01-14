@@ -59,7 +59,7 @@ impl SudokuIO {
             match write_rs {
                 Ok(()) => { /* do nothing */ }
                 Err(error) => {
-                    panic!("Problem with saving solved puzzle: {:?}", error);
+                    panic!("problem with saving solved puzzle: {:?}", error);
                 }
             };
             match writer.flush() {
