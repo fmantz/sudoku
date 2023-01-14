@@ -24,7 +24,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/fmantz/sudoku/tree/develop/golang/algo"
+	"github.com/fmantz/sudoku/golang/algo"
 )
 
 func main() {
