@@ -103,7 +103,7 @@ fn solve_sudokus(input_file_name: &str, output_file_name: &str) {
 fn solve_current_sudoku(sudoku: &mut SudokuPuzzle) {
     let solved: bool = sudoku.solve();
     if !solved {
-        println!("Sudoku is unsolvable:\n {}", sudoku.to_pretty_string());
+        println!("Sudoku is unsolvable:\n{}", sudoku.to_pretty_string());
     }
 }
 
