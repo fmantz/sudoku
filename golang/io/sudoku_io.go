@@ -23,7 +23,7 @@ import (
 	"os"
 )
 
-func Read(path string) ([]string, error) {
+func Read(path string) (*SudokuIterator, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -35,6 +35,5 @@ func Read(path string) ([]string, error) {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
-	return lines, scanner.Err()
-	//TODO
+	return NewSudokuIterator(lines), scanner.Err()
 }

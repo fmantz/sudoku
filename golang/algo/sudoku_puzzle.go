@@ -224,7 +224,7 @@ func (p *SudokuPuzzle) ToPrettyString() string {
 			if colValue == 0 {
 				rs = fmt.Sprintf(" %s ", empty)
 			} else {
-				rs = fmt.Sprintf(" %s ", colValue)
+				rs = fmt.Sprintf(" %d ", colValue)
 			}
 			formattedRow.WriteString(rs)
 			if col+1 < PUZZLE_SIZE && col%SQUARE_SIZE == 2 {

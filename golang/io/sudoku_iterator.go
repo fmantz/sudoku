@@ -19,6 +19,7 @@
 package io
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/fmantz/sudoku/golang/algo"
@@ -52,17 +53,16 @@ func (iter *SudokuIterator) HasNext() bool {
 
 func (iter *SudokuIterator) Next() *algo.SudokuPuzzle {
 	currentSudoku := algo.NewSudokuPuzzle()
-	currentRow := 0
-	for currentRow < algo.PUZZLE_SIZE {
+	for currentRow := 0; currentRow < algo.PUZZLE_SIZE; currentRow++ {
 		curLine := iter.lines[iter.curPostion]
 		readLine(currentSudoku, currentRow, curLine)
-		currentRow++
 		if currentRow == algo.PUZZLE_SIZE {
 			iter.reInit()
 		} else {
 			if !iter.HasNext() {
 				panic("incomplete puzzle found!")
 			}
+			iter.curPostion++
 		}
 	}
 	return currentSudoku
@@ -74,7 +74,8 @@ func readLine(p *algo.SudokuPuzzle, currentRow int, curLine string) {
 		c := curLineAsSlice[col]
 		var num uint8
 		if '0' < c && c <= '9' {
-			num = uint8(c - '0')
+			num = uint8(c) - uint8('0')
+			fmt.Printf("FLO>%d\n", num)
 		} else {
 			num = 0
 		}

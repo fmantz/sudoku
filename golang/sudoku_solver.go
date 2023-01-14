@@ -71,9 +71,8 @@ func solveSudokus(inputFileName string, outputFileName string) {
 	test := algo.NewSudokuPuzzle()
 	println("TEST with moduldes")
 	println(test.ToPrettyString())
-	var test2in []string
-	test2 := io.NewSudokuIterator(test2in)
-	println(test2)
+	test2, _ := io.Read(inputFileName)
+	println(test2.Next().ToPrettyString())
 	// println(BITSET_ARRAY)
 	// println(CHECK_BITS)
 	// fmt.Println(strconv.FormatInt(CHECK_BITS, 2))
