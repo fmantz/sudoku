@@ -17,7 +17,7 @@ RUN apt -qq --yes install rustc cargo
 ADD rustlang ./rustlang
 RUN cd ./rustlang && cargo clean
 RUN cd ./rustlang && cargo test 
-RUN cd ./rustlang && cargo build --release
+RUN cd ./rustlang && RUSTFLAGS="-C target-cpu=native" cargo build --release
 
 #Scala:
 

@@ -17,3 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package io
+
+const (
+	pNEW_SUDOKU_SEPARATOR  = "Grid"
+	pPARALLELIZATION_COUNT = 65536
+)

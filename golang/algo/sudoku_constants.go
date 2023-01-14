@@ -19,13 +19,10 @@
 package algo
 
 const (
-	NEW_SUDOKU_SEPARATOR = "Grid"
-	CELL_COUNT           = 81
-	PUZZLE_SIZE          = 9
-	SQUARE_SIZE          = 3
-	CHECK_BITS           = 511 // bit pattern 0000...111111111, 9 ones
-
-	PARALLELIZATION_COUNT = 65536
+	CELL_COUNT  = 81
+	PUZZLE_SIZE = 9
+	SQUARE_SIZE = 3
+	pCHECK_BITS  = 511 // bit pattern 0000...111111111, 9 ones
 )
 
 // unfortunately golang does not support array constants therefore

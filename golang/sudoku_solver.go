@@ -27,6 +27,10 @@ import (
 	"github.com/fmantz/sudoku/golang/algo"
 )
 
+const (
+	pPARALLELIZATION_COUNT = 65536
+)
+
 func main() {
 	args := os.Args
 	if len(args) < 2 {
