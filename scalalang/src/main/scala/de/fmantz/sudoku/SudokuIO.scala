@@ -35,7 +35,7 @@ object SudokuIO {
 		(source, iter)
 	}
 
-	def writeQQWing(fileName: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
+	def write(fileName: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
 		val writer = new PrintWriter(new FileWriter(fileName, true))
 		try {
 			puzzles.foreach({ sudoku =>

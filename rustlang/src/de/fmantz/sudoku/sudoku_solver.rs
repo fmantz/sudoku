@@ -108,8 +108,7 @@ fn solve_current_sudoku(sudoku: &mut SudokuPuzzle) {
 }
 
 fn save_sudokus(output_file_name: &str, sudoku_processing_unit: Vec<SudokuPuzzle>) {
-    let write_rs: Result<(), String> =
-        SudokuIO::write_qqwing(output_file_name, sudoku_processing_unit);
+    let write_rs: Result<(), String> = SudokuIO::write(output_file_name, sudoku_processing_unit);
     match write_rs {
         Ok(()) => { /* do nothing */ }
         Err(error) => {

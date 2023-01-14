@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use std::fmt::{Display, Formatter};
 use crate::sudoku_constants::SQUARE_SIZE;
 use crate::sudoku_constants::{BITSET_ARRAY, BITSET_LENGTH, CELL_COUNT, PUZZLE_SIZE};
+use std::fmt::{Display, Formatter};
 
 pub struct SudokuPuzzle {
     my_is_solvable: bool,
@@ -302,7 +302,6 @@ impl SudokuPuzzle {
         }
         buffer.join("\n")
     }
-
 }
 
 impl Display for SudokuPuzzle {
@@ -317,7 +316,7 @@ impl Display for SudokuPuzzle {
                 .collect::<String>();
             buffer.push(current_row);
         }
-        let rs : String = buffer.join("\n");
+        let rs: String = buffer.join("\n");
         write!(f, "{}", rs)
     }
 }

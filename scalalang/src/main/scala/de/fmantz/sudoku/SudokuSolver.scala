@@ -22,7 +22,7 @@ package de.fmantz.sudoku
 
 import java.io.File
 
-import de.fmantz.sudoku.SudokuIO.{read, writeQQWing}
+import de.fmantz.sudoku.SudokuIO.{read, write}
 
 object SudokuSolver {
 
@@ -46,7 +46,7 @@ object SudokuSolver {
 						val puzzlesSolved = g.par.map({case sudoku =>
 							solveCurrentSudoku(sudoku); sudoku //solve in parallel!
 						}).toIterator
-						writeQQWing(outputFileName, puzzlesSolved)
+						write(outputFileName, puzzlesSolved)
 					})
 				println("output: " + new File(outputFileName).getAbsolutePath)
 				println(s"All sudoku puzzles solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")

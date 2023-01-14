@@ -41,7 +41,7 @@ impl SudokuIO {
         Ok(puzzles)
     }
 
-    pub fn write_qqwing(filename: &str, puzzles: Vec<SudokuPuzzle>) -> Result<(), String> {
+    pub fn write(filename: &str, puzzles: Vec<SudokuPuzzle>) -> Result<(), String> {
         let path = Path::new(filename);
         let display = path.display();
         let write_file = match OpenOptions::new()
