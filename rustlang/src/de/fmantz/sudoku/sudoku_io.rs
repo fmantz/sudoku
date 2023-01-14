@@ -30,10 +30,10 @@ impl SudokuIO {
     /**
      * Read usual 9x9 Suduko from text file
      */
-    pub fn read(filename: &str) -> Result<SudokuIterator, String> {
-        let path = Path::new(&filename);
-        let display = path.display();
-        let file_data = match File::open(&path) {
+    pub fn read(path: &str) -> Result<SudokuIterator, String> {
+        let my_path = Path::new(&path);
+        let display = my_path.display();
+        let file_data = match File::open(&my_path) {
             Err(why) => return Err(format!("couldn't read {}: {}", display, why)),
             Ok(file) => io::BufReader::new(file).lines(),
         };
@@ -41,14 +41,14 @@ impl SudokuIO {
         Ok(puzzles)
     }
 
-    pub fn write(filename: &str, puzzles: Vec<SudokuPuzzle>) -> Result<(), String> {
-        let path = Path::new(filename);
-        let display = path.display();
+    pub fn write(path: &str, puzzles: Vec<SudokuPuzzle>) -> Result<(), String> {
+        let my_path = Path::new(path);
+        let display = my_path.display();
         let write_file = match OpenOptions::new()
             .create(true)
             .write(true)
             .append(true)
-            .open(&path)
+            .open(&my_path)
         {
             Err(why) => return Err(format!("couldn't create {}: {}", display, why)),
             Ok(file) => file,

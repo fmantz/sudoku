@@ -29,14 +29,14 @@ object SudokuIO {
 	/**
 	 * Read usual 9x9 Suduko from text file
 	 */
-	def read(fileName: String): (BufferedSource, Iterator[SudokuPuzzle]) = {
-		val source: BufferedSource = Source.fromFile(fileName)
+	def read(path: String): (BufferedSource, Iterator[SudokuPuzzle]) = {
+		val source: BufferedSource = Source.fromFile(path)
 		val iter = new SudokuIterator(source.getLines())
 		(source, iter)
 	}
 
-	def write(fileName: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
-		val writer = new PrintWriter(new FileWriter(fileName, true))
+	def write(path: String, puzzles: Iterator[SudokuPuzzle]): Unit = {
+		val writer = new PrintWriter(new FileWriter(path, true))
 		try {
 			puzzles.foreach({ sudoku =>
 				writer.println(sudoku)

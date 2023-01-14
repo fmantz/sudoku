@@ -37,3 +37,17 @@ func Read(path string) (*SudokuIterator, error) {
 	}
 	return NewSudokuIterator(lines), scanner.Err()
 }
+
+func Write(path string) {
+	// open output file
+	fo, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+	// close fo on exit and check for its returned error
+	defer func() {
+		if err := fo.Close(); err != nil {
+			panic(err)
+		}
+	}()
+}
