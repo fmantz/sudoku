@@ -19,7 +19,6 @@
 package io
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/fmantz/sudoku/golang/algo"
@@ -75,7 +74,6 @@ func readLine(p *algo.SudokuPuzzle, currentRow int, curLine string) {
 		var num uint8
 		if '0' < c && c <= '9' {
 			num = uint8(c) - uint8('0')
-			fmt.Printf("FLO>%d\n", num)
 		} else {
 			num = 0
 		}

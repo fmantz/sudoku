@@ -69,11 +69,10 @@ func generateOutputPath(inputFileName string) (outputFileName string) {
 
 func solveSudokus(inputFileName string, outputFileName string) {
 	test := algo.NewSudokuPuzzle()
-	println("TEST with moduldes")
 	println(test.ToPrettyString())
 	test2, _ := io.Read(inputFileName)
-	println(test2.Next().ToPrettyString())
-	// println(BITSET_ARRAY)
-	// println(CHECK_BITS)
-	// fmt.Println(strconv.FormatInt(CHECK_BITS, 2))
+	firstPuzzle := test2.Next()
+	println(firstPuzzle.ToPrettyString())
+	firstPuzzle.Solve()
+	println(firstPuzzle.ToPrettyString())
 }
