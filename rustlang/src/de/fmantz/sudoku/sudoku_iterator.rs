@@ -18,7 +18,6 @@
  */
 use std::fs::File;
 use std::io::{self};
-use std::str::Chars;
 
 use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
 use crate::sudoku_constants::PUZZLE_SIZE;
@@ -92,7 +91,7 @@ impl SudokuIterator {
 
     fn read_line(line_data: &str, puzzle: &mut SudokuPuzzle, row: usize) {
         //Read string into puzzle
-        let mut chars_of_line: Chars = line_data.chars();
+        let mut chars_of_line = line_data.chars();
         for col in 0..PUZZLE_SIZE {
             let ch = chars_of_line.next();
             if let Some(char_unwrapped) = ch {
