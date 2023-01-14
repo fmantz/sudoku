@@ -150,7 +150,7 @@ impl SudokuPuzzle {
         let mut indices_current: [i8; CELL_COUNT] = [-1; CELL_COUNT];
         let mut i = 0;
         while i < CELL_COUNT {
-            let cur_value = puzzle_sorted[i]; //kind of stack
+            let cur_value = puzzle_sorted[i]; // kind of stack
             if cur_value == 0 {
                 // Is not given?
 

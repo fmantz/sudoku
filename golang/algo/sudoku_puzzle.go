@@ -109,7 +109,7 @@ func (p *SudokuPuzzle) findSolutionNonRecursively(puzzleSorted, indices []uint8,
 	}
 	i := 0
 	for i < CELL_COUNT {
-		curValue := puzzleSorted[i]
+		curValue := puzzleSorted[i] // kind of stack
 		if curValue == 0 {
 			// Is not given?
 
@@ -146,7 +146,7 @@ func (p *SudokuPuzzle) findSolutionNonRecursively(puzzleSorted, indices []uint8,
 				// revert last value:
 				lastRowIndex := calculateRowIndex(lastPuzzleIndex)
 				lastColIndex := calculateColIndex(lastPuzzleIndex)
-				lastSquareIndex := calculateSquareIndex(rowIndex, colIndex)
+				lastSquareIndex := calculateSquareIndex(lastRowIndex, lastColIndex)
 				lastCheckBit := uint16(1) << (lastInvalidTry - 1)
 				rowNums[lastRowIndex] ^= lastCheckBit
 				colNums[lastColIndex] ^= lastCheckBit
@@ -156,6 +156,8 @@ func (p *SudokuPuzzle) findSolutionNonRecursively(puzzleSorted, indices []uint8,
 			i++
 		}
 	}
+	p.fillPositions(puzzleSorted, indices)
+	p.myIsSolved = true
 }
 
 func (p *SudokuPuzzle) sortPuzzle(puzzleSorted, indices []uint8) {
