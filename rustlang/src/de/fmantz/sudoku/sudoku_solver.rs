@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#![feature(test)]
 use rayon::prelude::*;
 use std::env;
 use std::path::{Path, MAIN_SEPARATOR};
@@ -26,6 +27,7 @@ use crate::sudoku_io::SudokuIO;
 use crate::sudoku_iterator::{SudokuGroupedIterator, SudokuIterator};
 use crate::sudoku_puzzle::SudokuPuzzle;
 
+mod sudoku_bench;
 mod sudoku_bit_set;
 mod sudoku_constants;
 mod sudoku_io;
