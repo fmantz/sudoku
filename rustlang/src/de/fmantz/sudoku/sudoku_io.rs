@@ -123,12 +123,12 @@ mod tests {
         assert_eq!(read_length, expected_length);
     }
 
-    pub fn read_file(filename: &str) -> Result<Vec<String>, String> {
+    pub fn read_file(path: &str) -> Result<Vec<String>, String> {
         let mut rs: Vec<String> = Vec::new();
         let mut buffer: Vec<String> = Vec::new();
-        let path = Path::new(&filename);
-        let display = path.display();
-        let file_data = match File::open(&path) {
+        let my_path = Path::new(&path);
+        let display = my_path.display();
+        let file_data = match File::open(&my_path) {
             Err(why) => return Err(format!("couldn't read {}: {}", display, why)),
             Ok(file) => io::BufReader::new(file).lines(),
         };
