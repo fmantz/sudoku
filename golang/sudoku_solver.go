@@ -28,10 +28,6 @@ import (
 	"github.com/fmantz/sudoku/golang/io"
 )
 
-const (
-	pPARALLELIZATION_COUNT = 65536
-)
-
 func main() {
 	args := os.Args
 	if len(args) < 2 {
@@ -68,11 +64,25 @@ func generateOutputPath(inputFileName string) (outputFileName string) {
 }
 
 func solveSudokus(inputFileName string, outputFileName string) {
-	test := algo.NewSudokuPuzzle()
-	println(test.ToPrettyString())
-	test2, _ := io.Read(inputFileName)
-	firstPuzzle := test2.Next()
-	println(firstPuzzle.ToPrettyString())
-	firstPuzzle.Solve()
-	println(firstPuzzle.ToPrettyString())
+	puzzles, errRead := io.Read(inputFileName)
+	if errRead != nil {
+		panic(errRead.Error())
+	}
+	var solvedPuzzles []algo.SudokuPuzzle
+	for puzzles.HasNext() {
+		puzzle := puzzles.Next()
+		solveCurrentSudoku(puzzle)
+		solvedPuzzles = append(solvedPuzzles, *puzzle)
+	}
+	errWrite := io.Write(outputFileName, solvedPuzzles)
+	if errWrite != nil {
+		panic(errWrite.Error())
+	}
+}
+
+func solveCurrentSudoku(sudoku *algo.SudokuPuzzle) {
+	solved := sudoku.Solve()
+	if !solved {
+		fmt.Printf("Sudoku is unsolvable:\n%s", sudoku.ToPrettyString())
+	}
 }

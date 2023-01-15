@@ -37,18 +37,18 @@ impl Iterator for SudokuIterator {
     type Item = SudokuPuzzle;
 
     fn next(&mut self) -> Option<SudokuPuzzle> {
-        //Find first line with data:
+        // Find first line with data:
         let first_line = self.re_init();
         first_line.as_ref()?;
 
-        //Allocate memory for new puzzle:
+        // Allocate memory for new puzzle:
         let mut puzzle: SudokuPuzzle = SudokuPuzzle::new();
 
-        //Read first line:
+        // Read first line:
         let line_data: String = first_line.unwrap();
         SudokuIterator::read_line(&line_data, &mut puzzle, 0);
 
-        //Read other lines:
+        // Read other lines:
         for row in 1..PUZZLE_SIZE {
             let next_line = self.lines.next();
             next_line.as_ref()?;
