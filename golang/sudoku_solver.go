@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sync"
 	"time"
 
 	"github.com/fmantz/sudoku/golang/algo"
@@ -68,19 +69,23 @@ func solveSudokus(inputFileName string, outputFileName string) {
 	if errRead != nil {
 		panic(errRead.Error())
 	}
-	var solvedPuzzles []algo.SudokuPuzzle
+	var puzzleBuffer []algo.SudokuPuzzle
+	var wg sync.WaitGroup
 	for puzzles.HasNext() {
+		wg.Add(1)
 		puzzle := puzzles.Next()
-		solveCurrentSudoku(puzzle)
-		solvedPuzzles = append(solvedPuzzles, *puzzle)
+		solveCurrentSudoku(puzzle, &wg)
+		puzzleBuffer = append(puzzleBuffer, *puzzle)
 	}
-	errWrite := io.Write(outputFileName, solvedPuzzles)
+	go wg.Wait()
+	errWrite := io.Write(outputFileName, puzzleBuffer)
 	if errWrite != nil {
 		panic(errWrite.Error())
 	}
 }
 
-func solveCurrentSudoku(sudoku *algo.SudokuPuzzle) {
+func solveCurrentSudoku(sudoku *algo.SudokuPuzzle, wg *sync.WaitGroup) {
+	defer wg.Done()
 	solved := sudoku.Solve()
 	if !solved {
 		fmt.Printf("Sudoku is unsolvable:\n%s", sudoku.ToPrettyString())
