@@ -105,7 +105,7 @@ mod tests {
     }
 
     #[test]
-    fn read_should_read_correct_number_of_documents() {
+    fn read_should_read_correct_number_of_sudokus() {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(format!(
             "test{}resources{}{}",
