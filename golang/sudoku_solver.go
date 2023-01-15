@@ -55,7 +55,7 @@ func main() {
 func generateOutputPath(inputFileName string) (outputFileName string) {
 	defer func() {
 		if r := recover(); r != nil {
-			outputFileName = fmt.Sprintf(".%ssudoku_solution.txt", os.PathSeparator)
+			outputFileName = fmt.Sprintf(".%ssudoku_solution.txt", string(os.PathSeparator))
 		}
 	}()
 	myPath := path.Dir(inputFileName)
