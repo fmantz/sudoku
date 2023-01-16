@@ -25,6 +25,18 @@ import (
 	"github.com/fmantz/sudoku/golang/io"
 )
 
+func TestSolveOneSudoku(t *testing.T) {
+	checkSolve("./test/one_sudoku.txt", t)
+}
+
+func TestSolve50SudokusFromProjectEuler(t *testing.T) {
+	checkSolve("./test/p096_sudoku.txt", t)
+}
+
+func TestSolve10SudokusGeneratedWithQQWing(t *testing.T) {
+	checkSolve("./test/sudoku.txt", t)
+}
+
 func checkSolve(path string, t *testing.T) {
 	puzzles, errRead := io.Read(path)
 	if errRead != nil {
