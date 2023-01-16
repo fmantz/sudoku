@@ -77,7 +77,7 @@ func solveSudokus(inputFileName string, outputFileName string) {
 		solveCurrentSudoku(puzzle, &wg)
 		puzzleBuffer = append(puzzleBuffer, *puzzle)
 	}
-	go wg.Wait()
+	wg.Wait()
 	errWrite := io.Write(outputFileName, puzzleBuffer)
 	if errWrite != nil {
 		panic(errWrite.Error())
