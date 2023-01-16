@@ -84,11 +84,9 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
     val selectedRow = sudoku(row)
-    var col = 0
-    while (col < PuzzleSize) {
+    for (col <- 0 until PuzzleSize) {
       val value = selectedRow(col)
       bits.saveValue(value)
-      col += 1
     }
     bits
   }
@@ -106,11 +104,9 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     col: Int,
     bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
-    var row = 0
-    while (row < PuzzleSize) {
+    for (row <- 0 until PuzzleSize) {
       val value = sudoku(row)(col)
       bits.saveValue(value)
-      row += 1
     }
     bits
   }
@@ -132,15 +128,11 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
   ): SudokuBitSet = {
     val rowSquareOffset = rowSquareIndex * SquareSize
     val colSquareOffset = colSquareIndex * SquareSize
-    var row = 0
-    while (row < SquareSize) {
-      var col = 0
-      while (col < SquareSize) {
+    for (row <- 0 until SquareSize) {
+      for (col <- 0 until SquareSize) {
         val value = sudoku(row + rowSquareOffset)(col + colSquareOffset)
         bits.saveValue(value)
-        col += 1
       }
-      row += 1
     }
     bits
   }
