@@ -31,10 +31,27 @@ func checkSolve(path string, t *testing.T) {
 		t.Error("could not read sudokus")
 	}
 	for sudokuNumber := 1; puzzles.HasNext(); sudokuNumber++ {
-		puzzle := puzzles.Next()
-		input := puzzle.String()
-		puzzle.Solve()
-		println(input)
+		sudoku := puzzles.Next()
+		input := sudoku.String()
+		sudoku.Solve()
+		output := sudoku.String()
+		if !checkSolution(sudoku) {
+			t.Errorf("Sudoku %d is not solved:\n%s", sudokuNumber, sudoku.ToPrettyString())
+		}
+		if len(input) != len(output) {
+			t.Error("Sudoku strings have not same length")
+		}
+		inputRunes := []rune(input)
+		outputRunes := []rune(output)
+		for i := 0; i < len(input); i++ {
+			inChar := inputRunes[i]
+			outChar := outputRunes[i]
+			if !isBlank(inChar) {
+				if inChar != outChar {
+					t.Errorf("Sudoku %d has been changed:\n%s", sudokuNumber, sudoku.ToPrettyString())
+				}
+			}
+		}
 	}
 }
 

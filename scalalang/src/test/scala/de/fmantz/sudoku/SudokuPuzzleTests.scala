@@ -51,7 +51,7 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
         sudoku.solve()
         val output = sudoku.toString
         require(checkSolution(sudoku), s"Sudoku $sudokuNumber is not solved:\n${sudoku.toPrettyString}")
-        require(input.length == output.length, "sudoku strings have not same length")
+        require(input.length == output.length, "Sudoku strings have not same length")
         for (i <- input.indices) {
           val inChar = input.charAt(i)
           val outChar = output.charAt(i)
