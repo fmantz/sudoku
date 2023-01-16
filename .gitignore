@@ -40,4 +40,4 @@ performance/sudoku*.txt
 sudoku_cuda
 
 # go program
-sudoku_solver
+golang
