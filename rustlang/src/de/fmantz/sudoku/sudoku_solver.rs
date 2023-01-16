@@ -42,14 +42,14 @@ fn main() {
         println!("-Second argument can be output path for sudoku puzzles solution!");
     } else {
         let start: Instant = Instant::now();
-        let input_file_name: &String = args.get(1).unwrap();
-        let output_file_name: String = if args.len() > 2 {
+        let input_path: &String = args.get(1).unwrap();
+        let output_path: String = if args.len() > 2 {
             let second_argument: String = args.get(2).unwrap().to_string();
             second_argument
         } else {
-            let path = Path::new(input_file_name);
+            let path = Path::new(input_path);
             let parent = path.parent();
-            let generated_file_name: String = if let Some(unwrapped_parent) = parent {
+            let generated_output_path: String = if let Some(unwrapped_parent) = parent {
                 let simple_file_name: String =
                     path.file_name().unwrap().to_str().unwrap().to_string();
                 let new_file_name: String = format!("SOLUTION_{}", simple_file_name);
@@ -61,12 +61,12 @@ fn main() {
             } else {
                 format!(".{}sudoku_solution.txt", MAIN_SEPARATOR)
             };
-            generated_file_name
+            generated_output_path
         };
-        println!("input: {}", Path::new(&input_file_name).to_str().unwrap());
-        solve_sudokus(input_file_name, &output_file_name);
+        println!("input: {}", Path::new(&input_path).to_str().unwrap());
+        solve_sudokus(input_path, &output_path);
         let duration = start.elapsed();
-        println!("output: {}", Path::new(&output_file_name).to_str().unwrap());
+        println!("output: {}", Path::new(&output_path).to_str().unwrap());
         println!(
             "All sudoku puzzles solved by simple backtracking algorithm in {:?}",
             duration
@@ -74,8 +74,8 @@ fn main() {
     }
 }
 
-fn solve_sudokus(input_file_name: &str, output_file_name: &str) {
-    let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
+fn solve_sudokus(input_path: &str, output_path: &str) {
+    let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_path);
     match puzzles {
         Ok(puzzles) => {
             let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
@@ -93,7 +93,7 @@ fn solve_sudokus(input_file_name: &str, output_file_name: &str) {
                         solve_current_sudoku(unsolved_sudoku);
                     });
 
-                save_sudokus(output_file_name, sudoku_processing_unit);
+                save_sudokus(output_path, sudoku_processing_unit);
             }
         }
         Err(error) => {
@@ -147,11 +147,11 @@ mod tests {
         check_solve("sudoku.txt");
     }
 
-    pub fn check_solve(filename: &str) {
+    pub fn check_solve(path: &str) {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(format!(
             "test{}resources{}{}",
-            MAIN_SEPARATOR, MAIN_SEPARATOR, filename
+            MAIN_SEPARATOR, MAIN_SEPARATOR, path
         ));
         let filename_with_path: &str = dir.as_os_str().to_str().unwrap();
         let start: Instant = Instant::now();

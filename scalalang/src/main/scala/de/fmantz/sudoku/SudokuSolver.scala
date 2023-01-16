@@ -33,12 +33,12 @@ object SudokuSolver {
 			println("-Second argument can be output path for sudoku puzzles solution!")
 		} else {
 			val startTotal = System.currentTimeMillis()
-			val inputFileName = args.head
-			val inputFile = new File(inputFileName)
-			val defaultOutputFileName = s"${inputFile.getParentFile.getPath}${File.separator}SOLUTION_${inputFile.getName}"
-			val outputFileName = args.tail.headOption.getOrElse(defaultOutputFileName)
+			val inputPath = args.head
+			val inputFile = new File(inputPath)
+			val defaultOutputPath = s"${inputFile.getParentFile.getPath}${File.separator}SOLUTION_${inputFile.getName}"
+			val outputPath = args.tail.headOption.getOrElse(defaultOutputPath)
 			println("input: " + inputFile.getAbsolutePath)
-			val (source, puzzles) = read(inputFileName)
+			val (source, puzzles) = read(inputPath)
 			try {
 				puzzles
 					.grouped(SudokuConstants.ParallelizationCount)
@@ -46,9 +46,9 @@ object SudokuSolver {
 						val puzzlesSolved = g.par.map({case sudoku =>
 							solveCurrentSudoku(sudoku); sudoku //solve in parallel!
 						}).toIterator
-						write(outputFileName, puzzlesSolved)
+						write(outputPath, puzzlesSolved)
 					})
-				println("output: " + new File(outputFileName).getAbsolutePath)
+				println("output: " + new File(outputPath).getAbsolutePath)
 				println(s"All sudoku puzzles solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")
 			} finally {
 				source.close()

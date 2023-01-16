@@ -38,34 +38,34 @@ func main() {
 		os.Exit(0)
 	}
 	start := time.Now()
-	inputFileName := args[1]
-	var outputFileName string
+	inputPath := args[1]
+	var outputPath string
 	if len(args) > 2 {
-		outputFileName = args[2]
+		outputPath = args[2]
 	} else {
-		outputFileName = generateOutputPath(inputFileName)
+		outputPath = generateOutputPath(inputPath)
 	}
-	fmt.Printf("input: %s\n", inputFileName)
-	solveSudokus(inputFileName, outputFileName)
+	fmt.Printf("input: %s\n", inputPath)
+	solveSudokus(inputPath, outputPath)
 	duration := time.Since(start)
-	fmt.Printf("output: %s\n", outputFileName)
+	fmt.Printf("output: %s\n", outputPath)
 	fmt.Printf("All sudoku puzzles solved by simple backtracking algorithm in %s\n", &duration)
 }
 
-func generateOutputPath(inputFileName string) (outputFileName string) {
+func generateOutputPath(inputPath string) (outputPath string) {
 	defer func() {
 		if r := recover(); r != nil {
-			outputFileName = fmt.Sprintf(".%ssudoku_solution.txt", string(os.PathSeparator))
+			outputPath = fmt.Sprintf(".%ssudoku_solution.txt", string(os.PathSeparator))
 		}
 	}()
-	myPath := path.Dir(inputFileName)
-	simpleFileName := path.Base(inputFileName)
-	outputFileName = fmt.Sprintf("%s/SOLUTION_%s", myPath, simpleFileName)
-	return outputFileName
+	myPath := path.Dir(inputPath)
+	simpleFileName := path.Base(inputPath)
+	outputPath = fmt.Sprintf("%s/SOLUTION_%s", myPath, simpleFileName)
+	return outputPath
 }
 
-func solveSudokus(inputFileName string, outputFileName string) {
-	puzzles, errRead := io.Read(inputFileName)
+func solveSudokus(inputPath string, outputPath string) {
+	puzzles, errRead := io.Read(inputPath)
 	if errRead != nil {
 		panic(errRead.Error())
 	}
@@ -78,7 +78,7 @@ func solveSudokus(inputFileName string, outputFileName string) {
 		puzzleBuffer = append(puzzleBuffer, *puzzle)
 	}
 	wg.Wait()
-	errWrite := io.Write(outputFileName, puzzleBuffer)
+	errWrite := io.Write(outputPath, puzzleBuffer)
 	if errWrite != nil {
 		panic(errWrite.Error())
 	}
