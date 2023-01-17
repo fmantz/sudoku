@@ -23,8 +23,8 @@ My approach was:
 To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
-git checkout tags/version-0.8.0 -b v0.8.0
-docker build . --tag sudoku:0.8
+git checkout tags/version-0.9.0 -b v0.9.0
+docker build . --tag sudoku:0.9.0
 ```
 
 This Docker build will:

@@ -23,7 +23,7 @@ lazy val isNative = sys.props.get("NATIVE").isDefined
 lazy val enablePluginsList = if(isNative) Seq(ScalaNativePlugin) else Seq.empty
 enablePlugins(enablePluginsList:_*)
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.10"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
