@@ -21,8 +21,9 @@
 package de.fmantz.sudoku
 
 import java.io.File
-
 import de.fmantz.sudoku.SudokuIO.{read, write}
+
+import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
 
 object SudokuSolver {
 
@@ -43,7 +44,7 @@ object SudokuSolver {
 				puzzles
 					.grouped(SudokuConstants.ParallelizationCount)
 					.foreach({ g =>
-						val puzzlesSolved = g.par.map({case sudoku =>
+						val puzzlesSolved = g.par.map({ sudoku =>
 							solveCurrentSudoku(sudoku); sudoku //solve in parallel!
 						}).toIterator
 						write(outputPath, puzzlesSolved)

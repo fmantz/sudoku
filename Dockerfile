@@ -1,5 +1,5 @@
 FROM hseeberger/scala-sbt:8u222_1.3.5_2.13.1
-
+FROM
 #Copy QQWING from Website:
 ADD https://qqwing.com/qqwing-1.3.4.jar ./
 
@@ -35,6 +35,6 @@ RUN cd ./scalalang && sbt clean test assembly
 
 #Move all assembly into ./
 RUN mv ./rustlang/target/release/sudoku ./sudoku-rust
-RUN mv ./scalalang/target/scala-2.11/sudoku-assembly-0.7.0.jar ./sudoku-scala.jar
+RUN mv ./scalalang/target/scala-2.13/sudoku-assembly-0.9.0.jar ./sudoku-scala.jar
 #DISABLED: only useful for versions < 0.3 (!)
 #RUN mv ./scalalang/target/scala-2.11/sudoku-out ./sudoku-scalanative

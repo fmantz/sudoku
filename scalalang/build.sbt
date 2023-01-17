@@ -23,17 +23,17 @@ lazy val isNative = sys.props.get("NATIVE").isDefined
 lazy val enablePluginsList = if(isNative) Seq(ScalaNativePlugin) else Seq.empty
 enablePlugins(enablePluginsList:_*)
 
-scalaVersion := "2.11.12"
+scalaVersion := "2.13.1"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 // It's possible to define many kinds of settings, such as:
 name := "sudoku"
 organization := "de.fmantz"
-version := "0.7.0"
+version := "0.9.0"
 
 // You can define other libraries as dependencies in your build like this:
-libraryDependencies += "org.scalactic" %% "scalactic" % "3.1.0"
+libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.0" % "test"
 
 fork := true
