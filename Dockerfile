@@ -52,8 +52,10 @@ RUN cd ./scalalang && sbt clean test assembly
 # DISABLED: only useful for versions < 0.3 (!)
 # RUN cd ./scalalang && sbt -DNATIVE nativeLink
 
-
-
+# Golang:
+RUN apt-get install -y golang-go
+ADD golang ./golang
+RUN cd ./golang && go test ./... && go build
 
 #
 # Build final image
@@ -95,5 +97,6 @@ WORKDIR /root/
 # Move all assembly into ./
 COPY --from=0 /workdir/rustlang/target/release/sudoku                        ./sudoku-rust
 COPY --from=0 /workdir/scalalang/target/scala-2.13/sudoku-assembly-0.9.0.jar ./sudoku-scala.jar
+COPY --from=0 /workdir/golang/golang                                         ./sudoku-golang
 # DISABLED: only useful for versions < 0.3 (!)
 # COPY --from=0 /workdir/scalalang/target/scala-2.11/sudoku-out ./sudoku-scalanative
