@@ -69,13 +69,17 @@ func solveSudokus(inputPath string, outputPath string) {
 	if errRead != nil {
 		panic(errRead.Error())
 	}
+	// save in buffer:
 	var puzzleBuffer []algo.SudokuPuzzle
-	var wg sync.WaitGroup
 	for puzzles.HasNext() {
-		wg.Add(1)
 		puzzle := puzzles.Next()
-		solveCurrentSudoku(puzzle, &wg)
 		puzzleBuffer = append(puzzleBuffer, *puzzle)
+	}
+	// solve in parallel:
+	var wg sync.WaitGroup
+	for i, _ := range puzzleBuffer {
+		wg.Add(1)
+		go solveCurrentSudoku(i, puzzleBuffer, &wg)
 	}
 	wg.Wait()
 	errWrite := io.Write(outputPath, puzzleBuffer)
@@ -84,10 +88,10 @@ func solveSudokus(inputPath string, outputPath string) {
 	}
 }
 
-func solveCurrentSudoku(sudoku *algo.SudokuPuzzle, wg *sync.WaitGroup) {
+func solveCurrentSudoku(index int, puzzles []algo.SudokuPuzzle, wg *sync.WaitGroup) {
 	defer wg.Done()
-	solved := sudoku.Solve()
+	solved := puzzles[index].Solve()
 	if !solved {
-		fmt.Printf("Sudoku is unsolvable:\n%s", sudoku.ToPrettyString())
+		fmt.Printf("Sudoku is unsolvable:\n%s", puzzles[index].ToPrettyString())
 	}
 }
