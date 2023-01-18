@@ -40,11 +40,13 @@ RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install sbt 1.3.8
 #RUN apt -qq --yes install clang libunwind-dev 
 
 #Build scala application:
+WORKDIR /workdir
 ADD scalalang ./scalalang
-
-//TODO: Add java and sbt to path
-RUN export JAVA_HOME=$HOME/.sdkman/candidates/java/current/bin
-RUN cd ./scalalang && $HOME/.sdkman/candidates/sbt/current/bin/sbt clean test assembly
+ENV PATH="${PATH}/:/root/.sdkman/candidates/java/current/bin"
+ENV PATH="${PATH}/:/root/.sdkman/candidates/scala/current/bin"
+ENV PATH="${PATH}/:/root/.sdkman/candidates/sbt/current/bin"
+RUN echo $PATH
+RUN cd ./scalalang && sbt clean test assembly
 
 #Build scala-native application:
 #DISABLED: only useful for versions < 0.3 (!)
