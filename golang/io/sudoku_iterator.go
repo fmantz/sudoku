@@ -40,7 +40,7 @@ func NewSudokuIterator(lines []string) *SudokuIterator {
 
 func (iter *SudokuIterator) reInit() {
 	curLine := ""
-	for iter.HasNext() {
+	for iter.curPostion < iter.len-1 {
 		curLine = iter.lines[iter.curPostion]
 		if len(curLine) == 0 || strings.HasPrefix(curLine, pNEW_SUDOKU_SEPARATOR) {
 			iter.curPostion++
@@ -51,20 +51,26 @@ func (iter *SudokuIterator) reInit() {
 }
 
 func (iter *SudokuIterator) HasNext() bool {
-	return iter.curPostion < iter.len
+	if iter.curPostion == 0 {
+		iter.reInit()
+	}
+	return iter.curPostion < iter.len && len(iter.lines[iter.curPostion]) >= algo.PUZZLE_SIZE
 }
 
 func (iter *SudokuIterator) Next() *algo.SudokuPuzzle {
-	iter.reInit()
+	if iter.curPostion == 0 {
+		iter.reInit()
+	}
 	currentSudoku := algo.NewSudokuPuzzle()
 	for currentRow := 0; currentRow < algo.PUZZLE_SIZE; currentRow++ {
+		if currentRow < algo.PUZZLE_SIZE && iter.curPostion >= iter.len {
+			panic("incomplete puzzle found!")
+		}
 		curLine := iter.lines[iter.curPostion]
 		readLine(currentSudoku, currentRow, curLine)
 		iter.curPostion++
-		if currentRow < algo.PUZZLE_SIZE-1 && !iter.HasNext() {
-			panic("incomplete puzzle found!")
-		}
 	}
+	iter.reInit()
 	return currentSudoku
 }
 
