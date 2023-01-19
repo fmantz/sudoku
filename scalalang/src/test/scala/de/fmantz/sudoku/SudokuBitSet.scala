@@ -22,7 +22,7 @@ package de.fmantz.sudoku
 
 class SudokuBitSet( private var bits: Int) {
 
-  def this(){
+  def this() = {
     this(bits = 0)
   }
 

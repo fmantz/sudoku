@@ -38,3 +38,6 @@ performance/sudoku*.txt
 
 # cuda prog:
 sudoku_cuda
+
+# go program
+golang

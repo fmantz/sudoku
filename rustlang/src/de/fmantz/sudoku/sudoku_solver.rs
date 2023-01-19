@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+//#![feature(test)]
 use rayon::prelude::*;
 use std::env;
 use std::path::{Path, MAIN_SEPARATOR};
@@ -25,8 +26,8 @@ use crate::sudoku_constants::PARALLELIZATION_COUNT;
 use crate::sudoku_io::SudokuIO;
 use crate::sudoku_iterator::{SudokuGroupedIterator, SudokuIterator};
 use crate::sudoku_puzzle::SudokuPuzzle;
-use crate::sudoku_puzzle::SudokuPuzzleData;
 
+//mod sudoku_bench; //requires features test above
 mod sudoku_bit_set;
 mod sudoku_constants;
 mod sudoku_io;
@@ -41,14 +42,14 @@ fn main() {
         println!("-Second argument can be output path for sudoku puzzles solution!");
     } else {
         let start: Instant = Instant::now();
-        let input_file_name: &String = args.get(1).unwrap();
-        let output_file_name: String = if args.len() > 2 {
+        let input_path: &String = args.get(1).unwrap();
+        let output_path: String = if args.len() > 2 {
             let second_argument: String = args.get(2).unwrap().to_string();
             second_argument
         } else {
-            let path = Path::new(input_file_name);
+            let path = Path::new(input_path);
             let parent = path.parent();
-            let generated_file_name: String = if let Some(unwrapped_parent) = parent {
+            let generated_output_path: String = if let Some(unwrapped_parent) = parent {
                 let simple_file_name: String =
                     path.file_name().unwrap().to_str().unwrap().to_string();
                 let new_file_name: String = format!("SOLUTION_{}", simple_file_name);
@@ -60,12 +61,12 @@ fn main() {
             } else {
                 format!(".{}sudoku_solution.txt", MAIN_SEPARATOR)
             };
-            generated_file_name
+            generated_output_path
         };
-        println!("input: {}", Path::new(&input_file_name).to_str().unwrap());
-        solve_sudokus(input_file_name, &output_file_name);
+        println!("input: {}", Path::new(&input_path).to_str().unwrap());
+        solve_sudokus(input_path, &output_path);
         let duration = start.elapsed();
-        println!("output: {}", Path::new(&output_file_name).to_str().unwrap());
+        println!("output: {}", Path::new(&output_path).to_str().unwrap());
         println!(
             "All sudoku puzzles solved by simple backtracking algorithm in {:?}",
             duration
@@ -73,26 +74,24 @@ fn main() {
     }
 }
 
-fn solve_sudokus(input_file_name: &str, output_file_name: &str) {
-    let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_file_name);
+fn solve_sudokus(input_path: &str, output_path: &str) {
+    let puzzles: Result<SudokuIterator, String> = SudokuIO::read(input_path);
     match puzzles {
         Ok(puzzles) => {
             let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
             for puzzle_buffer in grouped_iterator {
                 //collect a bunch of sudokus:
-                let mut sudoku_processing_unit: Vec<SudokuPuzzleData> =
+                let mut sudoku_processing_unit: Vec<SudokuPuzzle> =
                     puzzle_buffer.into_iter().collect();
 
                 //solve in parallel:
-                let count = sudoku_processing_unit.len();
-                println!("Solve {} sudokus with RUST!", count);
                 sudoku_processing_unit
                     .par_iter_mut() //solve in parallel
                     .for_each(|unsolved_sudoku| {
                         solve_current_sudoku(unsolved_sudoku);
                     });
 
-                save_sudokus(output_file_name, sudoku_processing_unit);
+                save_sudokus(output_path, sudoku_processing_unit);
             }
         }
         Err(error) => {
@@ -101,16 +100,15 @@ fn solve_sudokus(input_file_name: &str, output_file_name: &str) {
     }
 }
 
-fn solve_current_sudoku(sudoku: &mut SudokuPuzzleData) {
+fn solve_current_sudoku(sudoku: &mut SudokuPuzzle) {
     let solved: bool = sudoku.solve();
     if !solved {
-        println!("Sudoku is unsolvable:\n {}", sudoku.to_pretty_string());
+        println!("Sudoku is unsolvable:\n{}", sudoku.to_pretty_string());
     }
 }
 
-fn save_sudokus(output_file_name: &str, sudoku_processing_unit: Vec<SudokuPuzzleData>) {
-    let write_rs: Result<(), String> =
-        SudokuIO::write_qqwing(output_file_name, sudoku_processing_unit);
+fn save_sudokus(output_file_name: &str, sudoku_processing_unit: Vec<SudokuPuzzle>) {
+    let write_rs: Result<(), String> = SudokuIO::write(output_file_name, sudoku_processing_unit);
     match write_rs {
         Ok(()) => { /* do nothing */ }
         Err(error) => {
@@ -130,7 +128,7 @@ mod tests {
     use crate::sudoku_constants::{PUZZLE_SIZE, SQUARE_SIZE};
     use crate::sudoku_io::SudokuIO;
     use crate::sudoku_iterator::SudokuIterator;
-    use crate::sudoku_puzzle::{SudokuPuzzle, SudokuPuzzleData};
+    use crate::sudoku_puzzle::SudokuPuzzle;
 
     #[test]
     fn solve_should_solve_one_sudoku_by_simple_backtracking_algorithm() {
@@ -147,11 +145,11 @@ mod tests {
         check_solve("sudoku.txt");
     }
 
-    pub fn check_solve(filename: &str) {
+    pub fn check_solve(path: &str) {
         let mut dir: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         dir.push(format!(
             "test{}resources{}{}",
-            MAIN_SEPARATOR, MAIN_SEPARATOR, filename
+            MAIN_SEPARATOR, MAIN_SEPARATOR, path
         ));
         let filename_with_path: &str = dir.as_os_str().to_str().unwrap();
         let start: Instant = Instant::now();
@@ -261,7 +259,7 @@ mod tests {
         }
     }
 
-    fn check_solution(sudoku_puzzle: &SudokuPuzzleData) -> bool {
+    fn check_solution(sudoku_puzzle: &SudokuPuzzle) -> bool {
         let sudoku = make_sudoku_2d_array(sudoku_puzzle);
         for row in 0..PUZZLE_SIZE {
             if !is_row_ok(&sudoku, row) {
@@ -281,7 +279,7 @@ mod tests {
         true
     }
 
-    fn make_sudoku_2d_array(sudoku_puzzle: &SudokuPuzzleData) -> [[u8; PUZZLE_SIZE]; PUZZLE_SIZE] {
+    fn make_sudoku_2d_array(sudoku_puzzle: &SudokuPuzzle) -> [[u8; PUZZLE_SIZE]; PUZZLE_SIZE] {
         let mut sudoku: [[u8; PUZZLE_SIZE]; PUZZLE_SIZE] = [[0; PUZZLE_SIZE]; PUZZLE_SIZE];
         for row in 0..PUZZLE_SIZE {
             for col in 0..PUZZLE_SIZE {

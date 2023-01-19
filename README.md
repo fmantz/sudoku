@@ -23,8 +23,8 @@ My approach was:
 To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
-git checkout tags/version-0.8.0 -b v0.8.0
-docker build . --tag sudoku:0.8
+git checkout tags/version-0.9.0 -b v0.9.0
+docker build . --tag sudoku:0.9.0
 ```
 
 This Docker build will:
@@ -65,10 +65,10 @@ I put the results of my test with 6 levels into folder [./performance/version_0.
 ```bash
 OS: Manjaro Linux x86_64 
 Host: Precision T3600 01 
-Kernel: 5.8.18-1-MANJARO 
+Kernel: 5.15.85-1-MANJARO 
 CPU: Intel Xeon E5-4650L 0 (16) @ 3.100GHz 
 GPU: NVIDIA Quadro P620 
-Memory: 7164MiB / 32068MiB 
+Memory: 4076MiB / 64262MiB
 ```
 Used programming language versions:
 
@@ -88,8 +88,7 @@ The **/root** directory (also current directory) will contain all command line p
 * qqwing-1.3.4.jar  
 * sudoku-rust  
 * sudoku-scala.jar  
-* sudoku-scalanative
-
+* sudoku-golang
 
 ## Update: Version 0.2
 
@@ -205,3 +204,19 @@ Comparing the CUDA version with the RUST version manually, (without my docker te
 
 I assume unless I do not have a much better GPU than the CPU, I am better of with solving such problems on the CPU.
 Anyway, I learnt something, lets move on, maybe to "golang"? 
+
+## Update: Version 0.9 (golang here we go!)
+
+What have I done? I did some small cleanups in the Rust and Scala versions, added some Rust compiler optimization flags, moved from Scala 2.11 to Scala 2.13 with OpenJdk 11 Eclipse Temurin. 
+And finally added a Golang version! It was fun to program Golang, at least the syntax can be picked up quite fast ... To my surprise the Scala version became much faster (more than factor two)
+with the new Scala SDK/Java JDK, the memory consumption became worse. Even I added some compiler flags the already fast Rust solver did not change its performance. 
+The new Golang Sudoku solver was, as expected, between the Scala and Rust version in respect to performance and memory consumption. Up to 1000 Sudokus the Golang version was 
+even the fastest. Golang has a minimum of startup time! However, I assume the Rust version is slower (up to 1000 Sudokus) because of 'Rayon' the parallelization library I had to use since I did not want 
+to implement a thread pool myself. Rayon is optimized for throughput not short startup times, maybe Rust async would have been a better choice in this respect. 
+
+As usual, you can find the results here [./performance/version_0.9-result](./performance/version_0.9-result).
+
+What comes next? I don't know. Maybe I will transform the CUDA version to plain C. Did I enjoyed to program Golang more than Rust? I don't know. Both two for me new languages were fun! 
+Some concepts I found cleaner in Rust, e.g. I disliked in Golang that I could not create constants arrays. Therefore, I really did not like to work with String manipulation in Rust.
+Golang has a nice clean syntax, you need to write less code than in Rust and you pick it up much quicker. And what I really enjoyed was that it has really the batteries included: 
+parallelization, formatting, a test framework, benchmark tests, profiling, race condition detection... 

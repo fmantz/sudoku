@@ -42,19 +42,16 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
   private def checkSolve(fileName: String): Unit = {
     val path = this.getClass.getResource("/").getPath
     val startTotal = System.currentTimeMillis()
-    val (source, puzzles) = read(fileName = s"$path/$fileName")
+    val (source, puzzles) = read(path = s"$path/$fileName")
     try {
       puzzles
         .zipWithIndex.foreach({ case (sudoku, index) =>
-        sudoku.init()
         val sudokuNumber = index + 1
         val input = sudoku.toString
-        require(sudoku.isSolvable, s"Sudoku $sudokuNumber is not well-defined:\n ${sudoku.toPrettyString}")
         sudoku.solve()
         val output = sudoku.toString
-        require(checkSolution(sudoku.asInstanceOf[SudokuPuzzleImpl]), s"Sudoku $sudokuNumber is not solved:\n ${sudoku.toPrettyString}")
-        require(sudoku.isSolved, s"Sudoku $sudokuNumber is solved but isSolved() return false")
-        require(input.length == output.length, "sudoku strings have not same length")
+        require(checkSolution(sudoku), s"Sudoku $sudokuNumber is not solved:\n${sudoku.toPrettyString}")
+        require(input.length == output.length, "Sudoku strings have not same length")
         for (i <- input.indices) {
           val inChar = input.charAt(i)
           val outChar = output.charAt(i)
@@ -87,11 +84,9 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
     val selectedRow = sudoku(row)
-    var col = 0
-    while (col < PuzzleSize) {
+    for (col <- 0 until PuzzleSize) {
       val value = selectedRow(col)
       bits.saveValue(value)
-      col += 1
     }
     bits
   }
@@ -109,11 +104,9 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
     col: Int,
     bits: SudokuBitSet = new SudokuBitSet()
   ): SudokuBitSet = {
-    var row = 0
-    while (row < PuzzleSize) {
+    for (row <- 0 until PuzzleSize) {
       val value = sudoku(row)(col)
       bits.saveValue(value)
-      row += 1
     }
     bits
   }
@@ -135,27 +128,23 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
   ): SudokuBitSet = {
     val rowSquareOffset = rowSquareIndex * SquareSize
     val colSquareOffset = colSquareIndex * SquareSize
-    var row = 0
-    while (row < SquareSize) {
-      var col = 0
-      while (col < SquareSize) {
+    for (row <- 0 until SquareSize) {
+      for (col <- 0 until SquareSize) {
         val value = sudoku(row + rowSquareOffset)(col + colSquareOffset)
         bits.saveValue(value)
-        col += 1
       }
-      row += 1
     }
     bits
   }
 
-  private def checkSolution(sudokuPuzzle: SudokuPuzzleImpl): Boolean = {
+  private def checkSolution(sudokuPuzzle: SudokuPuzzle): Boolean = {
     val sudoku = makeSudoku2DArray(sudokuPuzzle)
     (0 until PuzzleSize).forall(row => isRowOK(sudoku, row)) &&
       (0 until PuzzleSize).forall(col => isColOK(sudoku, col)) &&
         (0 until PuzzleSize).forall(i => isSquareOK(sudoku, i / SquareSize, i % SquareSize))
   }
 
-  private def makeSudoku2DArray(sudokuPuzzle: SudokuPuzzleImpl): Array[Array[Byte]] = {
+  private def makeSudoku2DArray(sudokuPuzzle: SudokuPuzzle): Array[Array[Byte]] = {
     val sudoku = Array.ofDim[Byte](PuzzleSize, PuzzleSize)
     for (row <- 0 until PuzzleSize) {
       for (col <- 0 until PuzzleSize) {

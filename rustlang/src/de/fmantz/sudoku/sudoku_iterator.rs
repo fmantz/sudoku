@@ -16,14 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+use std::cmp::min;
 use std::fs::File;
 use std::io::{self};
-use std::str::Chars;
 
 use crate::sudoku_constants::NEW_SUDOKU_SEPARATOR;
 use crate::sudoku_constants::PUZZLE_SIZE;
 use crate::sudoku_puzzle::SudokuPuzzle;
-use crate::sudoku_puzzle::SudokuPuzzleData;
 
 pub struct SudokuIterator {
     lines: io::Lines<io::BufReader<File>>,
@@ -35,21 +34,21 @@ pub struct SudokuGroupedIterator {
 }
 
 impl Iterator for SudokuIterator {
-    type Item = SudokuPuzzleData;
+    type Item = SudokuPuzzle;
 
-    fn next(&mut self) -> Option<SudokuPuzzleData> {
-        //Find first line with data:
+    fn next(&mut self) -> Option<SudokuPuzzle> {
+        // Find first line with data:
         let first_line = self.re_init();
         first_line.as_ref()?;
 
-        //Allocate memory for new puzzle:
-        let mut puzzle: SudokuPuzzleData = SudokuPuzzleData::new();
+        // Allocate memory for new puzzle:
+        let mut puzzle: SudokuPuzzle = SudokuPuzzle::new();
 
-        //Read first line:
+        // Read first line:
         let line_data: String = first_line.unwrap();
         SudokuIterator::read_line(&line_data, &mut puzzle, 0);
 
-        //Read other lines:
+        // Read other lines:
         for row in 1..PUZZLE_SIZE {
             let next_line = self.lines.next();
             next_line.as_ref()?;
@@ -91,10 +90,10 @@ impl SudokuIterator {
         rs
     }
 
-    fn read_line(line_data: &str, puzzle: &mut SudokuPuzzleData, row: usize) {
+    fn read_line(line_data: &str, puzzle: &mut SudokuPuzzle, row: usize) {
         //Read string into puzzle
-        let mut chars_of_line: Chars = line_data.chars();
-        for col in 0..PUZZLE_SIZE {
+        let mut chars_of_line = line_data.chars();
+        for col in 0..min(PUZZLE_SIZE, line_data.len()) {
             let ch = chars_of_line.next();
             if let Some(char_unwrapped) = ch {
                 let number: u8 = if '0' < char_unwrapped && char_unwrapped <= '9' {
@@ -112,10 +111,10 @@ impl SudokuIterator {
 }
 
 impl Iterator for SudokuGroupedIterator {
-    type Item = Vec<SudokuPuzzleData>;
+    type Item = Vec<SudokuPuzzle>;
 
-    fn next(&mut self) -> Option<Vec<SudokuPuzzleData>> {
-        let mut buffer: Vec<SudokuPuzzleData> = Vec::new();
+    fn next(&mut self) -> Option<Vec<SudokuPuzzle>> {
+        let mut buffer: Vec<SudokuPuzzle> = Vec::new();
         for _index in 0..self.buffer_size {
             if let Some(sudoku) = self.sudoku_iterator.next() {
                 buffer.push(sudoku);

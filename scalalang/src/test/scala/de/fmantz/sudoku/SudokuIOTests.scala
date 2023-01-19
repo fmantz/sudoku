@@ -44,7 +44,7 @@ class SudokuIOTests extends AnyFlatSpec with Matchers {
 		}
 	}
 
-	it should "read correct number of documents" in {
+	it should "read correct number of sudokus" in {
 		val fileName = this.getClass.getResource("/").getPath + "/sudoku.txt"
 		val expectedLength = readFile(fileName).length
 		val (source, puzzles) = SudokuIO.read(fileName)
@@ -56,10 +56,10 @@ class SudokuIOTests extends AnyFlatSpec with Matchers {
 		}
 	}
 
-	private def readFile(fileName: String) : Array[String] = {
+	private def readFile(path: String) : Array[String] = {
 		val rs = ArrayBuffer.empty[String]
 		val buffer = ArrayBuffer.empty[String]
-		val source = Source.fromFile(fileName)
+		val source = Source.fromFile(path)
 		for (line <- source.getLines()) {
 			if (line.isEmpty || line.startsWith(SudokuConstants.NewSudokuSeparator)) {
 				if (buffer.nonEmpty) {

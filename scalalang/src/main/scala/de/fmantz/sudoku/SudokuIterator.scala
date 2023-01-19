@@ -47,7 +47,7 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 	}
 
 	override def next(): SudokuPuzzle = {
-		val currentSudoku = new SudokuPuzzleImpl()
+		val currentSudoku = new SudokuPuzzle()
 		var currentRow = 0
 		while (currentRow < SudokuConstants.PuzzleSize) {
 			readLine(currentSudoku, currentRow)
@@ -65,15 +65,14 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 	}
 
 	private def readLine(currentSudoku: SudokuPuzzle, currentRow: Int): Unit = {
-		val rawValues = curLine.toCharArray.map({c =>
-			if('0' < c && c <= '9'){
+		for (col <- 0 until math.min(SudokuConstants.PuzzleSize, curLine.length)) {
+			val c = curLine.charAt(col)
+			val num = if ('0' < c && c <= '9') {
 				c - '0'
-			} else{
+			} else {
 				0
 			}
-		})
-		for (col <- 0 until SudokuConstants.PuzzleSize) {
-			currentSudoku.set(currentRow, col, rawValues(col).toByte)
+			currentSudoku.set(currentRow, col, num.toByte)
 		}
 	}
 

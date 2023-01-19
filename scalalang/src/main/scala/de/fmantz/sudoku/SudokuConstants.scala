@@ -26,7 +26,7 @@ object SudokuConstants {
 	final val CellCount: Int = 81
 	final val PuzzleSize: Int = 9
 	final val SquareSize: Int = 3
-	final val CheckBits = ~0 >>> (32 - SudokuConstants.PuzzleSize) //binary: Size times "1"
+	final val CheckBits = ~0 >>> (32 - SudokuConstants.PuzzleSize) // bit pattern 0000...111111111, 9 ones
 	final val ParallelizationCount: Int = 65536
 
 	private final val BitsetNumbers_000: Array[Byte] = Array(4, 7, 8, 3, 5, 1, 9, 6, 2)

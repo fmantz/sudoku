@@ -21,8 +21,9 @@
 package de.fmantz.sudoku
 
 import java.io.File
+import de.fmantz.sudoku.SudokuIO.{read, write}
 
-import de.fmantz.sudoku.SudokuIO.{read, writeQQWing}
+import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
 
 object SudokuSolver {
 
@@ -33,23 +34,22 @@ object SudokuSolver {
 			println("-Second argument can be output path for sudoku puzzles solution!")
 		} else {
 			val startTotal = System.currentTimeMillis()
-			val inputFileName = args.head
-			val inputFile = new File(inputFileName)
-			val defaultOutputFileName = s"${inputFile.getParentFile.getPath}${File.separator}SOLUTION_${inputFile.getName}"
-			val outputFileName = args.tail.headOption.getOrElse(defaultOutputFileName)
+			val inputPath = args.head
+			val inputFile = new File(inputPath)
+			val defaultOutputPath = s"${inputFile.getParentFile.getPath}${File.separator}SOLUTION_${inputFile.getName}"
+			val outputPath = args.tail.headOption.getOrElse(defaultOutputPath)
 			println("input: " + inputFile.getAbsolutePath)
-			val (source, puzzles) = read(inputFileName)
+			val (source, puzzles) = read(inputPath)
 			try {
-				var index = 0
 				puzzles
 					.grouped(SudokuConstants.ParallelizationCount)
 					.foreach({ g =>
-						val puzzlesSolved = g.zipWithIndex.par.map({ case (sudoku, index) =>
-							solveCurrentSudoku(index, sudoku) //solve in parallel!
+						val puzzlesSolved = g.par.map({ sudoku =>
+							solveCurrentSudoku(sudoku); sudoku //solve in parallel!
 						}).toIterator
-						writeQQWing(outputFileName, puzzlesSolved)
+						write(outputPath, puzzlesSolved)
 					})
-				println("output: " + new File(outputFileName).getAbsolutePath)
+				println("output: " + new File(outputPath).getAbsolutePath)
 				println(s"All sudoku puzzles solved by simple backtracking algorithm in ${System.currentTimeMillis() - startTotal} ms")
 			} finally {
 				source.close()
@@ -57,16 +57,11 @@ object SudokuSolver {
 		}
 	}
 
-	private def solveCurrentSudoku(index: Int, sudoku: SudokuPuzzle): SudokuPuzzle = {
-		sudoku.init()
-		if (sudoku.isSolved) {
-			println(s"Sudoku $index is already solved!")
-		} else if (sudoku.isSolvable) {
-			sudoku.solve()
-		} else {
+	private def solveCurrentSudoku(sudoku: SudokuPuzzle): Unit = {
+		val solved = sudoku.solve()
+		if (!solved) {
 			println(s"Sudoku index is unsolvable:\n" + sudoku.toPrettyString)
 		}
-		sudoku
 	}
 
 }
