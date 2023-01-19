@@ -85,8 +85,6 @@ fn solve_sudokus(input_path: &str, output_path: &str) {
                     puzzle_buffer.into_iter().collect();
 
                 //solve in parallel:
-                let count = sudoku_processing_unit.len();
-                println!("Solve {} sudokus with RUST!", count);
                 sudoku_processing_unit
                     .par_iter_mut() //solve in parallel
                     .for_each(|unsolved_sudoku| {
