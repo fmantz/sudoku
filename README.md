@@ -88,8 +88,7 @@ The **/root** directory (also current directory) will contain all command line p
 * qqwing-1.3.4.jar  
 * sudoku-rust  
 * sudoku-scala.jar  
-* sudoku-scalanative
-
+* sudoku-golang
 
 ## Update: Version 0.2
 
@@ -212,12 +211,12 @@ What have I done? I did some small cleanups in the Rust and Scala versions, adde
 And finally added a Golang version! It was fun to program Golang, at least the syntax can be picked up quite fast ... To my surprise the Scala version became much faster (more than factor two)
 with the new Scala SDK/Java JDK, the memory consumption became worse. Even I added some compiler flags the already fast Rust solver did not change its performance. 
 The new Golang Sudoku solver was, as expected, between the Scala and Rust version in respect to performance and memory consumption. Up to 1000 Sudokus the Golang version was 
-even the fastest. Golang has a minimum of startup time! However, I assume the Rust version is slower (up to 1000 Sudokus) because of Rayon the parallelization library I had to use since I did not want 
-to implement a thread pool myself. Rayon is optimized for throughput not a short startup time, maybe Rust async would have been a better choice in this respect. 
+even the fastest. Golang has a minimum of startup time! However, I assume the Rust version is slower (up to 1000 Sudokus) because of 'Rayon' the parallelization library I had to use since I did not want 
+to implement a thread pool myself. Rayon is optimized for throughput not short startup times, maybe Rust async would have been a better choice in this respect. 
 
 As usual, you can find the results here [./performance/version_0.9-result](./performance/version_0.9-result).
 
 What comes next? I don't know. Maybe I will transform the CUDA version to plain C. Did I enjoyed to program Golang more than Rust? I don't know. Both two for me new languages were fun! 
 Some concepts I found cleaner in Rust, e.g. I disliked in Golang that I could not create constants arrays. Therefore, I really did not like to work with String manipulation in Rust.
 Golang has a nice clean syntax, you need to write less code than in Rust and you pick it up much quicker. And what I really enjoyed was that it has really the batteries included: 
-parallelization, a test framework, benchmark tests, profiling, race condition detection... 
+parallelization, formatting, a test framework, benchmark tests, profiling, race condition detection... 
