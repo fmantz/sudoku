@@ -12,6 +12,9 @@ build
 .settings
 .worksheet
 
+# mill
+out/
+
 # intellij idea
 *.log
 *.iml
