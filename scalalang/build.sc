@@ -1,4 +1,5 @@
 import mill._, scalalib._
+import mill.scalalib.Assembly._
 
 object sudoku extends RootModule with ScalaModule {
 
@@ -30,5 +31,9 @@ object sudoku extends RootModule with ScalaModule {
     os.copy(super.assembly().path, dest)
     PathRef(dest)
   }
+
+  override def assemblyRules = Seq(
+    Rule.ExcludePattern(".*\\.txt")
+  )
 
 }
