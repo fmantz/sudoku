@@ -5,6 +5,10 @@ target/
 build/
 *.logs/
 
+# mill
+out/
+.bsp/
+
 # eclipse
 build
 .classpath
