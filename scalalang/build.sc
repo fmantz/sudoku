@@ -17,13 +17,7 @@ object sudoku extends RootModule with SbtModule {
 		override def ivyDeps = Agg(
 			ivy"org.scalatest::scalatest:3.1.0"
 		)
-
 		override def testFramework = "org.scalatest.tools.Framework"
-	}
-
-	// add sources for testing from test/resources folder:
-	override def resources = T {
-		super.resources() :+ PathRef(millSourcePath / "src" / "test" / "resources")
 	}
 
 	override def assembly: T[PathRef] = T {
@@ -31,9 +25,5 @@ object sudoku extends RootModule with SbtModule {
 		os.copy(super.assembly().path, dest)
 		PathRef(dest)
 	}
-
-	override def assemblyRules = Seq(
-		Rule.ExcludePattern(".*\\.txt")
-	)
-
+	
 }

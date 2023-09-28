@@ -7,6 +7,7 @@ build/
 
 # mill
 out/
+.bsp/
 
 # eclipse
 build
