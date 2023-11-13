@@ -10,3 +10,15 @@
 * Install requirements for Scala Native first: <https://scala-native.readthedocs.io/en/v0.3.9-docs/user/sbt.html>
 * Build native by `sbt -DNATIVE clean nativeLink`  (will last some time)
 * Run native by `./target/scala-2.11/sudoku-out ./src/test/resources/p096_sudoku.txt`
+
+
+## Build Scala Binary with Mill + GraalVm 
+
+```
+mill assembly
+cp ./out/assembly.dest/sudoku-0.9.0-assembly.jar ./
+docker run -it --rm --mount type=bind,source="$(pwd)",target=/app ghcr.io/graalvm/native-image-community:21 /app/sudoku -jar /app/sudoku-0.9.0-assembly.jar
+```
+
+Note: currently the jar produced by sbt is not usable for graal (fixme)
+
