@@ -20,10 +20,11 @@ object sudoku extends RootModule with SbtModule {
 		override def testFramework = "org.scalatest.tools.Framework"
 	}
 
+
 	override def assembly: T[PathRef] = T {
-		val dest = T.dest / s"${name}-${publishVersion}-assembly.jar"
+		val dest = T.dest / s"${name}-assembly-${publishVersion}.jar"
 		os.copy(super.assembly().path, dest)
 		PathRef(dest)
 	}
-	
+
 }

@@ -16,8 +16,8 @@
 
 ```
 mill assembly
-cp ./out/assembly.dest/sudoku-0.9.0-assembly.jar ./
-docker run -it --rm --mount type=bind,source="$(pwd)",target=/app ghcr.io/graalvm/native-image-community:21 /app/sudoku -jar /app/sudoku-0.9.0-assembly.jar
+cp ./out/assembly.dest/sudoku-assembly-0.9.0.jar ./
+docker run -it --rm --mount type=bind,source="$(pwd)",target=/app ghcr.io/graalvm/native-image-community:21 /app/sudoku -jar /app/sudoku-assembly-0.9.0.jar
 ```
 
 Note: currently the jar produced by sbt is not usable for graal (fixme)
