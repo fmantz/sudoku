@@ -23,22 +23,22 @@ lazy val isNative = sys.props.get("NATIVE").isDefined
 lazy val enablePluginsList = if(isNative) Seq(ScalaNativePlugin) else Seq.empty
 enablePlugins(enablePluginsList:_*)
 
-scalaVersion := "2.13.10"
+scalaVersion := "3.4.0"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 // It's possible to define many kinds of settings, such as:
 name := "sudoku"
 organization := "de.fmantz"
-version := "0.9.0"
+version := "1.0.0"
 
 // You can define other libraries as dependencies in your build like this:
-libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.0"
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.0" % "test"
+libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test"
 
 fork := true
-javaOptions in Compile += s"-DuniqueLibraryNames=true"
+Compile / javaOptions += s"-DuniqueLibraryNames=true"
 
-mainClass in assembly := Some("de.fmantz.sudoku.SudokuSolver")
+assembly / mainClass := Some("de.fmantz.sudoku.SudokuSolver")
 
-nativeMode:="release"
+// nativeMode:="release-fast" //The nativeMode setting is controlled via the SCALANATIVE_MODE environment variable.
