@@ -9,6 +9,9 @@ build/
 out/
 .bsp/
 
+# scala-cli
+.scala-build
+
 # eclipse
 build
 .classpath
@@ -31,6 +34,7 @@ build
 *.pid
 *.attach_pid*
 
+scalalang/project
 #mac:
 .DS_Store
 
