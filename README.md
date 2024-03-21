@@ -23,8 +23,8 @@ My approach was:
 To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
-git checkout tags/version-0.9.0 -b v0.9.0
-docker build . --tag sudoku:0.9.0
+git checkout tags/version-1.0.0 -b v1.0.0
+docker build . --tag sudoku:1.0.0
 ```
 
 This Docker build will:
@@ -72,7 +72,7 @@ Memory: 4076MiB / 64262MiB
 ```
 Used programming language versions:
 
-* Scala 2.11.12 (on OpenJDK 11)
+* Scala 3.4.0 (on OpenJDK 21)
 * Rust Edition 2021
 
 ## Run manually
@@ -80,7 +80,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.8 bash
+docker container run -it --name sudoku sudoku:1.0 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:

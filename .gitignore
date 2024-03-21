@@ -9,6 +9,9 @@ build/
 out/
 .bsp/
 
+# scalacli
+.scala-build
+
 # eclipse
 build
 .classpath

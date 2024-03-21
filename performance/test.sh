@@ -59,7 +59,8 @@ fi
 let NUMBER_OF_PUZZLES=$(($NUMBER_OF_PUZZLES*10))
 
 # Update result csvs:
-scala /root/performance/prepare_data.sh /root/performance/${NEWDIR}
+# echo /root/performance/prepare_data.sc /root/performance/${NEWDIR}
+/root/performance/prepare_data.sc /root/performance/${NEWDIR}
 
 done
 
