@@ -88,7 +88,6 @@ WORKDIR $SDKMAN_DIR
 RUN [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh" && exec "$@"
 
 RUN source /root/.bashrc
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.4.0
 RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scalacli 1.2.0
 ENV PATH="${PATH}/:/root/.sdkman/candidates/scala/current/bin"
 RUN echo $PATH
