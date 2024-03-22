@@ -91,7 +91,9 @@ class SudokuPuzzle {
 		colNums: Array[Int],
 		squareNums: Array[Int]
 	): Unit = {
-		for (i <- puzzle.indices) {
+		val length = puzzle.length
+		var i = 0
+		while (i < length) {
 			val curValue = puzzle(i)
 			if (curValue > 0) {
 				saveValueForCellAndCheckIsSolvable(
@@ -102,6 +104,7 @@ class SudokuPuzzle {
 					squareNums
 				)
 			}
+			i+=1
 		}
 	}
 
@@ -113,20 +116,30 @@ class SudokuPuzzle {
 		squareNums: Array[Int]
 	): Unit = {
 		val numberOffsets = Array.ofDim[Int](PuzzleSize + 2) //counts 0 - 9 + 1 offset = puzzleSize + 2 (9 + 2)
-		for (i <- 0 until CellCount) {
+
+		var i = 0
+		while (i < CellCount) {
 			val countOfIndex = getPossibleCounts(i, rowNums, colNums, squareNums)
 			numberOffsets(countOfIndex + 1) += 1
+			i+=1
 		}
 		myIsSolved = numberOffsets(1) == CellCount //all cells have already a solution!
-		for (i <- 1 until numberOffsets.length) { //correct offsets
+
+		i = 1
+		while (i < numberOffsets.length) { //correct offsets
 			numberOffsets(i) += numberOffsets(i - 1)
+			i+=1
 		}
-		for (i <- 0 until CellCount) {
+
+		i = 0
+		while (i < CellCount) {
 			val countOfIndex = getPossibleCounts(i, rowNums, colNums, squareNums)
 			val offset = numberOffsets(countOfIndex)
 			indices(offset) = i
 			numberOffsets(countOfIndex) += 1
+			i+=1
 		}
+
 		sortPuzzle(puzzleSorted, indices) //avoid jumping in the puzzle array
 	}
 
@@ -140,10 +153,10 @@ class SudokuPuzzle {
 		var i = 0
 		val indicesCurrent = Array.tabulate(CellCount)(_ => -1)
 		while (i < CellCount) {
-			val curValue = puzzleSorted(i) //kind of stack
-			if (curValue == 0) { //Is not given?
+			val curValue = puzzleSorted(i) // kind of stack
+			if (curValue == 0) { // Is not given?
 
-				//Is there a current guess possible?
+				// Is there a current guess possible?
 				val puzzleIndex = indices(i)
 				val rowIndex = calculateRowIndex(puzzleIndex)
 				val colIndex = calculateColIndex(puzzleIndex)
@@ -153,26 +166,26 @@ class SudokuPuzzle {
 				val nextNumberIndex = indicesCurrent(i) + 1
 
 				if (nextNumberIndex < nextNumbers.length) {
-					//next possible number to try found:
+					// next possible number to try found:
 					val nextNumber = nextNumbers(nextNumberIndex)
 					puzzleSorted(i) = nextNumber
 
-					//save value for cell:
+					// save value for cell:
 					val check_bit = 1 << (nextNumber - 1)
 					rowNums(rowIndex) |= check_bit
 					colNums(colIndex) |= check_bit
 					squareNums(squareIndex) |= check_bit
 					indicesCurrent(i) = nextNumberIndex //success
-					i += 1 //go to next cell
+					i += 1 // go to next cell
 				} else {
-					//backtrack:
+					// backtrack:
 					indicesCurrent(i) = -1 //forget last index for position i
 					i -= 1 //not given values are in the head of myIndices, there we can simply go one step back!
 					val lastInvaldTry = puzzleSorted(i)
 					val lastPuzzleIndex = indices(i)
 					puzzleSorted(i) = 0 //find in the next step a new solution for i
 
-					//revert last value:
+					// revert last value:
 					val lastRowIndex = calculateRowIndex(lastPuzzleIndex)
 					val lastColIndex = calculateColIndex(lastPuzzleIndex)
 					val lastSquareIndex = calculateSquareIndex(lastRowIndex, lastColIndex)
@@ -182,10 +195,10 @@ class SudokuPuzzle {
 					squareNums(lastSquareIndex) ^= lastCheckBit
 				}
 			} else {
-				i += 1 //value was given!
+				i += 1 // value was given!
 			}
 		}
-		fillPositions(puzzleSorted, indices) //put values back to original puzzle positions
+		fillPositions(puzzleSorted, indices) // put values back to original puzzle positions
 		myIsSolved = true
 	}
 
@@ -193,8 +206,11 @@ class SudokuPuzzle {
 		puzzleSorted: Array[Byte],
 		indices: Array[Int]
 	): Unit = {
-		for (i <- puzzle.indices) {
+		val length = puzzle.length
+		var i = 0
+		while (i < length) {
 			puzzleSorted(i) = puzzle(indices(i))
+			i+=1
 		}
 	}
 
@@ -202,8 +218,11 @@ class SudokuPuzzle {
 		puzzleSorted: Array[Byte],
 		indices: Array[Int]
 	): Unit = {
-		for (i <- puzzle.indices) {
+		val length = puzzle.length
+		var i = 0
+		while (i < length) {
 			puzzle(indices(i)) = puzzleSorted(i)
+			i+=1
 		}
 	}
 
@@ -262,7 +281,8 @@ class SudokuPuzzle {
 		val dottedLine = "-" * (PuzzleSize * 3 + SquareSize - 1)
 		val empty = "_"
 		val buffer = new ListBuffer[String]
-		for (row <- 0 until PuzzleSize) {
+		var row = 0
+		while (row < PuzzleSize) {
 			val from = row * PuzzleSize
 			val until = from + PuzzleSize
 			val currentRow = puzzle.slice(from, until)
@@ -278,16 +298,19 @@ class SudokuPuzzle {
 			if (row < (PuzzleSize - 1) && (row + 1) % SquareSize == 0) {
 				buffer.append(dottedLine)
 			}
+			row+=1
 		}
 		buffer.mkString("\n")
 	}
 
 	override def toString: String = {
 		val buffer = new ListBuffer[String]
-		for (row <- 0 until PuzzleSize) {
+		var row = 0
+		while (row < PuzzleSize) {
 			val from = row * PuzzleSize
 			val until = from + PuzzleSize
 			buffer.append(puzzle.slice(from, until).mkString)
+			row+=1
 		}
 		buffer.mkString("\n")
 	}
