@@ -39,5 +39,3 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test"
 Compile / javaOptions += s"-DuniqueLibraryNames=true"
 
 assembly / mainClass := Some("de.fmantz.sudoku.SudokuSolver")
-
-// nativeMode:="release-fast" //The nativeMode setting is controlled via the SCALANATIVE_MODE environment variable.

@@ -36,8 +36,7 @@ RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.4.0
 RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install sbt 1.3.8
 
 # Install requirements for scala native:
-# DISABLED: only useful for versions < 0.3 (!)
-# RUN apt -qq --yes install clang libunwind-dev
+RUN apt -qq --yes install clang libunwind-dev
 
 # Build scala application:
 WORKDIR /workdir
@@ -49,8 +48,8 @@ RUN echo $PATH
 RUN cd ./scalalang && sbt clean test assembly
 
 # Build scala-native application:
-# DISABLED: only useful for versions < 0.3 (!)
-# RUN cd ./scalalang && sbt -DNATIVE nativeLink
+ENV SCALANATIVE_MODE="release-full"
+RUN cd ./scalalang && sbt -DNATIVE nativeLink
 
 # Golang:
 RUN apt-get install -y golang-go
@@ -97,6 +96,5 @@ WORKDIR /root/
 # Move all assembly into ./
 COPY --from=0 /workdir/rustlang/target/release/sudoku                         ./sudoku-rust
 COPY --from=0 /workdir/scalalang/target/scala-3.4.0/sudoku-assembly-1.0.0.jar ./sudoku-scala.jar
+COPY --from=0 /workdir/scalalang/target/scala-3.4.0/sudoku                    ./sudoku-scalanative
 COPY --from=0 /workdir/golang/golang                                          ./sudoku-golang
-# DISABLED: only useful for versions < 0.3 (!)
-# COPY --from=0 /workdir/scalalang/target/scala-2.11/sudoku-out ./sudoku-scalanative
