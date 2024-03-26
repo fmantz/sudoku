@@ -23,7 +23,11 @@ package de.fmantz.sudoku
 import java.io.File
 import de.fmantz.sudoku.SudokuIO.{read, write}
 
-import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
+import scala.concurrent.duration.Duration
+
+//import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
+import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object SudokuSolver {
 
@@ -44,9 +48,10 @@ object SudokuSolver {
 				puzzles
 					.grouped(SudokuConstants.ParallelizationCount)
 					.foreach({ g =>
-						val puzzlesSolved = g.par.map({ sudoku =>
+						val puzzlesSolvedF: Iterator[Future[SudokuPuzzle]] = g.map({ sudoku => Future {
 							solveCurrentSudoku(sudoku); sudoku //solve in parallel!
-						}).toIterator
+						}}).iterator
+						val puzzlesSolved = puzzlesSolvedF.map(Await.result(_, Duration.Inf))
 						write(outputPath, puzzlesSolved)
 					})
 				println("output: " + new File(outputPath).getAbsolutePath)

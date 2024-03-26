@@ -36,7 +36,6 @@ version := "1.0.0"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test"
 
-fork := true
 Compile / javaOptions += s"-DuniqueLibraryNames=true"
 
 assembly / mainClass := Some("de.fmantz.sudoku.SudokuSolver")
