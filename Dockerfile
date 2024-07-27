@@ -16,7 +16,7 @@ RUN cd ./rustlang && RUSTFLAGS="-C target-cpu=native" cargo build --release
 
 # Scala:
 SHELL ["/bin/bash", "-c"]
-ENV SDKMAN_DIR /root/.sdkman
+ENV SDKMAN_DIR=/root/.sdkman
 
 RUN apt-get update && apt-get install -y zip curl
 RUN curl -s "https://get.sdkman.io" | bash
@@ -32,7 +32,7 @@ RUN [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-
 
 RUN source /root/.bashrc
 RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install java 21.0.2-tem
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.4.0
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.4.2
 RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install sbt 1.3.8
 
 # Install requirements for scala native:
@@ -72,7 +72,7 @@ RUN apt -qq --yes install time
 
 # install scala to run the scala shell script prepare_data.sh:
 SHELL ["/bin/bash", "-c"]
-ENV SDKMAN_DIR /root/.sdkman
+ENV SDKMAN_DIR=/root/.sdkman
 
 RUN apt-get update && apt-get install -y zip curl
 RUN curl -s "https://get.sdkman.io" | bash
@@ -87,7 +87,7 @@ WORKDIR $SDKMAN_DIR
 RUN [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh" && exec "$@"
 
 RUN source /root/.bashrc
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scalacli 1.2.0
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scalacli 1.4.1
 ENV PATH="${PATH}/:/root/.sdkman/candidates/scala/current/bin"
 RUN echo $PATH
 
@@ -95,6 +95,6 @@ WORKDIR /root/
 
 # Move all assembly into ./
 COPY --from=0 /workdir/rustlang/target/release/sudoku                         ./sudoku-rust
-COPY --from=0 /workdir/scalalang/target/scala-3.4.0/sudoku-assembly-1.0.0.jar ./sudoku-scala.jar
-COPY --from=0 /workdir/scalalang/target/scala-3.4.0/sudoku                    ./sudoku-scalanative
+COPY --from=0 /workdir/scalalang/target/scala-3.4.2/sudoku-assembly-1.0.0.jar ./sudoku-scala.jar
+COPY --from=0 /workdir/scalalang/target/scala-3.4.2/sudoku                    ./sudoku-scalanative
 COPY --from=0 /workdir/golang/golang                                          ./sudoku-golang

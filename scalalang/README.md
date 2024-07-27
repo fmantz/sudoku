@@ -6,10 +6,10 @@
 * Sudokus can be fast solved by QQWing `cat sudoku.txt | java -jar qqwing-1.3.4.jar --solve --compact > sudoku_sol.txt`
 * Note in my tests QQWing unfortunately produces results that are not ordered accordingly the input puzzles but randomly (it's a multithreading application)
 
-## Scala Native is only supported to Version 0.2
-* Install requirements for Scala Native first: <https://scala-native.readthedocs.io/en/v0.3.9-docs/user/sbt.html>
+## Scala Native is again supported :-)
+* Install requirements for Scala Native first: <https://scala-native.org/en/stable/user/setup.html#installing-clang-and-runtime-dependencies>
 * Build native by `sbt -DNATIVE clean nativeLink`  (will last some time)
-* Run native by `./target/scala-2.11/sudoku-out ./src/test/resources/p096_sudoku.txt`
+* Run native by `./target/scala-3.4.2/sudoku-out ./src/test/resources/p096_sudoku.txt`
 
 
 ## Build Scala Binary with Sbt + GraalVm 
