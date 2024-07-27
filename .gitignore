@@ -5,6 +5,13 @@ target/
 build/
 *.logs/
 
+# mill
+out/
+.bsp/
+
+# scalacli
+.scala-build
+
 # eclipse
 build
 .classpath

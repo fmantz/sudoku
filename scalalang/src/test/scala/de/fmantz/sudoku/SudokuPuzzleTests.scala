@@ -40,9 +40,9 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
   }
 
   private def checkSolve(fileName: String): Unit = {
-    val path = this.getClass.getResource("/").getPath
+    val path = this.getClass.getClassLoader.getResource(fileName).getPath
     val startTotal = System.currentTimeMillis()
-    val (source, puzzles) = read(path = s"$path/$fileName")
+    val (source, puzzles) = read(path)
     try {
       puzzles
         .zipWithIndex.foreach({ case (sudoku, index) =>

@@ -1,4 +1,4 @@
-FROM ubuntu:22.10
+FROM ubuntu:22.04
 WORKDIR /workdir
 
 RUN apt-get -qq --yes update 
@@ -16,7 +16,7 @@ RUN cd ./rustlang && RUSTFLAGS="-C target-cpu=native" cargo build --release
 
 # Scala:
 SHELL ["/bin/bash", "-c"]
-ENV SDKMAN_DIR /root/.sdkman
+ENV SDKMAN_DIR=/root/.sdkman
 
 RUN apt-get update && apt-get install -y zip curl
 RUN curl -s "https://get.sdkman.io" | bash
@@ -31,13 +31,12 @@ WORKDIR $SDKMAN_DIR
 RUN [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh" && exec "$@"
 
 RUN source /root/.bashrc
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install java 11.0.16-tem
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 2.13.10
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install java 21.0.2-tem
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.4.2
 RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install sbt 1.3.8
 
 # Install requirements for scala native:
-# DISABLED: only useful for versions < 0.3 (!)
-# RUN apt -qq --yes install clang libunwind-dev
+RUN apt -qq --yes install clang libunwind-dev
 
 # Build scala application:
 WORKDIR /workdir
@@ -49,8 +48,8 @@ RUN echo $PATH
 RUN cd ./scalalang && sbt clean test assembly
 
 # Build scala-native application:
-# DISABLED: only useful for versions < 0.3 (!)
-# RUN cd ./scalalang && sbt -DNATIVE nativeLink
+ENV SCALANATIVE_MODE="release-full"
+RUN cd ./scalalang && sbt -DNATIVE nativeLink
 
 # Golang:
 RUN apt-get install -y golang-go
@@ -60,7 +59,7 @@ RUN cd ./golang && go test ./... && go build
 #
 # Build final image
 #
-FROM eclipse-temurin:11
+FROM eclipse-temurin:21
 WORKDIR /root/
 
 # Copy QQWING from Website:
@@ -73,7 +72,7 @@ RUN apt -qq --yes install time
 
 # install scala to run the scala shell script prepare_data.sh:
 SHELL ["/bin/bash", "-c"]
-ENV SDKMAN_DIR /root/.sdkman
+ENV SDKMAN_DIR=/root/.sdkman
 
 RUN apt-get update && apt-get install -y zip curl
 RUN curl -s "https://get.sdkman.io" | bash
@@ -88,15 +87,14 @@ WORKDIR $SDKMAN_DIR
 RUN [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh" && exec "$@"
 
 RUN source /root/.bashrc
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 2.13.10
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scalacli 1.4.1
 ENV PATH="${PATH}/:/root/.sdkman/candidates/scala/current/bin"
 RUN echo $PATH
 
 WORKDIR /root/
 
 # Move all assembly into ./
-COPY --from=0 /workdir/rustlang/target/release/sudoku                        ./sudoku-rust
-COPY --from=0 /workdir/scalalang/target/scala-2.13/sudoku-assembly-0.9.0.jar ./sudoku-scala.jar
-COPY --from=0 /workdir/golang/golang                                         ./sudoku-golang
-# DISABLED: only useful for versions < 0.3 (!)
-# COPY --from=0 /workdir/scalalang/target/scala-2.11/sudoku-out ./sudoku-scalanative
+COPY --from=0 /workdir/rustlang/target/release/sudoku                         ./sudoku-rust
+COPY --from=0 /workdir/scalalang/target/scala-3.4.2/sudoku-assembly-1.0.0.jar ./sudoku-scala.jar
+COPY --from=0 /workdir/scalalang/target/scala-3.4.2/sudoku                    ./sudoku-scalanative
+COPY --from=0 /workdir/golang/golang                                          ./sudoku-golang

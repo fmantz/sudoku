@@ -23,8 +23,8 @@ My approach was:
 To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
-git checkout tags/version-0.9.0 -b v0.9.0
-docker build . --tag sudoku:0.9.0
+git checkout tags/version-1.0.0 -b v1.0.0
+docker build . --tag sudoku:1.0.0
 ```
 
 This Docker build will:
@@ -65,14 +65,14 @@ I put the results of my test with 6 levels into folder [./performance/version_0.
 ```bash
 OS: Manjaro Linux x86_64 
 Host: Precision T3600 01 
-Kernel: 5.15.85-1-MANJARO 
+Kernel: 6.6.40-1-MANJARO 
 CPU: Intel Xeon E5-4650L 0 (16) @ 3.100GHz 
 GPU: NVIDIA Quadro P620 
 Memory: 4076MiB / 64262MiB
 ```
 Used programming language versions:
 
-* Scala 2.11.12 (on OpenJDK 11)
+* Scala 3.4.0 (on OpenJDK 21)
 * Rust Edition 2021
 
 ## Run manually
@@ -80,7 +80,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:0.8 bash
+docker container run -it --name sudoku sudoku:1.0 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -220,3 +220,9 @@ What comes next? I don't know. Maybe I will transform the CUDA version to plain 
 Some concepts I found cleaner in Rust, e.g. I disliked in Golang that I could not create constants arrays. Therefore, I really did not like to work with String manipulation in Rust.
 Golang has a nice clean syntax, you need to write less code than in Rust and you pick it up much quicker. And what I really enjoyed was that it has really the batteries included: 
 parallelization, formatting, a test framework, benchmark tests, profiling, race condition detection... 
+
+## Update: Version 1.0 (Scala Native started do support multithreading!)
+
+In this version I upgraded library versions and changed the parallelization in the Scala version from '.par' array to plain futures. 
+When I changed this, the version of Scala Native 0.5 was in Beta stage and did not support '.par' arrays but for the first time multithreading (now I use Scala Native Version 0.5.4). 
+Again, you can find the results here [./performance/version_1.0-result](./performance/version_1.0-result).

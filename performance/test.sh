@@ -49,9 +49,8 @@ fi
 # Solve sudokus with scala sudoku:
 /usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-scala.log -p sh -c "java -jar /root/sudoku-scala.jar /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-scala.txt"
 
-# DISABLED: only useful for versions < 0.3 (!)
 # Solve sudokus with scalanative sudoku:
-# /usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-scalanative.log -p sh -c "/root/sudoku-scalanative /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-scalanative.txt"
+/usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-scalanative.log -p sh -c "/root/sudoku-scalanative /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-scalanative.txt"
 
 # Solve sudokus with golang sudoku:
 /usr/bin/time -v -a --output=/root/performance/$NEWDIR/sudoku-golang.log -p sh -c "/root/sudoku-golang /root/performance/sudoku${NUMBER_OF_PUZZLES}.txt /root/performance/${NEWDIR}/sudoku${NUMBER_OF_PUZZLES}_sol-golang.txt"
@@ -59,7 +58,8 @@ fi
 let NUMBER_OF_PUZZLES=$(($NUMBER_OF_PUZZLES*10))
 
 # Update result csvs:
-scala /root/performance/prepare_data.sh /root/performance/${NEWDIR}
+# echo /root/performance/prepare_data.sc /root/performance/${NEWDIR}
+/root/performance/prepare_data.sc /root/performance/${NEWDIR}
 
 done
 

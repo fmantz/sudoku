@@ -65,7 +65,9 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 	}
 
 	private def readLine(currentSudoku: SudokuPuzzle, currentRow: Int): Unit = {
-		for (col <- 0 until math.min(SudokuConstants.PuzzleSize, curLine.length)) {
+		val length = math.min(SudokuConstants.PuzzleSize, curLine.length)
+		var col = 0
+		while (col < length) {
 			val c = curLine.charAt(col)
 			val num = if ('0' < c && c <= '9') {
 				c - '0'
@@ -73,6 +75,7 @@ class SudokuIterator(val source:Iterator[String]) extends AbstractIterator[Sudok
 				0
 			}
 			currentSudoku.set(currentRow, col, num.toByte)
+			col+=1
 		}
 	}
 
