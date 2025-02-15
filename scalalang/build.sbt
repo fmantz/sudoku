@@ -21,9 +21,9 @@
 
 lazy val isNative = sys.props.get("NATIVE").isDefined
 lazy val enablePluginsList = if(isNative) Seq(ScalaNativePlugin) else Seq.empty
-enablePlugins(enablePluginsList:_*)
+enablePlugins(enablePluginsList *)
 
-scalaVersion := "3.4.2"
+scalaVersion := "3.6.3"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
@@ -33,8 +33,7 @@ organization := "de.fmantz"
 version := "1.0.0"
 
 // You can define other libraries as dependencies in your build like this:
-libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test"
 
 Compile / javaOptions += s"-DuniqueLibraryNames=true"
 
