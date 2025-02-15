@@ -18,7 +18,7 @@
 #
 [package]
 name = "sudoku"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Florian Mantz"]
 edition = "2021"
 
@@ -33,4 +33,5 @@ rayon = "1.10"
 [profile.release]
 lto = true
 codegen-units = 1
+opt-level=3
 panic = "abort"

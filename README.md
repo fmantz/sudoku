@@ -23,8 +23,8 @@ My approach was:
 To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
-git checkout tags/version-1.0.0 -b v1.0.0
-docker build . --tag sudoku:1.0.0
+git checkout tags/version-1.0.1 -b v1.0.1
+docker build . --tag sudoku:1.0.1
 ```
 
 This Docker build will:
@@ -226,3 +226,7 @@ parallelization, formatting, a test framework, benchmark tests, profiling, race 
 In this version I upgraded library versions and changed the parallelization in the Scala version from '.par' array to plain futures. 
 When I changed this, the version of Scala Native 0.5 was in Beta stage and did not support '.par' arrays but for the first time multithreading (now I use Scala Native Version 0.5.4). 
 Again, you can find the results here [./performance/version_1.0-result](./performance/version_1.0-result).
+
+## Update: Version 1.0.1 (Scala Native started do support multithreading!)
+
+Version updates...e.g. Scala Native 0.5.6. Again, you can find the results here [./performance/version_1.0.1-result](./performance/version_1.0-result).
