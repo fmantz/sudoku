@@ -193,14 +193,14 @@ The algorithm could also be fully implemented with CUDA. However, the CUDA progr
 I guess few data branches ('ifs') is not enough for a fast CUDA program, also parallel data access is needed (SMID, single-instruction-multiple). 
 Comparing the CUDA version with the RUST version manually, (without my docker test), I get following performance differences:
 
-|Sudokus |      CUDA    |        RUST   |
---------:|-------------:|--------------:|
-|       1|   0.432938s  |   0.151921058s|
-|      10|   0.811146s  |   0.157538849s|
-|     100|   2.202813s  |   0.185084571s|
-|    1000|  14.222719s  |   0.470379894s|
-|   10000| 153.452142s  |   2.769783619s|
-|  100000| 948.916880s  |  25.024930099s|
+| Sudokus |        CUDA |          RUST |
+|--------:|------------:|--------------:|
+|       1 |   0.432938s |  0.151921058s |
+|      10 |   0.811146s |  0.157538849s |
+|     100 |   2.202813s |  0.185084571s |
+|    1000 |  14.222719s |  0.470379894s |
+|   10000 | 153.452142s |  2.769783619s |
+|  100000 | 948.916880s | 25.024930099s |
 
 I assume unless I do not have a much better GPU than the CPU, I am better of with solving such problems on the CPU.
 Anyway, I learnt something, lets move on, maybe to "golang"? 
@@ -227,6 +227,6 @@ In this version I upgraded library versions and changed the parallelization in t
 When I changed this, the version of Scala Native 0.5 was in Beta stage and did not support '.par' arrays but for the first time multithreading (now I use Scala Native Version 0.5.4). 
 Again, you can find the results here [./performance/version_1.0-result](./performance/version_1.0-result).
 
-## Update: Version 1.0.1 (Scala Native started do support multithreading!)
+## Update: Version 1.0.1 (Version updates!)
 
-Version updates...e.g. Scala Native 0.5.6. Again, you can find the results here [./performance/version_1.0.1-result](./performance/version_1.0-result).
+Version updates...e.g. Scala Native 0.5.6. Again, you can find the results here [./performance/version_1.0.1-result](./performance/version_1.0.1-result).
