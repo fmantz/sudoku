@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 WORKDIR /workdir
 
 RUN apt-get -qq --yes update 
@@ -6,7 +6,12 @@ RUN apt-get -qq --yes update
 # Rust:
 
 # Install RUST:
-RUN apt -qq --yes install rustc cargo
+RUN apt-get install -y \
+    build-essential \
+    curl
+
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Build rust application
 ADD rustlang ./rustlang
@@ -31,9 +36,9 @@ WORKDIR $SDKMAN_DIR
 RUN [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh" && exec "$@"
 
 RUN source /root/.bashrc
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install java 21.0.2-tem
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.4.2
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install sbt 1.3.8
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install java 23.0.2-tem
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.6.3
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install sbt 1.10.7
 
 # Install requirements for scala native:
 RUN apt -qq --yes install clang libunwind-dev
@@ -59,7 +64,7 @@ RUN cd ./golang && go test ./... && go build
 #
 # Build final image
 #
-FROM eclipse-temurin:21
+FROM eclipse-temurin:23
 WORKDIR /root/
 
 # Copy QQWING from Website:
@@ -87,7 +92,7 @@ WORKDIR $SDKMAN_DIR
 RUN [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh" && exec "$@"
 
 RUN source /root/.bashrc
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scalacli 1.4.1
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scalacli 1.6.2
 ENV PATH="${PATH}/:/root/.sdkman/candidates/scala/current/bin"
 RUN echo $PATH
 
@@ -95,6 +100,6 @@ WORKDIR /root/
 
 # Move all assembly into ./
 COPY --from=0 /workdir/rustlang/target/release/sudoku                         ./sudoku-rust
-COPY --from=0 /workdir/scalalang/target/scala-3.4.2/sudoku-assembly-1.0.0.jar ./sudoku-scala.jar
-COPY --from=0 /workdir/scalalang/target/scala-3.4.2/sudoku                    ./sudoku-scalanative
+COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku-assembly-1.0.1.jar ./sudoku-scala.jar
+COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku                    ./sudoku-scalanative
 COPY --from=0 /workdir/golang/golang                                          ./sudoku-golang

@@ -1,7 +1,7 @@
 # README
 
 * Build assembly `sbt clean assembly`
-* Run by `java -jar ./target/scala-2.11/sudoku-assembly-1.0.0.jar ./src/test/resources/p096_sudoku.txt`
+* Run by `java -jar ./target/scala-3.6.3/sudoku-assembly-1.0.1.jar ./src/test/resources/p096_sudoku.txt`
 * Sudokus can be generated e.g. with <https://qqwing.com/download.html> `java -jar qqwing-1.3.4.jar --generate 1000 --difficulty expert --compact > sudoku.txt`
 * Sudokus can be fast solved by QQWing `cat sudoku.txt | java -jar qqwing-1.3.4.jar --solve --compact > sudoku_sol.txt`
 * Note in my tests QQWing unfortunately produces results that are not ordered accordingly the input puzzles but randomly (it's a multithreading application)

@@ -151,7 +151,7 @@ class SudokuPuzzle {
 		squareNums: Array[Int]
 	): Unit = {
 		var i = 0
-		val indicesCurrent = Array.tabulate(CellCount)(_ => -1)
+		val indicesCurrent = Array.fill(CellCount)(-1)
 		while (i < CellCount) {
 			val curValue = puzzleSorted(i) // kind of stack
 			if (curValue == 0) { // Is not given?
