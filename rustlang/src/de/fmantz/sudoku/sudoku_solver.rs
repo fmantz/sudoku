@@ -17,9 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 //#![feature(test)]
-use rayon::prelude::*;
 use std::env;
 use std::path::{Path, MAIN_SEPARATOR};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::thread::available_parallelism;
 use std::time::Instant;
 
 use crate::sudoku_constants::PARALLELIZATION_COUNT;
@@ -79,19 +81,48 @@ fn solve_sudokus(input_path: &str, output_path: &str) {
     match puzzles {
         Ok(puzzles) => {
             let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
+            let number_of_total_threads = available_parallelism().unwrap().get();
+            println!("number of threads = {:?}", number_of_total_threads);
+            // keep one thread for the main programm:
+            let num_threads = number_of_total_threads - 1;
             for puzzle_buffer in grouped_iterator {
-                //collect a bunch of sudokus:
-                let mut sudoku_processing_unit: Vec<SudokuPuzzle> =
-                    puzzle_buffer.into_iter().collect();
+                // collect a bunch of sudokus:
+                let sudoku_processing_unit: Vec<SudokuPuzzle> = puzzle_buffer.into_iter().collect();
 
-                //solve in parallel:
-                sudoku_processing_unit
-                    .par_iter_mut() //solve in parallel
-                    .for_each(|unsolved_sudoku| {
-                        solve_current_sudoku(unsolved_sudoku);
+                let count_tasks = sudoku_processing_unit.len();
+                let chunk_size = count_tasks / num_threads + if count_tasks % num_threads != 0 { 1 } else { 0 };
+
+                let shared_tasks = Arc::new(Mutex::new(sudoku_processing_unit));
+                let mut handles = vec![];
+
+                // solve in parallel:
+                for i in 0..num_threads {
+                    // clone the arcs that every thread has access:
+                    let tasks = Arc::clone(&shared_tasks);
+
+                    // calculate start and endindex:
+                    let start = i * chunk_size;
+                    let end = std::cmp::min(start + chunk_size, count_tasks);
+
+                    // start a new thread:
+                    let handle = thread::spawn(move || {
+                        // log the mutax to get access to the tasks:
+                        let mut tasks = tasks.lock().unwrap();
+                        // each thread calculate its tasks:
+                        for task in &mut tasks[start..end] {
+                            solve_current_sudoku(task);
+                        }
                     });
+                    handles.push(handle);
+                }
 
-                save_sudokus(output_path, sudoku_processing_unit);
+                // wait for all tasks to complete:
+                for handle in handles {
+                    handle.join().unwrap();
+                }
+
+                let final_tasks = Arc::try_unwrap(shared_tasks).unwrap().into_inner().unwrap();
+                save_sudokus(output_path, final_tasks);
             }
         }
         Err(error) => {

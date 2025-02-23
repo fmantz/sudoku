@@ -28,7 +28,6 @@ path = "src/de/fmantz/sudoku/sudoku_solver.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-rayon = "1.10"
 
 [profile.release]
 lto = true
