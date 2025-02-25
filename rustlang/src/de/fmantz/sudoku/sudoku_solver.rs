@@ -19,7 +19,6 @@
 //#![feature(test)]
 use std::env;
 use std::path::{Path, MAIN_SEPARATOR};
-use std::sync::{Arc, Mutex};
 use std::thread;
 use std::thread::available_parallelism;
 use std::time::Instant;
@@ -83,46 +82,55 @@ fn solve_sudokus(input_path: &str, output_path: &str) {
             let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
             let number_of_total_threads = available_parallelism().unwrap().get();
             println!("number of threads = {:?}", number_of_total_threads);
+
             // keep one thread for the main programm:
             let num_threads = number_of_total_threads - 1;
             for puzzle_buffer in grouped_iterator {
                 // collect a bunch of sudokus:
-                let sudoku_processing_unit: Vec<SudokuPuzzle> = puzzle_buffer.into_iter().collect();
+                let mut sudoku_processing_unit: Vec<SudokuPuzzle> =
+                    puzzle_buffer.into_iter().collect();
 
                 let count_tasks = sudoku_processing_unit.len();
-                let chunk_size = count_tasks / num_threads + if count_tasks % num_threads != 0 { 1 } else { 0 };
+                let chunk_size =
+                    count_tasks / num_threads + if count_tasks % num_threads != 0 { 1 } else { 0 };
 
-                let shared_tasks = Arc::new(Mutex::new(sudoku_processing_unit));
+                // split sudoku_processing_unit into chunks:
+                let mut chunks: Vec<Vec<SudokuPuzzle>> = Vec::new();
+                for _ in 0..num_threads {
+                    let mut container = vec![];
+                    for _ in 0..chunk_size {
+                        match sudoku_processing_unit.pop() {
+                            Some(s) => container.push(s),
+                            None => (), // do nothing
+                        };
+                    }
+                    // since we used pop, we need to reverse the sequence to keep the order:
+                    container.reverse();
+                    chunks.push(container);
+                }
+
+                // process each chunk in a thread:
                 let mut handles = vec![];
-
-                // solve in parallel:
-                for i in 0..num_threads {
-                    // clone the arcs that every thread has access:
-                    let tasks = Arc::clone(&shared_tasks);
-
-                    // calculate start and endindex:
-                    let start = i * chunk_size;
-                    let end = std::cmp::min(start + chunk_size, count_tasks);
-
-                    // start a new thread:
+                for mut chunk in chunks {
                     let handle = thread::spawn(move || {
-                        // log the mutax to get access to the tasks:
-                        let mut tasks = tasks.lock().unwrap();
-                        // each thread calculate its tasks:
-                        for task in &mut tasks[start..end] {
+                        for task in &mut chunk {
                             solve_current_sudoku(task);
                         }
+                        // return the result:
+                        chunk
                     });
                     handles.push(handle);
                 }
 
-                // wait for all tasks to complete:
+                // collect all results from the threads,
+                // note the handles are sorted, so are the results:
+                let mut results: Vec<SudokuPuzzle> = Vec::new();
                 for handle in handles {
-                    handle.join().unwrap();
+                    let processed_chunk = handle.join().unwrap();
+                    results.extend(processed_chunk);
                 }
 
-                let final_tasks = Arc::try_unwrap(shared_tasks).unwrap().into_inner().unwrap();
-                save_sudokus(output_path, final_tasks);
+                save_sudokus(output_path, results);
             }
         }
         Err(error) => {
