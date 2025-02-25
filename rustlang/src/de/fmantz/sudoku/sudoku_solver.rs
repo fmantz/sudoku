@@ -104,8 +104,6 @@ fn solve_sudokus(input_path: &str, output_path: &str) {
                             None => (), // do nothing
                         };
                     }
-                    // since we used pop, we need to reverse the sequence to keep the order:
-                    container.reverse();
                     chunks.push(container);
                 }
 
@@ -130,6 +128,8 @@ fn solve_sudokus(input_path: &str, output_path: &str) {
                     results.extend(processed_chunk);
                 }
 
+                // we need to reverse the order:
+                results.reverse();
                 save_sudokus(output_path, results);
             }
         }
