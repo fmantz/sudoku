@@ -23,8 +23,8 @@ My approach was:
 To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
-git checkout tags/version-1.0.1 -b v1.0.1
-docker build . --tag sudoku:1.0.1
+git checkout tags/version-1.0.2 -b v1.0.2
+docker build . --tag sudoku:1.0.2
 ```
 
 This Docker build will:
@@ -65,7 +65,7 @@ I put the results of my test with 6 levels into folder [./performance/version_0.
 ```bash
 OS: Manjaro Linux x86_64 
 Host: Precision T3600 01 
-Kernel: 6.6.40-1-MANJARO 
+Kernel: 6.6.75-2-MANJARO 
 CPU: Intel Xeon E5-4650L 0 (16) @ 3.100GHz 
 GPU: NVIDIA Quadro P620 
 Memory: 4076MiB / 64262MiB

@@ -100,6 +100,6 @@ WORKDIR /root/
 
 # Move all assembly into ./
 COPY --from=0 /workdir/rustlang/target/release/sudoku                         ./sudoku-rust
-COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku-assembly-1.0.1.jar ./sudoku-scala.jar
+COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku-assembly-1.0.2.jar ./sudoku-scala.jar
 COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku                    ./sudoku-scalanative
 COPY --from=0 /workdir/golang/golang                                          ./sudoku-golang
