@@ -23,8 +23,8 @@ My approach was:
 To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
-git checkout tags/version-1.0.1 -b v1.0.1
-docker build . --tag sudoku:1.0.1
+git checkout tags/version-1.0.2 -b v1.0.2
+docker build . --tag sudoku:1.0.2
 ```
 
 This Docker build will:
@@ -51,7 +51,7 @@ This Docker run will:
 5. Third, solve all Sudokus with the Scala JAR version of my program.
 6. Fourth, solve all Sudokus with the Scala NATIVE version of my program (version <= Version 0.2). 
 7. Create two CSVs files `mem.csv` (in kb) and `time.csv` collecting the current performance measures from the log-files.
-8. Continue with Step 2 to process the next level until Level 4.
+8. Continue with Step 2 to process the next level until Level 6.
 
 ## Results
 
@@ -65,7 +65,7 @@ I put the results of my test with 6 levels into folder [./performance/version_0.
 ```bash
 OS: Manjaro Linux x86_64 
 Host: Precision T3600 01 
-Kernel: 6.6.40-1-MANJARO 
+Kernel: 6.6.75-2-MANJARO 
 CPU: Intel Xeon E5-4650L 0 (16) @ 3.100GHz 
 GPU: NVIDIA Quadro P620 
 Memory: 4076MiB / 64262MiB
@@ -80,7 +80,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:1.0 bash
+docker container run -it --name sudoku sudoku:1.0.2 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -223,10 +223,16 @@ parallelization, formatting, a test framework, benchmark tests, profiling, race 
 
 ## Update: Version 1.0 (Scala Native started do support multithreading!)
 
-In this version I upgraded library versions and changed the parallelization in the Scala version from '.par' array to plain futures. 
-When I changed this, the version of Scala Native 0.5 was in Beta stage and did not support '.par' arrays but for the first time multithreading (now I use Scala Native Version 0.5.4). 
-Again, you can find the results here [./performance/version_1.0-result](./performance/version_1.0-result).
+In this version, I upgraded library versions and changed the parallelization in the Scala implementation from using .par arrays to plain futures.
+At the time of this change, Scala Native 0.5 was still in the Beta stage and did not support .par arrays, but for the first time, it introduced multithreading (I now use Scala Native version 0.5.4).
+As always, you can find the results here: [./performance/version_1.0-result](./performance/version_1.0-result).
 
 ## Update: Version 1.0.1 (Version updates!)
 
 Version updates...e.g. Scala Native 0.5.6. Again, you can find the results here [./performance/version_1.0.1-result](./performance/version_1.0.1-result).
+
+## Update: Version 1.0.2 (Removed Rayon!)
+
+In this version, I have finally removed the only Rust dependency (Rayon), so that no implementation has any dependencies except in tests.
+As a result, memory consumption has increased for the Rust program, and execution time has slightly increased as well.
+As always, you can find the results here: [./performance/version_1.0.2-result](./performance/version_1.0.2-result).

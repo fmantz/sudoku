@@ -17,9 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 //#![feature(test)]
-use rayon::prelude::*;
 use std::env;
 use std::path::{Path, MAIN_SEPARATOR};
+use std::thread;
+use std::thread::available_parallelism;
 use std::time::Instant;
 
 use crate::sudoku_constants::PARALLELIZATION_COUNT;
@@ -79,19 +80,57 @@ fn solve_sudokus(input_path: &str, output_path: &str) {
     match puzzles {
         Ok(puzzles) => {
             let grouped_iterator = SudokuGroupedIterator::grouped(puzzles, PARALLELIZATION_COUNT);
+            let number_of_total_threads = available_parallelism().unwrap().get();
+            println!("number of threads = {:?}", number_of_total_threads);
+
+            // keep one thread for the main programm:
+            let num_threads = number_of_total_threads - 1;
             for puzzle_buffer in grouped_iterator {
-                //collect a bunch of sudokus:
+                // collect a bunch of sudokus:
                 let mut sudoku_processing_unit: Vec<SudokuPuzzle> =
                     puzzle_buffer.into_iter().collect();
 
-                //solve in parallel:
-                sudoku_processing_unit
-                    .par_iter_mut() //solve in parallel
-                    .for_each(|unsolved_sudoku| {
-                        solve_current_sudoku(unsolved_sudoku);
-                    });
+                let count_tasks = sudoku_processing_unit.len();
+                let chunk_size =
+                    count_tasks / num_threads + if count_tasks % num_threads != 0 { 1 } else { 0 };
 
-                save_sudokus(output_path, sudoku_processing_unit);
+                // split sudoku_processing_unit into chunks:
+                let mut chunks: Vec<Vec<SudokuPuzzle>> = Vec::new();
+                for _ in 0..num_threads {
+                    let mut container = vec![];
+                    for _ in 0..chunk_size {
+                        match sudoku_processing_unit.pop() {
+                            Some(s) => container.push(s),
+                            None => (), // do nothing
+                        };
+                    }
+                    chunks.push(container);
+                }
+
+                // process each chunk in a thread:
+                let mut handles = vec![];
+                for mut chunk in chunks {
+                    let handle = thread::spawn(move || {
+                        for task in &mut chunk {
+                            solve_current_sudoku(task);
+                        }
+                        // return the result:
+                        chunk
+                    });
+                    handles.push(handle);
+                }
+
+                // collect all results from the threads,
+                // note the handles are sorted, so are the results:
+                let mut results: Vec<SudokuPuzzle> = Vec::new();
+                for handle in handles {
+                    let processed_chunk = handle.join().unwrap();
+                    results.extend(processed_chunk);
+                }
+
+                // we need to reverse the order:
+                results.reverse();
+                save_sudokus(output_path, results);
             }
         }
         Err(error) => {
