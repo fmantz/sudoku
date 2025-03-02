@@ -20,6 +20,7 @@ use crate::sudoku_constants::SQUARE_SIZE;
 use crate::sudoku_constants::{BITSET_ARRAY, BITSET_LENGTH, CELL_COUNT, PUZZLE_SIZE};
 use std::fmt::{Display, Formatter};
 
+#[derive(Debug)]
 pub struct SudokuPuzzle {
     my_is_solvable: bool,
     my_is_solved: bool,
