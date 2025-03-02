@@ -223,10 +223,16 @@ parallelization, formatting, a test framework, benchmark tests, profiling, race 
 
 ## Update: Version 1.0 (Scala Native started do support multithreading!)
 
-In this version I upgraded library versions and changed the parallelization in the Scala version from '.par' array to plain futures. 
-When I changed this, the version of Scala Native 0.5 was in Beta stage and did not support '.par' arrays but for the first time multithreading (now I use Scala Native Version 0.5.4). 
-Again, you can find the results here [./performance/version_1.0-result](./performance/version_1.0-result).
+In this version, I upgraded library versions and changed the parallelization in the Scala implementation from using .par arrays to plain futures.
+At the time of this change, Scala Native 0.5 was still in the Beta stage and did not support .par arrays, but for the first time, it introduced multithreading (I now use Scala Native version 0.5.4).
+As always, you can find the results here: [./performance/version_1.0-result](./performance/version_1.0-result).
 
 ## Update: Version 1.0.1 (Version updates!)
 
 Version updates...e.g. Scala Native 0.5.6. Again, you can find the results here [./performance/version_1.0.1-result](./performance/version_1.0.1-result).
+
+## Update: Version 1.0.2 (Removed Rayon!)
+
+In this version, I have finally removed the only Rust dependency (Rayon), so that no implementation has any dependencies except in tests.
+As a result, memory consumption has increased for the Rust program, and execution time has slightly increased as well.
+As always, you can find the results here: [./performance/version_1.0.2-result](./performance/version_1.0.2-result).

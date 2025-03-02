@@ -64,7 +64,7 @@ ADD golang ./golang
 RUN cd ./golang && go test ./... && go build
 
 # compile natively prepare_data script:
-ADD performance ./performance
+ADD performance/prepare_data.sc ./performance/prepare_data.sc
 RUN cd ./performance && scala-cli --power package --native prepare_data.sc -o prepare_data -f
 
 #
@@ -88,3 +88,4 @@ COPY --from=0 /workdir/rustlang/target/release/sudoku                         ./
 COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku-assembly-1.0.2.jar ./sudoku-scala.jar
 COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku                    ./sudoku-scalanative
 COPY --from=0 /workdir/golang/golang                                          ./sudoku-golang
+COPY --from=0 /workdir/performance/prepare_data                               ./prepare_data
