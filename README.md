@@ -51,7 +51,7 @@ This Docker run will:
 5. Third, solve all Sudokus with the Scala JAR version of my program.
 6. Fourth, solve all Sudokus with the Scala NATIVE version of my program (version <= Version 0.2). 
 7. Create two CSVs files `mem.csv` (in kb) and `time.csv` collecting the current performance measures from the log-files.
-8. Continue with Step 2 to process the next level until Level 4.
+8. Continue with Step 2 to process the next level until Level 6.
 
 ## Results
 
@@ -80,7 +80,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:1.0 bash
+docker container run -it --name sudoku sudoku:1.0.2 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:

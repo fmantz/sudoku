@@ -58,8 +58,10 @@ fi
 let NUMBER_OF_PUZZLES=$(($NUMBER_OF_PUZZLES*10))
 
 # Update result csvs:
-# echo /root/performance/prepare_data.sc /root/performance/${NEWDIR}
-/root/performance/prepare_data.sc /root/performance/${NEWDIR}
+echo /root/performance/prepare_data /root/performance/${NEWDIR}
+/root/performance/prepare_data /root/performance/${NEWDIR}
+
+chmod -R 666 /root/performance/${NEWDIR}
 
 done
 
