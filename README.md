@@ -15,7 +15,7 @@ However, if you look for a really fast Sudoku solver try:
 My approach was:
 
 * I developed a Scala version first. I did not use any third party libraries. I didn't think about JVM specific performance bottlenecks like 'array 2ds are slow'.
-* Afterwards I developed a version in Rust. Since this is my first Rust program the code may look a bit awkward to Rust developers, I apologize. I tried to copy the Scala code as much as possible. There is for every method / test in the Scala code a corresponding method / test in the Rust code.   
+* Afterward I developed a version in Rust. Since this is my first Rust program the code may look a bit awkward to Rust developers, I apologize. I tried to copy the Scala code as much as possible. There is for every method / test in the Scala code a corresponding method / test in the Rust code.   
 * I measured the performance (wall time, peak memory) with a unix tool **/usr/bin/time** (note, it is **NOT** the shell 'time' command).
 
 ## Build:
@@ -44,20 +44,20 @@ docker-compose up
 This Docker run will:
 
 1. Create a subdirectory in folder ./performance with a timestamp.
-2. Generate x Sudokus for each level (Level 1 = 1 Sudoku, Level 2 = 10 Sudokus, Level 3 = 100 Sudokus ...). Four levels are currently set. 
+2. Generate x Sudoku for each level (Level 1 = 1 Sudoku, Level 2 = 10 Sudokus, Level 3 = 100 Sudokus ...). Four levels are currently set. 
   Note, the number of levels can be changed in file **[./performance/test.sh](./performance/test.sh)**.
-3. First, solve all Sudokus of the current level very fast with QQWing.
-4. Second, solve all Sudokus with the Rust version of my program.
-5. Third, solve all Sudokus with the Scala JAR version of my program.
-6. Fourth, solve all Sudokus with the Scala NATIVE version of my program (version <= Version 0.2). 
+3. First, solve all Sudoku of the current level very fast with QQWing.
+4. Second, solve all Sudoku with the Rust version of my program.
+5. Third, solve all Sudoku with the Scala JAR version of my program.
+6. Fourth, solve all Sudoku with the Scala NATIVE version of my program (version <= Version 0.2). 
 7. Create two CSVs files `mem.csv` (in kb) and `time.csv` collecting the current performance measures from the log-files.
 8. Continue with Step 2 to process the next level until Level 6.
 
 ## Results
 
-* The Scala code is more comprehensive than the Rust code but much less then I first thought. 
-* I did not expect such a big difference but the Rust program is much faster then both Scala versions, also the peak memory is muss less then the Scala JAR version.
-* The startup time of the Scala NATIVE version is a bit faster then the Scala JAR version but the overall performance is the opposite when solving many Sudokus.
+* The Scala code is more comprehensive than the Rust code but much less than I first thought. 
+* I did not expect such a big difference but the Rust program is much faster than both Scala versions, also the peak memory is much less than in the Scala JAR version.
+* The startup time of the Scala NATIVE version is a bit faster than the Scala JAR version but the overall performance is the opposite when solving many Sudoku.
 * However, the memory consumption of the Scala NATIVE version is much lower than the Scala JAR version. 
 
 I put the results of my test with 6 levels into folder [./performance/version_0.1-result](./performance/version_0.1-result). I run it in Docker on my local linux machine:
@@ -92,7 +92,7 @@ The **/root** directory (also current directory) will contain all command line p
 
 ## Update: Version 0.2
 
-Since my sudoku program was a bit slow, I thought about speeding it up a bit. Therefore, I developed a 'turbo' for my algorithm which does two things:
+Since my Sudoku program was a bit slow, I thought about speeding it up a bit. Therefore, I developed a 'turbo' for my algorithm which does two things:
 
 * Speedup the check if the conditions are satisfied by using precomputed bitsets.
 * Starting to search a solution in the rows and columns having the most entries first. 
@@ -203,15 +203,15 @@ Comparing the CUDA version with the RUST version manually, (without my docker te
 |  100000 | 948.916880s | 25.024930099s |
 
 I assume unless I do not have a much better GPU than the CPU, I am better of with solving such problems on the CPU.
-Anyway, I learnt something, lets move on, maybe to "golang"? 
+Anyway, I learnt something, lets move on, maybe to "Golang"? 
 
 ## Update: Version 0.9 (golang here we go!)
 
 What have I done? I did some small cleanups in the Rust and Scala versions, added some Rust compiler optimization flags, moved from Scala 2.11 to Scala 2.13 with OpenJdk 11 Eclipse Temurin. 
 And finally added a Golang version! It was fun to program Golang, at least the syntax can be picked up quite fast ... To my surprise the Scala version became much faster (more than factor two)
 with the new Scala SDK/Java JDK, the memory consumption became worse. Even I added some compiler flags the already fast Rust solver did not change its performance. 
-The new Golang Sudoku solver was, as expected, between the Scala and Rust version in respect to performance and memory consumption. Up to 1000 Sudokus the Golang version was 
-even the fastest. Golang has a minimum of startup time! However, I assume the Rust version is slower (up to 1000 Sudokus) because of 'Rayon' the parallelization library I had to use since I did not want 
+The new Golang Sudoku solver was, as expected, between the Scala and Rust version in respect to performance and memory consumption. Up to 1000 Sudoku the Golang version was 
+even the fastest. Golang has a minimum of startup time! However, I assume the Rust version is slower (up to 1000 Sudoku) because of 'Rayon' the parallelization library I had to use since I did not want 
 to implement a thread pool myself. Rayon is optimized for throughput not short startup times, maybe Rust async would have been a better choice in this respect. 
 
 As usual, you can find the results here [./performance/version_0.9-result](./performance/version_0.9-result).
