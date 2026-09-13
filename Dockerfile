@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 WORKDIR /workdir
 
 RUN apt-get -qq --yes update 
@@ -36,10 +36,10 @@ WORKDIR $SDKMAN_DIR
 RUN [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh" && exec "$@"
 
 RUN source /root/.bashrc
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install java 23.0.2-tem
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.6.3
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install sbt 1.10.7
-RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scalacli 1.6.2
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install java 26.0.2+1.1-tem
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scala 3.9.0
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install sbt 2.0.8
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install scalacli 1.17.0
 
 # Install requirements for scala native:
 RUN apt -qq --yes install clang libunwind-dev
@@ -85,7 +85,7 @@ WORKDIR /root/
 
 # Move all assembly into ./
 COPY --from=0 /workdir/rustlang/target/release/sudoku                         ./sudoku-rust
-COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku-assembly-1.0.2.jar ./sudoku-scala.jar
-COPY --from=0 /workdir/scalalang/target/scala-3.6.3/sudoku                    ./sudoku-scalanative
+COPY --from=0 /workdir/scalalang/target/scala-3.9.0/sudoku-assembly-1.0.3.jar ./sudoku-scala.jar
+COPY --from=0 /workdir/scalalang/target/scala-3.9.0/sudoku                    ./sudoku-scalanative
 COPY --from=0 /workdir/golang/golang                                          ./sudoku-golang
 COPY --from=0 /workdir/performance/prepare_data                               ./prepare_data

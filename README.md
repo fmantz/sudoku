@@ -23,8 +23,8 @@ My approach was:
 To easily try it yourself, I added a Docker-build file to the project. Use the tags to choose one of the available versions (it might be that you need to update the base image to a newer version):
 
 ```bash
-git checkout tags/version-1.0.2 -b v1.0.2
-docker build . --tag sudoku:1.0.2
+git checkout tags/version-1.0.3 -b v1.0.3
+docker build . --tag sudoku:1.0.3
 ```
 
 This Docker build will:
@@ -80,7 +80,7 @@ Used programming language versions:
 Commands can be manually run by:
 
 ```bash
-docker container run -it --name sudoku sudoku:1.0.2 bash
+docker container run -it --name sudoku sudoku:1.0.3 bash
 ```
 
 The **/root** directory (also current directory) will contain all command line programs:
@@ -236,3 +236,7 @@ Version updates...e.g. Scala Native 0.5.6. Again, you can find the results here 
 In this version, I have finally removed the only Rust dependency (Rayon), so that no implementation has any dependencies except in tests.
 As a result, memory consumption has increased for the Rust program, and execution time has slightly increased as well.
 As always, you can find the results here: [./performance/version_1.0.2-result](./performance/version_1.0.2-result).
+
+## Update: Version 1.0.3 (Updated scala & go versions)
+
+Updated scala & go versions. No code was changed. Updated results you find here: [./performance/version_1.0.3-result](./performance/version_1.0.3-result).
