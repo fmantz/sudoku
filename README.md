@@ -237,6 +237,6 @@ In this version, I have finally removed the only Rust dependency (Rayon), so tha
 As a result, memory consumption has increased for the Rust program, and execution time has slightly increased as well.
 As always, you can find the results here: [./performance/version_1.0.2-result](./performance/version_1.0.2-result).
 
-## Update: Version 1.0.3 (Updated scala & go versions)
+## Update: Version 1.0.3 (Updated jdk & scala & go versions)
 
-Updated scala & go versions. No code was changed. Updated results you find here: [./performance/version_1.0.3-result](./performance/version_1.0.3-result).
+Updated jdk & scala & go versions. No code was changed. Updated results you find here: [./performance/version_1.0.3-result](./performance/version_1.0.3-result).
