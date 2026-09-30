@@ -240,3 +240,4 @@ As always, you can find the results here: [./performance/version_1.0.2-result](.
 ## Update: Version 1.0.3 (Updated jdk & scala & go versions)
 
 Updated jdk & scala & go versions. No code was changed. Updated results you find here: [./performance/version_1.0.3-result](./performance/version_1.0.3-result).
+The results did not change much.
