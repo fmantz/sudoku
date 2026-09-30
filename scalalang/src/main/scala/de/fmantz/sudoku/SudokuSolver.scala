@@ -22,7 +22,7 @@ package de.fmantz.sudoku
 
 import java.io.File
 import de.fmantz.sudoku.SudokuIO.{read, write}
-import de.fmantz.sudoku.sudoku.BitmaskSudokuSolver
+import de.fmantz.sudoku.BitmaskSudokuSolver
 
 import scala.concurrent.duration.Duration
 

@@ -22,7 +22,7 @@ package de.fmantz.sudoku
 
 import de.fmantz.sudoku.SudokuConstants.{PuzzleSize, SquareSize}
 import de.fmantz.sudoku.SudokuIO.read
-import de.fmantz.sudoku.sudoku.BitmaskSudokuSolver
+import de.fmantz.sudoku.BitmaskSudokuSolver
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
