@@ -22,6 +22,7 @@ package de.fmantz.sudoku
 
 import de.fmantz.sudoku.SudokuConstants.{PuzzleSize, SquareSize}
 import de.fmantz.sudoku.SudokuIO.read
+import de.fmantz.sudoku.sudoku.BitmaskSudokuSolver
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -48,7 +49,7 @@ class SudokuPuzzleTests extends AnyFlatSpec with Matchers {
         .zipWithIndex.foreach({ case (sudoku, index) =>
         val sudokuNumber = index + 1
         val input = sudoku.toString
-        sudoku.solve()
+        BitmaskSudokuSolver.solve(sudoku)
         val output = sudoku.toString
         require(checkSolution(sudoku), s"Sudoku $sudokuNumber is not solved:\n${sudoku.toPrettyString}")
         require(input.length == output.length, "Sudoku strings have not same length")

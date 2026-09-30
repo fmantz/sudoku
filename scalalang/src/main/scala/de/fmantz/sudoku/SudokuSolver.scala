@@ -22,10 +22,10 @@ package de.fmantz.sudoku
 
 import java.io.File
 import de.fmantz.sudoku.SudokuIO.{read, write}
+import de.fmantz.sudoku.sudoku.BitmaskSudokuSolver
 
 import scala.concurrent.duration.Duration
 
-//import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
 import scala.concurrent.{Await, Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -49,7 +49,8 @@ object SudokuSolver {
 					.grouped(SudokuConstants.ParallelizationCount)
 					.foreach({ g =>
 						val puzzlesSolvedF: Iterator[Future[SudokuPuzzle]] = g.map({ sudoku => Future {
-							solveCurrentSudoku(sudoku); sudoku //solve in parallel!
+							// NOTE: here I use the AI generated SUDOKU solver instead
+							BitmaskSudokuSolver.solve(sudoku); sudoku //solve in parallel!
 						}}).iterator
 						val puzzlesSolved = puzzlesSolvedF.map(Await.result(_, Duration.Inf))
 						write(outputPath, puzzlesSolved)
