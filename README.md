@@ -246,4 +246,4 @@ The results did not change much.
 
 I wanted to play around with AI, so I asked Gemini in Google's AI mode to generate an efficient Sudoku solver in Scala. Afterwards, I asked it to fix two compiler warnings. The only manual change I made was defining the board as a SudokuPuzzle instead of an Array[Array[Int]].
 By default, Gemini generated a recursive solution rather than an iterative one. However, in Version 0.6, I switched to an iterative approach because I planed to use the algorithm with CUDA later on. I only updated the Scala algorithms (not Rust / Cuda / Go).
-It is quite impressive that the AI-generated solutions outperformed my previous implementation by 5 times, even though the memory consumption is significantly higher. You can find the results here: [./performance/version_ki_branch(./performance/version_ki_branch).
+It is quite impressive that the AI-generated solutions outperformed my previous implementation by 5 times, even though the memory consumption is significantly higher. You can find the results here: [./performance/version_ki_branch](./performance/version_ki_branch).
